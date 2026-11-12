@@ -25,9 +25,6 @@ monitor:
   - repo: mklab-se/lykta
     workflow: ci.yml
     name: Lykta CI
-  - repo: mklab-se/lykta
-    workflow: release.yml
-    name: Lykta release
 
 # Optional: describe where jobs run. The first matching rule wins.
 runners:

@@ -21,13 +21,15 @@ export async function runCheck(
   const reachable = new Set<string>();
   for (const [org, o] of Object.entries(config.organizations)) {
     try {
-      const { data } = await client.json<{ rate: { remaining: number; limit: number } }>(
-        org,
-        "/rate_limit",
-      );
+      // API 2026-03-10 has no top-level "rate"; the core limit is under resources
+      const { data } = await client.json<{
+        resources?: { core?: { remaining: number; limit: number } };
+      }>(org, "/rate_limit");
       reachable.add(org);
+      const core = data.resources?.core;
+      const rate = core ? ` (rate ${core.remaining}/${core.limit})` : "";
       lines.push(
-        `✓ ${org}: signed in with ${o.auth === "app" ? "the GitHub App" : "a token"} (rate ${data.rate.remaining}/${data.rate.limit})`,
+        `✓ ${org}: signed in with ${o.auth === "app" ? "the GitHub App" : "a token"}${rate}`,
       );
     } catch (e) {
       ok = false;

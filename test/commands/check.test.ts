@@ -18,7 +18,11 @@ function api(): GitHubApi {
           "No GitHub App installation for acme: install the App in that organization",
         );
       if (path === "/rate_limit")
-        return { data: { rate: { remaining: 4990, limit: 5000 } } as T, notModified: false };
+        return {
+          // the real 2026-03-10 shape: no top-level "rate" any more
+          data: { resources: { core: { remaining: 4990, limit: 5000, used: 10, reset: 0 } } } as T,
+          notModified: false,
+        };
       if (path.includes("ci.yml/runs"))
         return {
           data: {
