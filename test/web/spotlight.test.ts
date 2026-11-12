@@ -174,4 +174,22 @@ describe("spotlight", () => {
     expect(s.current?.final).toBe(true);
     expect(inPit(again, s, T + S, timings)).toBe(false);
   });
+
+  test("running workflows still get turns when passes keep finishing", () => {
+    // a pass finishes every 10 s while two workflows keep running
+    const entries = (now: number) => [
+      running("r1"),
+      running("r2"),
+      ...Array.from({ length: 30 }, (_, i) => {
+        const end = T + (i + 1) * 10 * S;
+        return now >= end ? passed(`p${i}`, end) : passed(`p${i}`, T - 3600 * S);
+      }),
+    ];
+    const { shown } = play(entries, T, 200);
+    const turns = shown
+      .filter(([, k], i) => k !== null && shown[i - 1]?.[1] !== k)
+      .map(([, k]) => k);
+    const runningTurns = turns.filter((k) => k === "r1" || k === "r2").length;
+    expect(runningTurns).toBeGreaterThanOrEqual(Math.floor(turns.length / 3));
+  });
 });

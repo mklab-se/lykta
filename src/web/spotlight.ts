@@ -30,6 +30,8 @@ export interface SpotlightState {
   turnAt: number;
   endedAt: number;
   cursor: string | null;
+  /** The last turn was a pass's last turn: the next one goes to a running workflow. */
+  lastWasPass: boolean;
   /** Finished runs that had their last turn (or were already finished at start). */
   done: Set<string>;
   seeded: boolean;
@@ -42,6 +44,7 @@ export function emptySpotlight(): SpotlightState {
     turnAt: Number.NEGATIVE_INFINITY,
     endedAt: Number.NEGATIVE_INFINITY,
     cursor: null,
+    lastWasPass: false,
     done: new Set(),
     seeded: false,
   };
@@ -104,12 +107,15 @@ export function nextSpotlight(
   const waiting = finished.filter((e) => !s.done.has(runKeyOf(e)));
   const stale = waiting.filter((e) => !e.failing && ageMs(e, now, t) > PASS_STALE_MS);
   if (stale.length) s = { ...s, done: new Set([...s.done, ...stale.map(runKeyOf)]) };
-  const next = waiting.find((e) => e.failing) ?? waiting.find((e) => !stale.includes(e));
+  const running = entries.filter((e) => e.state === "running").map((e) => e.key);
+  // passes alternate with running workflows, so a busy wall still shows what is running
+  const pass =
+    s.lastWasPass && running.length ? undefined : waiting.find((e) => !stale.includes(e));
+  const next = waiting.find((e) => e.failing) ?? pass;
   if (next) {
     const spot = { key: next.key, runKey: runKeyOf(next), final: true };
-    return { ...s, current: spot, shownAt: now, turnAt: now };
+    return { ...s, current: spot, shownAt: now, turnAt: now, lastWasPass: !next.failing };
   }
-  const running = entries.filter((e) => e.state === "running").map((e) => e.key);
   if (!running.length) return s;
   const at = s.cursor ? running.indexOf(s.cursor) : -1;
   const key = running[(at + 1) % running.length] as string;
@@ -119,6 +125,7 @@ export function nextSpotlight(
     shownAt: now,
     turnAt: now,
     cursor: key,
+    lastWasPass: false,
   };
 }
 
