@@ -122,4 +122,15 @@ describe("computeLayout", () => {
   test("empty state layout", () => {
     expect(computeLayout(state({}), screen, 0).empty).toBe(true);
   });
+
+  test("held runs take running space, not failure or monitored space", () => {
+    const st = state({ failed: 2, passed: 3 });
+    const held = new Set(["failed0", "passed0"]);
+    const p = computeLayout(st, screen, 2, held);
+    expect(p.failures?.columns).toBe(1); // only failed1 is in the band
+    expect(p.running).not.toBeNull();
+    expect(p.monitored.columns * p.monitored.rows).toBeGreaterThanOrEqual(2);
+    // nothing held: both failures are cards in the band
+    expect(computeLayout(st, screen, 0).failures?.columns).toBe(2);
+  });
 });

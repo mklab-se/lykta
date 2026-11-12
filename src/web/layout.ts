@@ -174,8 +174,10 @@ export function computeLayout(
   state: DashboardState,
   canvas: { width: number; height: number },
   runningCount: number,
+  /** Finished runs still shown big (see holds.ts): counted in runningCount, not elsewhere. */
+  held: ReadonlySet<string> = new Set(),
 ): LayoutPlan {
-  const entries = state.entries;
+  const entries = state.entries.filter((e) => !held.has(e.key));
   const W = canvas.width - 2 * SIDE;
   const H = Math.max(0, canvas.height - HEADER - BOTTOM);
   const monitoredCount = entries.filter(isMonitoredOnly).length;
@@ -190,7 +192,7 @@ export function computeLayout(
   const running = runningPlan(runningCount, W, rest, monitoredCount ? MONITORED_MIN : 0);
   const monitoredHeight = Math.max(0, rest - (running ? running.height + LABEL + GAP : 0));
   return {
-    empty: entries.length === 0,
+    empty: state.entries.length === 0,
     failures,
     running,
     monitored: monitoredPlan(monitoredCount, W, monitoredHeight),
