@@ -1139,3 +1139,110 @@ body {
   color: var(--muted);
   padding: 0 4px;
 }
+
+/* ---------- held runs: a run that just finished stays big for a while ---------- */
+.run.held.failed {
+  background: linear-gradient(160deg, #2a070c 0%, #140306 60%, #0d0204 100%);
+  border-color: var(--red);
+  box-shadow: 0 0 60px rgba(255, 61, 77, 0.25);
+}
+.run.held.failed .tag {
+  color: var(--red);
+}
+.run.held.failed .progress,
+.run.held.failed .elapsed {
+  color: #ffb3ba;
+}
+.run.held.passed {
+  background: linear-gradient(160deg, #06210f 0%, #04120a 70%);
+  border-color: var(--green);
+}
+.run.held.passed .tag {
+  color: var(--green);
+}
+.run.held.passed .progress,
+.run.held.passed .elapsed {
+  color: #9cefc0;
+}
+.run.held .elapsed {
+  font-size: 20px;
+  font-weight: 600;
+}
+.rrow.held.failed {
+  border-color: rgba(255, 61, 77, 0.6);
+  background: #1c0508;
+}
+.rrow.held.failed .el {
+  color: var(--red);
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.rrow.held.passed {
+  border-color: rgba(47, 224, 127, 0.5);
+  background: #05160b;
+}
+.rrow.held.passed .el {
+  color: var(--green);
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.rrow.held .r3 {
+  color: #ffd5d9;
+}
+.rrow .shrinks {
+  font-size: 15px;
+  color: var(--muted);
+}
+.node .step.failed {
+  color: #ff8a94;
+  font-weight: 700;
+}
+.node.failure {
+  box-shadow: 0 0 24px rgba(255, 61, 77, 0.45);
+}
+
+/* where it broke and the error message: the biggest text on a failure */
+.what {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.what .where {
+  font-size: 22px;
+  color: #ffd5d9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.what .x {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #000;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 16px;
+  flex: none;
+}
+.what .errline {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #ff8a94;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.what.big .errline {
+  font-size: 30px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

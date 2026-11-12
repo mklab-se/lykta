@@ -10,6 +10,13 @@ type Plan = NonNullable<LayoutPlan["failures"]>;
 const ERROR_LINE = /error|FAILED|failed|Error|timeout|not found/;
 const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
 
+/**
+ * A failure that is not re-running shares its identity with the run card it came from, so
+ * when a held run's time is up it morphs into this card. While it re-runs it is in both
+ * places at once and keeps its own.
+ */
+const failLayoutId = (e: EntryView) => (e.state === "running" ? `fail:${e.key}` : e.key);
+
 function broken(e: EntryView, now: number): string {
   return e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
 }
@@ -36,7 +43,7 @@ function FailCard(props: {
 }) {
   const { e, now } = props;
   const commonProps = {
-    layoutId: `fail:${e.key}`,
+    layoutId: failLayoutId(e),
     layoutDependency: `${e.state}:${props.small}`,
     initial: { opacity: 0, scale: 0.96 },
     animate: { opacity: 1, scale: 1 },
@@ -125,7 +132,7 @@ function FailRow(props: {
         : "";
   return (
     <motion.div
-      layoutId={`fail:${e.key}`}
+      layoutId={failLayoutId(e)}
       layoutDependency={e.state}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

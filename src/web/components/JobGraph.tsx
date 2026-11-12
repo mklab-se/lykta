@@ -74,12 +74,18 @@ function Node(props: { run: RunRecord; n: GraphNode }) {
           {count("success")} done · {count("running")} running
           {failed ? <span style={{ color: "var(--red)" }}> · {failed} failed</span> : null}
         </div>
+        {failed ? (
+          <div className="step failed ellipsis">
+            ✕ {n.jobs.find((x) => x.status === "failure")?.name}
+          </div>
+        ) : null}
         <GroupWhere jobs={n.jobs} />
       </div>
     );
   }
   const j = n.jobs[0] as JobRecord;
   const step = j.steps.find((s) => s.status === "running");
+  const failedStep = j.steps.find((s) => s.status === "failure");
   return (
     <div className={`node ${n.status}`} data-node={key}>
       <div className="row">
@@ -88,6 +94,9 @@ function Node(props: { run: RunRecord; n: GraphNode }) {
       </div>
       {n.status !== "queued" && n.status !== "skipped" ? (
         <RunnerBadge runner={j.runner} short />
+      ) : null}
+      {n.status === "failure" && failedStep ? (
+        <div className="step failed ellipsis">✕ {failedStep.name}</div>
       ) : null}
       {n.status === "running" ? (
         <>
