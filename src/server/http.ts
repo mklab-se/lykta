@@ -63,7 +63,7 @@ function events(hub: Hub): Response {
         cleanup();
       },
     },
-    { highWaterMark: MAX_QUEUED_BYTES, size: (chunk) => chunk.byteLength },
+    { highWaterMark: MAX_QUEUED_BYTES, size: (chunk) => chunk?.byteLength ?? 0 },
   );
   return new Response(stream, {
     headers: {
