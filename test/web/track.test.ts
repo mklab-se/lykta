@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { gridShape, pitMode, pitWidth, trackLayout } from "../../src/web/track.ts";
+import { gridShape, pitMode, pitWidth, spotlightBox, trackLayout } from "../../src/web/track.ts";
 
 const W = 1840;
 const H = 970;
@@ -44,5 +44,20 @@ describe("track geometry", () => {
     expect(trackLayout(6, 0, { width: 1920, height: 1080 }).unit).toBe("xl");
     expect(trackLayout(16, 0, { width: 1920, height: 1080 }).unit).toBe("big");
     expect(["small", "tiny"]).toContain(trackLayout(100, 0, { width: 1920, height: 1080 }).unit);
+  });
+
+  test("few cars in the pit share its whole height", () => {
+    expect(pitMode(1, H).cardHeight).toBe(H);
+    expect(pitMode(2, H).cardHeight).toBe((H - 14) / 2);
+    expect(pitMode(3, H).cardHeight).toBeGreaterThanOrEqual(260);
+  });
+
+  test("the spotlight is a window over the track, with the blurred tiles around it", () => {
+    const layout = trackLayout(9, 1, { width: 1920, height: 1080 });
+    const box = spotlightBox(layout);
+    expect(box.width).toBeLessThanOrEqual(layout.gridWidth * 0.8);
+    expect(box.height).toBeLessThanOrEqual(layout.height * 0.8);
+    expect(Math.abs(box.left - (layout.gridWidth - box.width) / 2)).toBeLessThanOrEqual(1);
+    expect(Math.abs(box.top - (layout.height - box.height) / 2)).toBeLessThanOrEqual(1);
   });
 });

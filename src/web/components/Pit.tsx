@@ -7,8 +7,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { formatDuration } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
 import type { TrackLayout } from "../track.ts";
-import { FailureWhat } from "./FailureWhat.tsx";
+import { FailureWhat, shortenPaths } from "./FailureWhat.tsx";
 import { ProgressStrip } from "./ProgressStrip.tsx";
+import { RunnerBadge } from "./RunnerBadge.tsx";
 
 const broken = (e: EntryView, now: number) =>
   e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
@@ -77,8 +78,25 @@ function Car(props: {
         <div className="problem">{e.problem}</div>
       ) : (
         <>
+          {mode === "card" && run ? (
+            <div className="carsub">
+              <span className="ellipsis">{`${run.sha.slice(0, 7)} · ${run.actor}`}</span>
+              <RunnerBadge runner={f?.runner} />
+            </div>
+          ) : null}
           {run?.jobs.length ? <ProgressStrip jobs={run.jobs} labels={mode === "card"} /> : null}
-          <FailureWhat e={e} max={mode === "card" ? 2 : 1} />
+          <FailureWhat e={e} max={mode === "card" ? 3 : 1} />
+          {mode === "card" && f?.logExcerpt.length ? (
+            // what led up to it, as many lines as the car has room for (newest at the bottom)
+            <div className="carlog">
+              {f.logExcerpt
+                .filter((l) => !f.errors?.includes(l))
+                .map((l, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: log lines are positional
+                  <div key={i}>{shortenPaths(l)}</div>
+                ))}
+            </div>
+          ) : null}
         </>
       )}
     </motion.div>

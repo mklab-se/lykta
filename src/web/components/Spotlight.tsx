@@ -12,6 +12,9 @@ export function Spotlight(props: {
   final: boolean;
   width: number;
   height: number;
+  /** Where the window sits over the track (centred, tiles visible around it). */
+  left?: number;
+  top?: number;
   now: number;
   onOpen: (key: string) => void;
 }) {
@@ -23,7 +26,7 @@ export function Spotlight(props: {
     <motion.div
       className="spotlight"
       data-entry={e.key}
-      style={{ width: props.width, height: props.height }}
+      style={{ width: props.width, height: props.height, left: props.left, top: props.top }}
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.5 } }}

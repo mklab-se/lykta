@@ -14,7 +14,7 @@ import { useAutoClose } from "./idle.ts";
 import { usePowerMode } from "./power.ts";
 import { emptySpotlight, inPit, nextSpotlight, type Timings } from "./spotlight.ts";
 import { isStale, useDashboard } from "./stream.ts";
-import { GAP, singleRepo, trackLayout } from "./track.ts";
+import { GAP, singleRepo, spotlightBox, trackLayout } from "./track.ts";
 
 /** A clock that ticks once per second (live values never update faster). */
 export function useNow(): number {
@@ -159,8 +159,7 @@ export function App() {
                       key={`${spot.current.key}:${spot.shownAt}`}
                       e={spotEntry}
                       final={spot.current.final}
-                      width={layout.gridWidth - 80}
-                      height={layout.height - 60}
+                      {...spotlightBox(layout)}
                       now={now}
                       onOpen={open}
                     />

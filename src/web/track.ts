@@ -40,10 +40,17 @@ export function pitWidth(failures: number, width: number): number {
   return Math.round(Math.min(640, Math.max(480, 0.3 * width)));
 }
 
-/** How dense the pit's cards are; the last slot says "+N more" when even rows do not fit. */
+/**
+ * How dense the pit's cards are. Few cards share the pit's whole height (a lone car fills it,
+ * with room for its log); the last slot says "+N more" when even rows do not fit.
+ */
 export function pitMode(n: number, height: number) {
   const fits = (mode: PitMode) => Math.floor((height + GAP) / (PIT_HEIGHT[mode] + GAP));
-  for (const mode of ["card", "compact"] as const)
+  if (n > 0 && fits("card") >= n) {
+    const cardHeight = (height - (n - 1) * GAP) / n;
+    return { mode: "card" as const, shown: n, hidden: 0, cardHeight };
+  }
+  for (const mode of ["compact"] as const)
     if (fits(mode) >= n) return { mode, shown: n, hidden: 0, cardHeight: PIT_HEIGHT[mode] };
   const room = Math.max(1, fits("row"));
   const shown = n > room ? room - 1 : n;
@@ -84,6 +91,18 @@ export function trackLayout(
 }
 
 export type TrackLayout = ReturnType<typeof trackLayout>;
+
+/** The spotlight's window: about three quarters of the track, centred, tiles visible around it. */
+export function spotlightBox(layout: TrackLayout) {
+  const width = Math.round(layout.gridWidth * 0.76);
+  const height = Math.round(layout.height * 0.76);
+  return {
+    width,
+    height,
+    left: Math.round((layout.gridWidth - width) / 2),
+    top: Math.round((layout.height - height) / 2),
+  };
+}
 
 /** Every entry is in the same repository, so its name need not be repeated on each one. */
 export const singleRepo = (entries: { repo: string }[]) =>

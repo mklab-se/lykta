@@ -148,6 +148,16 @@ describe("pit", () => {
     expect(html).toContain("…/Main.java:12: error: cannot find symbol");
   });
 
+  test("a lone car uses the whole pit: commit, author and the log leading up to the error", () => {
+    const layout = trackLayout(6, 1, canvas);
+    const html = renderToString(
+      <Pit entries={[failedEntry("x")]} layout={layout} now={NOW} onOpen={() => {}} />,
+    );
+    expect(html).toContain("abcdef1 · anna");
+    expect(html).toContain('class="carlog"');
+    expect(html).toContain("compiling");
+  });
+
   test("a missing workflow is in the pit with its problem", () => {
     const layout = trackLayout(6, 1, canvas);
     const html = renderToString(
