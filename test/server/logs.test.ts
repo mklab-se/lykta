@@ -113,4 +113,30 @@ describe("logs", () => {
     ];
     expect(failureExcerpt(lines, "make")).toEqual(["compiling a.c", "a.c:1: error: boom"]);
   });
+
+  test("step not found by name: the section holding the first error, not the runner's set-up", () => {
+    const lines = [
+      "##[group]Runner Image",
+      "Current runner version: '2.330.0'",
+      "##[endgroup]",
+      "Prepare workflow directory",
+      "##[group]Run sleep 20",
+      "sleep 20",
+      "##[endgroup]",
+      "flashed pixel-9",
+      "##[group]Run sleep 15",
+      "sleep 15",
+      "##[endgroup]",
+      "waiting for device pixel-9 to boot",
+      "adb: error: device 'pixel-9' offline",
+      "##[error]Boot check failed",
+      "##[group]Run cleanup",
+      "cleaned",
+    ];
+    expect(failureExcerpt(lines, "Boot check")).toEqual([
+      "waiting for device pixel-9 to boot",
+      "adb: error: device 'pixel-9' offline",
+      "Boot check failed",
+    ]);
+  });
 });

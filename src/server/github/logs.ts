@@ -51,12 +51,24 @@ function around(lines: { text: string; error: boolean }[], max: number): string[
   return lines.slice(Math.max(0, end - max), end).map((l) => l.text);
 }
 
-/** The failing step's own section, or the whole log when the step cannot be found. */
+/**
+ * The failing step's own section. GitHub titles a run step by its command, so the name often
+ * is not there: then the step section holding the first error, else the whole log.
+ */
 function section(lines: string[], failedStep: string): string[] {
-  const start = lines.findIndex(
+  let start = lines.findIndex(
     (l) => l === `##[group]${failedStep}` || l === `##[group]Run ${failedStep}`,
   );
-  if (start < 0) return lines;
+  if (start < 0) {
+    const firstError = lines.findIndex((l) => l.startsWith("##[error]") && !EXIT_LINE.test(l));
+    if (firstError < 0) return lines;
+    for (let i = firstError; i >= 0; i--)
+      if (isStepStart(lines[i] as string)) {
+        start = i;
+        break;
+      }
+    if (start < 0) return lines;
+  }
   let end = lines.length;
   for (let i = start + 1; i < lines.length; i++) {
     if (isStepStart(lines[i] as string)) {
