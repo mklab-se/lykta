@@ -1765,7 +1765,13 @@ body {
   height: 16px;
 }
 .tile.xl .nm {
-  font-size: 52px;
+  font-size: 46px;
+  /* room for two lines rather than cutting the name */
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .tile.xl .sub {
   font-size: 22px;
