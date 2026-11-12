@@ -16,7 +16,9 @@ export type HubState = DashboardState & { display: DisplaySettings };
 export class Hub {
   ready = false;
   private state: HubState;
-  private readonly subscribers = new Set<(s: HubState) => void>();
+  private json = "";
+  private fingerprint = "";
+  private readonly subscribers = new Set<(json: string) => void>();
 
   constructor(
     readonly version: string,
@@ -43,16 +45,32 @@ export class Hub {
         expectedMs: expectedDuration(input.runs),
       };
     });
-    this.state = { ...this.state, entries, generatedAt: new Date().toISOString() };
+    // nothing changed: no broadcast (every screen would re-parse and re-render for nothing)
+    const fingerprint = JSON.stringify(entries);
+    const changed = fingerprint !== this.fingerprint || !this.ready;
+    this.fingerprint = fingerprint;
     this.ready = true;
-    for (const fn of this.subscribers) fn(this.state);
+    if (!changed) return;
+    this.state = { ...this.state, entries, generatedAt: new Date().toISOString() };
+    this.json = JSON.stringify(this.state);
+    for (const fn of this.subscribers) fn(this.json);
+  }
+
+  /** The current snapshot as JSON, serialised once for all subscribers. */
+  serialized(): string {
+    if (!this.json) this.json = JSON.stringify(this.state);
+    return this.json;
+  }
+
+  subscriberCount(): number {
+    return this.subscribers.size;
   }
 
   snapshot(): HubState {
     return this.state;
   }
 
-  subscribe(fn: (s: HubState) => void): () => void {
+  subscribe(fn: (json: string) => void): () => void {
     this.subscribers.add(fn);
     return () => this.subscribers.delete(fn);
   }

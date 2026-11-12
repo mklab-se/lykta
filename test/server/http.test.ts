@@ -107,4 +107,18 @@ describe("http", () => {
     expect(((await res.json()) as { runUrl: string }).runUrl).toEndWith(`/actions/runs/${id}`);
     expect((await fetch(`${base}/api/entries/${e?.key}/details?run=1`)).status).toBe(404);
   });
+
+  test("a disconnected client is unsubscribed", async () => {
+    const { base, hub, source } = boot();
+    const ctrl = new AbortController();
+    const res = await fetch(`${base}/events`, { signal: ctrl.signal });
+    const reader = (res.body as ReadableStream<Uint8Array>).getReader();
+    await reader.read();
+    expect(hub.subscriberCount()).toBe(1);
+    ctrl.abort();
+    await Bun.sleep(100);
+    source.tick();
+    await Bun.sleep(50);
+    expect(hub.subscriberCount()).toBe(0);
+  });
 });

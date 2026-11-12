@@ -5,7 +5,7 @@
 import type { Server } from "bun";
 import index from "../web/index.html";
 import type { DemoSource } from "./demo-source.ts";
-import type { Hub, HubState } from "./hub.ts";
+import type { Hub } from "./hub.ts";
 import type { Source } from "./source.ts";
 
 export interface ServerOptions {
@@ -22,28 +22,49 @@ export interface ServerOptions {
 
 const PING_MS = 15_000;
 
+/** A client that has stopped reading: more than this many bytes queued and it is dropped. */
+const MAX_QUEUED_BYTES = 2_000_000;
+
 function events(hub: Hub): Response {
-  let unsubscribe = () => {};
-  let ping: ReturnType<typeof setInterval> | undefined;
+  let cleanup = () => {};
   const enc = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    start(controller) {
-      const send = (event: string, data: unknown) => {
-        try {
-          controller.enqueue(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
-        } catch {
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      start(controller) {
+        let unsubscribe = () => {};
+        let ping: ReturnType<typeof setInterval> | undefined;
+        cleanup = () => {
           unsubscribe();
-        }
-      };
-      send("snapshot", hub.snapshot());
-      unsubscribe = hub.subscribe((s: HubState) => send("snapshot", s));
-      ping = setInterval(() => send("ping", { at: new Date().toISOString() }), PING_MS);
+          if (ping) clearInterval(ping);
+          ping = undefined;
+        };
+        const send = (event: string, json: string) => {
+          if ((controller.desiredSize ?? 0) < -MAX_QUEUED_BYTES) {
+            cleanup();
+            try {
+              controller.close();
+            } catch {}
+            return;
+          }
+          try {
+            controller.enqueue(enc.encode(`event: ${event}\ndata: ${json}\n\n`));
+          } catch {
+            cleanup();
+          }
+        };
+        send("snapshot", hub.serialized());
+        unsubscribe = hub.subscribe((json) => send("snapshot", json));
+        ping = setInterval(
+          () => send("ping", JSON.stringify({ at: new Date().toISOString() })),
+          PING_MS,
+        );
+      },
+      cancel() {
+        cleanup();
+      },
     },
-    cancel() {
-      unsubscribe();
-      if (ping) clearInterval(ping);
-    },
-  });
+    { highWaterMark: MAX_QUEUED_BYTES, size: (chunk) => chunk.byteLength },
+  );
   return new Response(stream, {
     headers: {
       "content-type": "text/event-stream",
