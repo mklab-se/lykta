@@ -130,7 +130,7 @@ export function App() {
             warnings={data?.warnings}
           />
           <LayoutGroup>
-            <div className="stage" style={{ height: layout.height }}>
+            <div className="arena" style={{ height: layout.height }}>
               <AnimatePresence>
                 {pitEntries.length ? (
                   <Pit

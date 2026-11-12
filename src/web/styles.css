@@ -1400,13 +1400,11 @@ body {
 }
 
 /* ================= the track and the pit (spec section 3.2) ================= */
-.stage {
+/* the area below the header: the pit on the left, the track to its right */
+.arena {
   position: relative;
   margin: 0 40px;
   flex: none;
-}
-.stage > .empty {
-  height: 100%;
 }
 .trackwrap {
   position: absolute;
