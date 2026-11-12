@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "Preserve",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
@@ -14,7 +14,8 @@
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "types": ["bun"]
+    "types": ["bun"],
+    "jsx": "react-jsx"
   },
   "include": ["src", "test", "scripts"]
 }
