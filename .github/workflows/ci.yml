@@ -87,4 +87,3 @@ jobs:
           curl -fs localhost:8080/ | grep -q "<title>Lykta</title>"
           curl -fs localhost:8080/mcp -H 'content-type: application/json' \
             -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q list_failures
-
