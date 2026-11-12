@@ -1,15 +1,15 @@
-//! ASCII art banner for the rusty-tmpl CLI.
+//! ASCII art banner for the lykta CLI.
 
 use colored::Colorize;
 
 const LOGO: &str = r#"
-  ████  █  █  ████  █████ █  █        █████ █   █ ████  █
-  █  █  █  █  █       █   █  █          █   ██ ██ █  █  █
-  ████  █  █  ████    █   ████  ████    █   █ █ █ ████  █
-  █ █   █  █     █    █      █          █   █   █ █     █
-  █  █  ████  ████    █   ████          █   █   █ █     ████"#;
+  █     █   █  █  █  █████   ██
+  █      █ █   █ █     █    █  █
+  █       █    ██      █    ████
+  █       █    █ █     █    █  █
+  ████    █    █  █    █    █  █"#;
 
-/// Print the rusty-tmpl ASCII art banner.
+/// Print the lykta ASCII art banner.
 pub fn print_banner() {
     for line in LOGO.lines() {
         println!("{}", line.bold());
@@ -21,7 +21,7 @@ pub fn print_banner_with_version() {
     print_banner();
     println!(
         " {} {}",
-        "A template for building Rust command-line tools".dimmed(),
+        "A highly visible dashboard for monitoring GitHub Actions workflows".dimmed(),
         format!("v{}", env!("CARGO_PKG_VERSION")).dimmed(),
     );
     println!();

@@ -1,22 +1,22 @@
 [package]
-name = "rusty-tmpl"
+name = "lykta"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "A template for building Rust command-line tools"
+description = "A highly visible dashboard for monitoring GitHub Actions workflows"
 readme = "../../README.md"
-keywords = ["cli", "template", "starter", "scaffold"]
-categories = ["command-line-utilities"]
+keywords = ["github", "actions", "workflows", "dashboard", "ci"]
+categories = ["command-line-utilities", "development-tools"]
 
 [[bin]]
-name = "rusty-tmpl"
+name = "lykta"
 path = "src/main.rs"
 
 [dependencies]
-rusty-tmpl-core.workspace = true
+lykta-core.workspace = true
 ailloy.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
@@ -32,8 +32,8 @@ semver.workspace = true
 chrono.workspace = true
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/v{ version }/rusty-tmpl-v{ version }-{ target }.{ archive-format }"
-bin-dir = "rusty-tmpl{ binary-ext }"
+pkg-url = "{ repo }/releases/download/v{ version }/lykta-v{ version }-{ target }.{ archive-format }"
+bin-dir = "lykta{ binary-ext }"
 pkg-fmt = "tgz"
 
 [package.metadata.binstall.overrides.x86_64-pc-windows-msvc]

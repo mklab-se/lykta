@@ -3,14 +3,16 @@
 use anyhow::Result;
 use clap::Parser;
 
-/// A template for building Rust command-line tools.
+/// A highly visible dashboard for monitoring GitHub Actions workflows.
 #[derive(Parser)]
-#[command(name = "rusty-tmpl")]
+#[command(name = "lykta")]
 #[command(author, version, about)]
-#[command(long_about = "A template for building Rust command-line tools.\n\n\
-    Run without a subcommand to print \"Hello world!\". The reusable plumbing \
-    (AI integration, shell completions, and versioning) is wired up so you can \
-    focus on your tool's own commands.")]
+#[command(
+    long_about = "A highly visible dashboard for monitoring GitHub Actions workflows.\n\n\
+    Lykta (Swedish for \"lantern\") shows at a glance which workflows are running, \
+    which have failed and which are green. This early release reserves the name; \
+    the dashboard itself is coming next."
+)]
 #[command(propagate_version = true)]
 pub struct Cli {
     /// Increase output verbosity (-v for debug, -vv for trace)
@@ -55,17 +57,17 @@ pub enum AiCommands {
         /// Message to send (default: "Say hello in one sentence.")
         message: Option<String>,
     },
-    /// Enable AI features for rusty-tmpl
+    /// Enable AI features for lykta
     Enable,
-    /// Disable AI features for rusty-tmpl
+    /// Disable AI features for lykta
     Disable,
     /// Interactively configure AI provider and model settings
     Config,
-    /// Show AI status (same as running `rusty-tmpl ai` without a subcommand)
+    /// Show AI status (same as running `lykta ai` without a subcommand)
     Status,
 }
 
-/// Shells supported by `rusty-tmpl completion`.
+/// Shells supported by `lykta completion`.
 #[derive(Clone, Copy, clap::ValueEnum)]
 pub enum Shell {
     Bash,
@@ -87,10 +89,13 @@ impl Cli {
                 crate::banner::print_banner_with_version();
                 Ok(())
             }
-            // No subcommand: the almost-empty default. Replace this with your
-            // tool's behavior, or route to a real command. `--help` still works.
+            // No subcommand: the dashboard will launch here. Until it exists, show
+            // the banner and a short note. `--help` still works.
             None => {
-                println!("Hello world!");
+                crate::banner::print_banner_with_version();
+                println!(
+                    "The workflow dashboard is coming soon. Run `lykta --help` for what works today."
+                );
                 Ok(())
             }
         }

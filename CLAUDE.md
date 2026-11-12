@@ -4,15 +4,16 @@ Guidance for Claude Code (and other agents) working in this repository.
 
 ## What this is
 
-`rusty-tmpl` is a **template repository** for MKLab Rust CLI tools. New tools are created from it via
-GitHub's "Use this template", then renamed (see the "Using this template" section of `README.md`).
-Keep it generic: it should compile, run, and pass CI as-is, while carrying no tool-specific logic.
+`lykta` (Swedish for "lantern") is a highly visible, easy-to-read dashboard for GitHub Actions
+workflows: it should make it obvious at a glance which workflow runs are in progress, which have
+failed and which are green. It is an MKLab Rust CLI tool, scaffolded from the `rusty-tmpl` template.
+
+Status: `0.0.1` reserved the crates.io name and ships only the template plumbing. The dashboard
+itself is not designed or built yet; requirements will come from Kristofer.
 
 ## Template lineage
 
-> **Note for agents working in a repository generated from this template** (i.e. the tool was renamed
-> away from `rusty-tmpl`): the rest of this file describes the original scaffold. The references below
-> intentionally still point at the upstream template, not at this tool.
+> The references below intentionally point at the upstream template, not at this tool.
 
 - **Upstream template:** https://github.com/mklab-se/rusty-tmpl
 - **Likely local clone:** `../rusty-tmpl/` (sibling directory under the same parent)
@@ -34,17 +35,17 @@ back to the GitHub URL if the sibling directory isn't present.
 
 A two-crate Cargo workspace:
 
-- `crates/rusty-tmpl/`: the CLI binary.
+- `crates/lykta/`: the CLI binary.
   - `main.rs`: `#[tokio::main]`; sets up logging, dynamic-completion env, the `--no-color` override,
     and spawns the background update check, then calls `Cli::run`.
-  - `cli.rs`: clap-derive `Cli`, `Commands`, `AiCommands`, `Shell`; `Cli::run` dispatches. **The
-    no-subcommand (`None`) arm intentionally prints `Hello world!`** instead of help (per the template
-    brief). `--help`/`-h` still work via clap.
+  - `cli.rs`: clap-derive `Cli`, `Commands`, `AiCommands`, `Shell`; `Cli::run` dispatches. The
+    no-subcommand (`None`) arm prints the banner and a "coming soon" note; it is where the
+    dashboard will launch. `--help`/`-h` still work via clap.
   - `commands/`: one module per command (`ai`, `completion`). Add new commands here.
   - `banner.rs`: ASCII block-letter banner + version line.
   - `update.rs`: polls crates.io, caches the result for 24h in `paths::cache_dir()`, notifies on a
     newer version.
-- `crates/rusty-tmpl-core/`: framework-agnostic library (no clap/tokio).
+- `crates/lykta-core/`: framework-agnostic library (no clap/tokio).
   - `config.rs`: YAML `Config` in `paths::config_dir()`, a reusable starting point (unused so far).
   - `paths.rs`: where the tool keeps files. Linux and macOS share the XDG layout, same as Ailloy:
     `$XDG_CONFIG_HOME/<tool>` or `~/.config/<tool>`, `$XDG_CACHE_HOME/<tool>` or
