@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { formatClock, formatDuration, runProgress } from "../../core/timing.ts";
 import type { EntryView, RunRecord } from "../../core/types.ts";
+import { newFailingRun } from "../arrivals.ts";
 import type { LayoutPlan } from "../layout.ts";
 import { dwellSeconds, nextSelection, type Selection } from "../rotation.ts";
 import { JobGraph } from "./JobGraph.tsx";
@@ -131,10 +132,6 @@ function RunRow(props: {
   );
 }
 
-/** Keys of runs with a failed job; a new one makes the highlight jump there. */
-const failingRuns = (entries: EntryView[]) =>
-  entries.filter((e) => e.current?.jobs.some((j) => j.status === "failure")).map((e) => e.key);
-
 export function RunningArea(props: {
   entries: EntryView[];
   plan: Plan;
@@ -146,11 +143,17 @@ export function RunningArea(props: {
   const keys = entries.map((e) => e.key);
   const [sel, setSel] = useState<Selection>({ selectedKey: null, selectedAt: now });
   const seenFailing = useRef(new Set<string>());
+  const runs = entries.map((e) => ({
+    key: e.key,
+    runId: e.current?.id ?? 0,
+    failed: e.current?.jobs.some((j) => j.status === "failure") ?? false,
+  }));
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: advance once per clock tick
   useEffect(() => {
-    const fresh = failingRuns(entries).find((k) => !seenFailing.current.has(k));
-    for (const k of failingRuns(entries)) seenFailing.current.add(k);
+    const r = newFailingRun(seenFailing.current, runs);
+    seenFailing.current = r.seen;
+    const fresh = r.jumpTo;
     setSel((s) => nextSelection(s, keys, now, fresh));
   }, [now, keys.join("|")]);
 

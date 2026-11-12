@@ -1,6 +1,7 @@
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { RunDetails } from "../server/source.ts";
+import { emptyArrivals, isFresh, trackArrivals } from "./arrivals.ts";
 import { useVirtualCanvas } from "./canvas.ts";
 import { DemoControls } from "./components/DemoControls.tsx";
 import { DetailOverlay, type OverlayView, viewFor } from "./components/DetailOverlay.tsx";
@@ -35,6 +36,12 @@ export function App() {
   const entries = data?.entries ?? [];
   const running = entries.filter((e) => e.state === "running");
   const plan = data ? computeLayout(data, canvas, running.length) : null;
+  const failingKeys = entries.filter(isFailingEntry).map((e) => e.key);
+  const [arrivals, setArrivals] = useState(emptyArrivals);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: track when the set of failures changes
+  useEffect(() => {
+    if (data) setArrivals((a) => trackArrivals(a, failingKeys, Date.now()));
+  }, [data !== null, failingKeys.join("|")]);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [details, setDetails] = useState<RunDetails | null>(null);
   const [focusKey, setFocusKey] = useState<string | null>(null);
@@ -114,6 +121,7 @@ export function App() {
                   plan={plan.failures}
                   now={now}
                   onOpen={(k) => open(k, "failures")}
+                  isFresh={(k) => isFresh(arrivals, k, now)}
                 />
               ) : null}
               {plan?.running ? (

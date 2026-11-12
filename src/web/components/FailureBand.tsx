@@ -8,17 +8,15 @@ import { RunnerBadge } from "./RunnerBadge.tsx";
 type Plan = NonNullable<LayoutPlan["failures"]>;
 
 const ERROR_LINE = /error|FAILED|failed|Error|timeout|not found/;
-const FRESH_MS = 10_000;
 const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
 
 function broken(e: EntryView, now: number): string {
   return e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
 }
 
-/** One strong pulse when a failure arrives, then calm. */
-function Arrival(props: { e: EntryView; now: number }) {
-  const fresh = props.e.brokenSince && props.now - Date.parse(props.e.brokenSince) < FRESH_MS;
-  if (!fresh) return null;
+/** One strong pulse when a failure arrives on this screen, then calm. */
+function Arrival(props: { fresh: boolean }) {
+  if (!props.fresh) return null;
   return (
     <motion.div
       className="ring"
@@ -31,6 +29,7 @@ function Arrival(props: { e: EntryView; now: number }) {
 
 function FailCard(props: {
   e: EntryView;
+  fresh: boolean;
   now: number;
   small: boolean;
   onOpen: (key: string) => void;
@@ -63,7 +62,7 @@ function FailCard(props: {
   return (
     <motion.div {...commonProps}>
       <div className="glow" />
-      <Arrival e={e} now={now} />
+      <Arrival fresh={props.fresh} />
       <div className="tag">
         <span className="dot failed" />
         FAILED
@@ -107,7 +106,12 @@ function FailCard(props: {
   );
 }
 
-function FailRow(props: { e: EntryView; now: number; onOpen: (key: string) => void }) {
+function FailRow(props: {
+  e: EntryView;
+  now: number;
+  fresh: boolean;
+  onOpen: (key: string) => void;
+}) {
   const { e, now } = props;
   const sub =
     e.state === "missing"
@@ -125,6 +129,7 @@ function FailRow(props: { e: EntryView; now: number; onOpen: (key: string) => vo
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}
     >
+      <Arrival fresh={props.fresh} />
       <div className="bar" />
       <div style={{ minWidth: 0 }}>
         <div className="nm ellipsis">
@@ -142,6 +147,8 @@ export function FailureBand(props: {
   plan: Plan;
   now: number;
   onOpen: (key: string) => void;
+  /** True for a failure that just arrived on this screen (see arrivals.ts). */
+  isFresh?: (key: string) => boolean;
 }) {
   const { plan } = props;
   return (
@@ -158,13 +165,20 @@ export function FailureBand(props: {
         <AnimatePresence mode="popLayout">
           {props.entries.map((e) =>
             plan.mode === "row" ? (
-              <FailRow key={e.key} e={e} now={props.now} onOpen={props.onOpen} />
+              <FailRow
+                key={e.key}
+                e={e}
+                now={props.now}
+                fresh={props.isFresh?.(e.key) ?? false}
+                onOpen={props.onOpen}
+              />
             ) : (
               <FailCard
                 key={e.key}
                 e={e}
                 now={props.now}
                 small={plan.mode === "small"}
+                fresh={props.isFresh?.(e.key) ?? false}
                 onOpen={props.onOpen}
               />
             ),
