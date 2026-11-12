@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { DashboardState } from "../../src/core/types.ts";
-import { initialStream, isStale, reduceStream } from "../../src/web/stream.ts";
+import { initialStream, isStale, reduceStream, reloadWhenHealthy } from "../../src/web/stream.ts";
 
 const snap = (version: string, keys: string[]): DashboardState => ({
   version,
@@ -40,5 +40,25 @@ describe("stream", () => {
     expect(isStale(s, 181_000)).toBe(true);
     const pinged = reduceStream(s, { type: "ping", at: 170_000 });
     expect(isStale(pinged, 181_000)).toBe(false);
+  });
+
+  test("nightly reload only when the server answers", async () => {
+    let reloaded = 0;
+    let retried = 0;
+    const ok = async () => new Response("ok");
+    const down = async () => {
+      throw new Error("offline");
+    };
+    const deps = (f: (url: string) => Promise<Response>) => ({
+      fetch: f,
+      reload: () => reloaded++,
+      retryLater: () => retried++,
+    });
+    await reloadWhenHealthy(deps(down));
+    expect([reloaded, retried]).toEqual([0, 1]);
+    await reloadWhenHealthy(deps(async () => new Response("no", { status: 503 })));
+    expect([reloaded, retried]).toEqual([0, 2]);
+    await reloadWhenHealthy(deps(ok));
+    expect([reloaded, retried]).toEqual([1, 2]);
   });
 });

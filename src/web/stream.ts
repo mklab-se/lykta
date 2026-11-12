@@ -59,6 +59,29 @@ export function msUntilNightlyReload(now: Date): number {
   return next.getTime() - now.getTime();
 }
 
+/**
+ * The nightly safety reload only happens when the server answers; reloading into a dead
+ * server would leave the kiosk on the browser's error page with nothing to bring it back.
+ */
+export async function reloadWhenHealthy(deps: {
+  fetch: (url: string, init?: RequestInit) => Promise<Response>;
+  reload: () => void;
+  retryLater: () => void;
+}): Promise<void> {
+  try {
+    const res = await deps.fetch("/healthz", { cache: "no-store" });
+    if (res.ok) {
+      deps.reload();
+      return;
+    }
+  } catch {
+    // offline: fall through and try again later
+  }
+  deps.retryLater();
+}
+
+const RELOAD_RETRY_MS = 3 * 60_000;
+
 export function useDashboard(url = "/events"): StreamState {
   const [state, dispatch] = useReducer(reduceStream, undefined, initialStream);
 
@@ -83,7 +106,16 @@ export function useDashboard(url = "/events"): StreamState {
       };
     };
     connect();
-    const nightly = setTimeout(() => location.reload(), msUntilNightlyReload(new Date()));
+    let nightly: ReturnType<typeof setTimeout>;
+    const tryReload = () =>
+      reloadWhenHealthy({
+        fetch: (input, init) => fetch(input, init),
+        reload: () => location.reload(),
+        retryLater: () => {
+          nightly = setTimeout(tryReload, RELOAD_RETRY_MS);
+        },
+      });
+    nightly = setTimeout(tryReload, msUntilNightlyReload(new Date()));
     return () => {
       closed = true;
       source?.close();
