@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { deriveEntry } from "../../src/core/state.ts";
 import type { EntryInput } from "../../src/core/types.ts";
 import { parseConfig } from "../../src/server/config.ts";
-import { GitHubError, type RateState } from "../../src/server/github/client.ts";
+import { GitHubError, RateLimitError, type RateState } from "../../src/server/github/client.ts";
 import type { GhJob, GhRun } from "../../src/server/github/map.ts";
 import { type GitHubApi, GitHubSource } from "../../src/server/github/source.ts";
 import { Hub } from "../../src/server/hub.ts";
@@ -20,6 +20,7 @@ class FakeGitHub implements GitHubApi {
   routes: [RegExp, (m: RegExpMatchArray) => unknown][] = [];
   texts: [RegExp, string][] = [];
   rates: Record<string, RateState> = {};
+  spentByOrg: Record<string, number> = {};
   private warn: ((m: string) => void)[] = [];
   on(re: RegExp, fn: (m: RegExpMatchArray) => unknown) {
     this.routes.push([re, fn]);
@@ -43,6 +44,9 @@ class FakeGitHub implements GitHubApi {
   }
   rate(org: string) {
     return this.rates[org];
+  }
+  spent(org: string) {
+    return this.spentByOrg[org] ?? 0;
   }
   onWarning(fn: (m: string) => void) {
     this.warn.push(fn);
@@ -264,12 +268,52 @@ describe("GitHubSource", () => {
     expect(byWorkflow(got, "ci.yml").problem).toContain("actions=read");
   });
 
-  test("slows down on low rate", async () => {
+  test("slows down early, leaving most of the rate limit to others", async () => {
     const { gh, src } = await setup();
-    gh.rates["mklab-se"] = { remaining: 400, limit: 5000, resetAt: NOW + 3_600_000 };
+    const idle = "mklab-se/lykta:release.yml:main";
+    const active = "mklab-se/lykta:live.yml:main";
+    const at = async (remaining: number) => {
+      gh.rates["mklab-se"] = { remaining, limit: 5000, resetAt: NOW + 3_600_000 };
+      await src.syncAll();
+      return [src.nextPollIn(idle), src.nextPollIn(active)];
+    };
+    expect(await at(4000)).toEqual([60_000, 15_000]);
+    expect(await at(2000)).toEqual([120_000, 30_000]); // under half left: already slower
+    expect(await at(1000)).toEqual([240_000, 60_000]);
+    expect(await at(400)).toEqual([480_000, 120_000]);
+  });
+
+  test("stays within its own share of the rate limit", async () => {
+    const { gh, src } = await setup();
+    const idle = "mklab-se/lykta:release.yml:main";
+    gh.rates["mklab-se"] = { remaining: 5000, limit: 5000, resetAt: NOW + 3_600_000 };
+    gh.spentByOrg["mklab-se"] = 800; // default budget: 20% of 5000 = 1000 per hour
     await src.syncAll();
-    expect(src.nextPollIn("mklab-se/lykta:release.yml:main")).toBe(120_000);
-    expect(src.nextPollIn("mklab-se/lykta:live.yml:main")).toBe(30_000);
+    expect(src.nextPollIn(idle)).toBe(120_000);
+    gh.spentByOrg["mklab-se"] = 1000;
+    await src.syncAll();
+    expect(src.nextPollIn(idle)).toBe(240_000);
+  });
+
+  test("a rate limit is a warning and keeps what the wall shows", async () => {
+    const { gh, src } = await setup();
+    let warnings: string[] = [];
+    src.onWarnings((w) => {
+      warnings = w;
+    });
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    gh.routes.unshift([
+      /workflows\/ci\.yml\/runs/,
+      () => new RateLimitError("GitHub rate limit for mklab-se", 403, NOW + 60_000),
+    ]);
+    await src.syncAll();
+    const ci = byWorkflow(got, "ci.yml");
+    expect(ci.problem).toBeUndefined();
+    expect(deriveEntry(ci).state).toBe("failed");
+    expect(warnings.join(" ")).toContain("rate limit");
   });
 
   test("re-running a failed run keeps the failure and shows only the new attempt's jobs", async () => {

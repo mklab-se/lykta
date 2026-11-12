@@ -262,6 +262,10 @@ GitHub REST API  <--poll (ETags)--  Bun server  --SSE-->  browser(s) on the wall
   - Fetch the workflow file at the run's commit to build the job graph; cache by (repo, sha, path).
   - Track the rate limit per organization and slow down before hitting it; show a discreet warning on
     the wall when data is delayed because of limits.
+  - Leave a big buffer: other teams and other Lykta installations share the same organizations'
+    limits. Lykta uses at most a configured share of the hourly limit (`polling.budget`, default
+    20%), slows down as soon as under half of the limit is left, and on a rate-limit answer stops
+    calling that organization until the reset instead of retrying.
 - **Mapper** (pure functions, the core of the test suite): GitHub runs + jobs + workflow file →
   `DashboardState` (entry states, graphs with matrix/reusable-workflow grouping, runner kinds,
   expected durations, slow markers, broken-for).

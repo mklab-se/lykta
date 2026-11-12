@@ -51,6 +51,7 @@ function api(): GitHubApi {
     },
     text: async () => "",
     rate: () => undefined,
+    spent: () => 0,
     onWarning: () => {},
   };
 }

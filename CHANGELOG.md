@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `lykta serve --config lykta.yaml`: the dashboard on real GitHub Actions data, from several
-  organizations, signing in with a GitHub App (recommended) or fine-grained tokens. Polls within
-  rate limits (cheap repeat requests, slows down when the limit runs low, shows a warning instead
-  of failing), builds each running workflow's job graph from its workflow file (matrices and
+  organizations, signing in with a GitHub App (recommended) or fine-grained tokens. Polls
+  sparingly, since other teams and other walls share the same rate limits: cheap repeat requests,
+  at most a share of each organization's hourly limit (`polling.budget`, default 20%), slower as
+  soon as under half is left, and a pause with a warning (never a retry storm) when GitHub says
+  to slow down. A re-run of a failed workflow keeps the failure on the wall until it decides. Builds each running workflow's job graph from its workflow file (matrices and
   reusable workflows included), shows the failing step's log lines, and turns missing, disabled
   or inaccessible workflows into visible problems. A "Connecting to GitHub..." screen shows until
   the first sync.

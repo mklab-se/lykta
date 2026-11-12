@@ -29,7 +29,8 @@ export interface LyktaConfig {
   runners: RunnerRule[];
   server: { port: number; host: string };
   display: { lowPower: "auto" | "on" | "off" };
-  polling: { activeSeconds: number; idleSeconds: number };
+  /** budget: the share of each org's hourly rate limit Lykta may use (others share it). */
+  polling: { activeSeconds: number; idleSeconds: number; budget: number };
 }
 
 export interface Secrets {
@@ -160,6 +161,7 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
     polling: {
       activeSeconds: num(polling.activeSeconds, 15),
       idleSeconds: num(polling.idleSeconds, 60),
+      budget: Math.min(1, num(polling.budget, 0.2)),
     },
   };
 }

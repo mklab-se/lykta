@@ -17,6 +17,18 @@ export class GitHubError extends Error {
   }
 }
 
+/** GitHub asked us to slow down; the organization is paused until `until`. */
+export class RateLimitError extends GitHubError {
+  constructor(
+    message: string,
+    status: number,
+    readonly until: number,
+  ) {
+    super(message, status);
+    this.name = "RateLimitError";
+  }
+}
+
 export interface RateState {
   remaining: number;
   limit: number;
@@ -25,6 +37,7 @@ export interface RateState {
 
 const MIN_RATE_WAIT_MS = 60_000;
 const SERVER_RETRY_MS = 2_000;
+const HOUR_MS = 3_600_000;
 
 export class GitHubClient {
   private readonly doFetch: typeof fetch;
@@ -33,6 +46,9 @@ export class GitHubClient {
   private readonly queues = new Map<string, Promise<unknown>>();
   private readonly etags = new Map<string, { etag: string; body: unknown }>();
   private readonly rates = new Map<string, RateState>();
+  private readonly pausedUntil = new Map<string, number>();
+  /** When each request that counted against the rate limit was made, per org (last hour). */
+  private readonly costs = new Map<string, number[]>();
   private readonly warnings = new Set<(message: string) => void>();
 
   constructor(
@@ -55,6 +71,14 @@ export class GitHubClient {
 
   rate(org: string): RateState | undefined {
     return this.rates.get(org);
+  }
+
+  /** Requests Lykta itself made against the org's rate limit in the last hour (304s are free). */
+  spent(org: string): number {
+    const list = this.costs.get(org) ?? [];
+    const cutoff = this.now() - HOUR_MS;
+    while (list.length && (list[0] as number) < cutoff) list.shift();
+    return list.length;
   }
 
   /** JSON from the API; on 304 the cached body is returned with notModified true. */
@@ -102,22 +126,25 @@ export class GitHubClient {
     redirect: RequestRedirect = "follow",
     attempt = 0,
   ): Promise<Response> {
+    const paused = this.pausedUntil.get(org) ?? 0;
+    if (this.now() < paused)
+      throw new RateLimitError(
+        `GitHub rate limit for ${org}: data delayed until ${formatClock(paused)}`,
+        429,
+        paused,
+      );
     const token = await this.opts.tokens.token(org);
     const res = await this.doFetch(`${API}${path}`, {
       headers: { ...apiHeaders(token, this.opts.userAgent), ...extra },
       redirect,
     });
     this.track(org, res);
-    const limited =
-      res.status === 429 ||
-      (res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0");
-    if (limited && attempt === 0) {
-      const wait = this.rateWait(org, res);
-      this.warn(
-        `GitHub rate limit for ${org}: data delayed until ${formatClock(this.now() + wait)}`,
-      );
-      await this.sleep(wait);
-      return this.request(org, path, extra, redirect, 1);
+    if (await this.limited(res)) {
+      const until = this.now() + this.rateWait(org, res);
+      this.pausedUntil.set(org, until);
+      const message = `GitHub rate limit for ${org}: data delayed until ${formatClock(until)}`;
+      this.warn(message);
+      throw new RateLimitError(message, res.status, until);
     }
     if (res.status >= 500 && attempt === 0) {
       await this.sleep(SERVER_RETRY_MS);
@@ -140,6 +167,20 @@ export class GitHubClient {
     );
   }
 
+  /** 429, or a 403 that is really a (primary or secondary) rate limit, not missing access. */
+  private async limited(res: Response): Promise<boolean> {
+    if (res.status === 429) return true;
+    if (res.status !== 403) return false;
+    if (res.headers.get("x-ratelimit-remaining") === "0" || res.headers.has("retry-after"))
+      return true;
+    try {
+      const body = (await res.clone().json()) as { message?: string };
+      return /rate limit/i.test(body.message ?? "");
+    } catch {
+      return false;
+    }
+  }
+
   private rateWait(org: string, res: Response): number {
     const retryAfter = Number.parseInt(res.headers.get("retry-after") ?? "", 10);
     if (Number.isFinite(retryAfter)) return retryAfter * 1000;
@@ -148,6 +189,12 @@ export class GitHubClient {
   }
 
   private track(org: string, res: Response): void {
+    if (res.status !== 304) {
+      const list = this.costs.get(org) ?? [];
+      list.push(this.now());
+      this.costs.set(org, list);
+      this.spent(org); // prune
+    }
     const remaining = Number.parseInt(res.headers.get("x-ratelimit-remaining") ?? "", 10);
     const limit = Number.parseInt(res.headers.get("x-ratelimit-limit") ?? "", 10);
     const reset = Number.parseInt(res.headers.get("x-ratelimit-reset") ?? "", 10);

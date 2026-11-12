@@ -8,7 +8,7 @@ import { isFailureConclusion } from "../../core/state.ts";
 import type { Conclusion, EntryInput, FailureInfo, RunRecord } from "../../core/types.ts";
 import { entryKey, type LyktaConfig, type MonitorConfig } from "../config.ts";
 import type { RunDetails, Source } from "../source.ts";
-import { GitHubError, type RateState } from "./client.ts";
+import { GitHubError, RateLimitError, type RateState } from "./client.ts";
 import { cleanLog, failureExcerpt } from "./logs.ts";
 import { classifyRunner, type GhJob, type GhRun, mapRun } from "./map.ts";
 import { attachGraph, parseWorkflow, type WorkflowDef } from "./workflow-file.ts";
@@ -18,11 +18,12 @@ export interface GitHubApi {
   json<T>(org: string, path: string): Promise<{ data: T; notModified: boolean }>;
   text(org: string, path: string): Promise<string>;
   rate(org: string): RateState | undefined;
+  /** Requests Lykta made against the org's rate limit in the last hour. */
+  spent(org: string): number;
   onWarning(fn: (message: string) => void): void;
 }
 
 const LOOP_MS = 5_000;
-const LOW_RATE = 0.2;
 const RUNS_PER_ENTRY = 15;
 const WARNING_TTL_MS = 10 * 60_000;
 const DETAIL_LINES = 12;
@@ -180,9 +181,7 @@ export class GitHubSource implements Source {
     const base =
       (running ? this.opts.config.polling.activeSeconds : this.opts.config.polling.idleSeconds) *
       1000;
-    const rate = this.opts.client.rate(e.org);
-    e.intervalMs =
-      rate && rate.limit > 0 && rate.remaining / rate.limit < LOW_RATE ? base * 2 : base;
+    e.intervalMs = base * this.slowdown(e.org);
     e.nextAt = this.now() + e.intervalMs;
   }
 
@@ -222,6 +221,20 @@ export class GitHubSource implements Source {
       }
     }
     return out;
+  }
+
+  /**
+   * Other teams and other Lykta installations share the org's rate limit, so Lykta slows
+   * down long before it runs out: as soon as under half is left, and whenever its own use
+   * nears its budget (a share of the hourly limit).
+   */
+  private slowdown(org: string): number {
+    const rate = this.opts.client.rate(org);
+    if (!rate || rate.limit <= 0) return 1;
+    const left = rate.remaining / rate.limit;
+    const shared = left < 0.1 ? 8 : left < 0.25 ? 4 : left < 0.5 ? 2 : 1;
+    const own = this.opts.client.spent(org) / (this.opts.config.polling.budget * rate.limit);
+    return Math.max(shared, own >= 1 ? 4 : own >= 0.75 ? 2 : 1);
   }
 
   /** Bounded memory over weeks: drop cached data for runs no entry lists any more. */
@@ -337,6 +350,10 @@ export class GitHubSource implements Source {
 
   private async handleError(e: EntryState, err: unknown): Promise<void> {
     const { repo, workflow } = e.cfg;
+    if (err instanceof RateLimitError) {
+      this.warn(err.message); // keep the last known state; the client pauses the org
+      return;
+    }
     if (err instanceof GitHubError && err.status === 404) {
       try {
         const { data } = await this.opts.client.json<{ state: string }>(

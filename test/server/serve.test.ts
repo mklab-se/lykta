@@ -46,6 +46,7 @@ describe("lykta serve", () => {
       },
       text: async () => "",
       rate: () => undefined,
+      spent: () => 0,
       onWarning: () => {},
     };
     const config = parseConfig(

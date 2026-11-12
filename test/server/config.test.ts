@@ -30,7 +30,7 @@ describe("config", () => {
       ignoreEvents: [],
     });
     expect(c.server).toEqual({ port: 8080, host: "0.0.0.0" });
-    expect(c.polling).toEqual({ activeSeconds: 15, idleSeconds: 60 });
+    expect(c.polling).toEqual({ activeSeconds: 15, idleSeconds: 60, budget: 0.2 });
     expect(c.display.lowPower).toBe("auto");
     expect(entryKey(c.monitor[0] as NonNullable<(typeof c.monitor)[0]>)).toBe(
       "mklab-se/lykta:ci.yml:main",

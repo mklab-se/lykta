@@ -65,6 +65,20 @@ Each entry under `monitor` is one tile: a repository, a workflow file and a bran
 `main`). Watching the same workflow on another branch is another entry. `LYKTA_PORT`,
 `LYKTA_HOST`, `LYKTA_TITLE` and `LYKTA_LOW_POWER` override the file.
 
+Lykta shares each organization's GitHub rate limit with everyone else using it (other teams'
+tools, other Lykta walls). It stays sparse on purpose: unchanged answers (`304`) are free, and it
+slows down as soon as less than half of the limit is left, or when its own use in the last hour
+nears `polling.budget` (default `0.2`, a fifth of the hourly limit). When GitHub says to slow
+down, Lykta stops calling that organization until the reset and keeps showing the last known
+state with a warning.
+
+```yaml
+polling:
+  activeSeconds: 15 # running workflows
+  idleSeconds: 60 # waiting for new runs
+  budget: 0.2 # share of each organization's hourly rate limit Lykta may use
+```
+
 ## What it shows
 
 - 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long

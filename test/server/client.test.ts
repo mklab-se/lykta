@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { TokenProvider } from "../../src/server/github/auth.ts";
-import { GitHubClient, GitHubError } from "../../src/server/github/client.ts";
+import { GitHubClient, GitHubError, RateLimitError } from "../../src/server/github/client.ts";
 
 const tokens: TokenProvider = { token: async (org) => `tok-${org}`, kind: () => "token" };
 
@@ -56,22 +56,51 @@ describe("GitHubClient", () => {
     expect(calls).toBe(2);
   });
 
-  test("rate limit waits and warns", async () => {
+  test("a rate limit pauses the organization instead of waiting in its queue", async () => {
     const sleeps: number[] = [];
     let n = 0;
-    const { c, warnings } = client(() => {
+    const { c, warnings } = client((url) => {
       n++;
-      if (n === 1)
+      if (url.includes("/acme"))
         return new Response("slow down", {
           status: 429,
           headers: { "retry-after": "30", ...rateHeaders(0) },
         });
       return Response.json({ ok: true }, { headers: rateHeaders() });
     }, sleeps);
-    const r = await c.json<{ ok: boolean }>("acme", "/x");
-    expect(r.data.ok).toBe(true);
-    expect(sleeps).toEqual([30_000]);
+    await expect(c.json("acme", "/acme/x")).rejects.toBeInstanceOf(RateLimitError);
     expect(warnings[0]).toContain("GitHub rate limit for acme");
+    // paused: no further calls until the reset, and nothing sleeps in the queue
+    await expect(c.json("acme", "/acme/y")).rejects.toBeInstanceOf(RateLimitError);
+    expect(n).toBe(1);
+    expect(sleeps).toEqual([]);
+    // other organizations carry on
+    expect((await c.json<{ ok: boolean }>("other", "/other/x")).data.ok).toBe(true);
+  });
+
+  test("a 403 rate limit is a rate limit, not missing access", async () => {
+    const { c } = client(
+      () =>
+        new Response(JSON.stringify({ message: "You have exceeded a secondary rate limit" }), {
+          status: 403,
+          headers: rateHeaders(),
+        }),
+    );
+    await expect(c.json("acme", "/x")).rejects.toBeInstanceOf(RateLimitError);
+  });
+
+  test("spent counts only answers that cost against the rate limit", async () => {
+    let n = 0;
+    const { c } = client(() => {
+      n++;
+      if (n === 2) return new Response(null, { status: 304, headers: rateHeaders() });
+      return Response.json({}, { headers: { etag: '"e"', ...rateHeaders() } });
+    });
+    await c.json("o", "/a");
+    await c.json("o", "/a");
+    await c.json("o", "/b");
+    expect(c.spent("o")).toBe(2);
+    expect(c.spent("p")).toBe(0);
   });
 
   test("serial per org", async () => {
