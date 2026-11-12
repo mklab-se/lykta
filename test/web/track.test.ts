@@ -40,7 +40,9 @@ describe("track geometry", () => {
   });
 
   test("tile detail follows tile size", () => {
-    expect(trackLayout(6, 0, { width: 1920, height: 1080 }).unit).toBe("big");
+    // few workflows: huge tiles with huge text, readable from across the room
+    expect(trackLayout(6, 0, { width: 1920, height: 1080 }).unit).toBe("xl");
+    expect(trackLayout(16, 0, { width: 1920, height: 1080 }).unit).toBe("big");
     expect(["small", "tiny"]).toContain(trackLayout(100, 0, { width: 1920, height: 1080 }).unit);
   });
 });

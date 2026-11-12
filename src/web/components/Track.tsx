@@ -53,18 +53,20 @@ function Tile(props: { e: EntryView; unit: TileUnit; now: number; onOpen: (key: 
     >
       <div className="top">
         <span className={`dot ${e.state}`} />
-        {unit === "big" || unit === "mid" ? (
+        {unit === "xl" || unit === "big" || unit === "mid" ? (
           <span className="lbl">{LABEL[e.state]}</span>
         ) : (
           <span className="nm ellipsis">{e.name}</span>
         )}
         {running && e.failing ? <span className="rerun" /> : null}
-        {unit === "big" || unit === "mid" ? (
+        {unit === "xl" || unit === "big" || unit === "mid" ? (
           <span className="when">{running ? "" : when}</span>
         ) : null}
       </div>
-      {unit === "big" || unit === "mid" ? <div className="nm ellipsis">{e.name}</div> : null}
-      {unit === "big" ? (
+      {unit === "xl" || unit === "big" || unit === "mid" ? (
+        <div className="nm ellipsis">{e.name}</div>
+      ) : null}
+      {unit === "xl" || unit === "big" ? (
         <div className="sub ellipsis">
           {running
             ? `${e.repo} · ${e.branch}`

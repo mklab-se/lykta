@@ -12,7 +12,7 @@ export const GAP = 14;
 const ASPECT = 2.2;
 const PIT_LABEL = 40;
 
-export type TileUnit = "big" | "mid" | "small" | "tiny";
+export type TileUnit = "xl" | "big" | "mid" | "small" | "tiny";
 export type PitMode = "card" | "compact" | "row";
 
 const PIT_HEIGHT: Record<PitMode, number> = { card: 260, compact: 168, row: 64 };
@@ -51,6 +51,7 @@ export function pitMode(n: number, height: number) {
 }
 
 function unitFor(w: number, h: number): TileUnit {
+  if (h >= 250 && w >= 400) return "xl";
   if (h >= 170 && w >= 300) return "big";
   if (h >= 105) return "mid";
   if (h >= 60) return "small";

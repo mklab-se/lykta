@@ -1750,3 +1750,39 @@ body {
 .zoom .graph {
   height: 100%;
 }
+
+/* few workflows: huge tiles, so the text grows with them */
+.tile.xl {
+  padding: 22px 28px;
+  gap: 10px;
+}
+.tile.xl .top {
+  font-size: 20px;
+  letter-spacing: 3px;
+}
+.tile.xl .dot {
+  width: 16px;
+  height: 16px;
+}
+.tile.xl .nm {
+  font-size: 52px;
+}
+.tile.xl .sub {
+  font-size: 22px;
+}
+.tile.xl .hist {
+  gap: 6px;
+}
+.tile.xl .hist i {
+  height: 24px;
+  border-radius: 5px;
+}
+.tile.xl .hist i.latest {
+  height: 34px;
+}
+.tile.xl .ptext {
+  font-size: 22px;
+}
+.tile.xl .tbar {
+  height: 12px;
+}
