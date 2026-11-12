@@ -73,6 +73,8 @@ describe("FailureBand", () => {
     ]);
     expect(html).toContain("NOT FOUND");
     expect(html).toContain("not found (404)");
+    // the configured name leads, so two missing workflows in one repo can be told apart
+    expect(html).toMatch(/class="name ellipsis">Nightly build</);
   });
 
   test("small mode drops the log", () => {

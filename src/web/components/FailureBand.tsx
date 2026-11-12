@@ -53,7 +53,10 @@ function FailCard(props: {
           <span className="dot missing" />
           NOT FOUND
         </div>
-        <div className="name ellipsis">{e.repo}</div>
+        <div className="name ellipsis">{e.name}</div>
+        <div className="repo ellipsis" style={{ marginTop: -6, fontSize: 20 }}>
+          {e.repo} · {e.branch}
+        </div>
         <div className="problem">{e.problem}</div>
       </motion.div>
     );
