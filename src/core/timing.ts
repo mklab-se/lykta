@@ -85,3 +85,12 @@ export function formatClock(epochMs: number, timeZone?: string): string {
     ...(timeZone ? { timeZone } : {}),
   });
 }
+
+/** "just now", "18 min ago", "5 h ago", "2 d ago". */
+export function formatAgo(ms: number): string {
+  const m = Math.floor(ms / 60_000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  return h < 24 ? `${h} h ago` : `${Math.floor(h / 24)} d ago`;
+}

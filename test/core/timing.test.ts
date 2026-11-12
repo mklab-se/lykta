@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   expectedDuration,
   expectedJobDurations,
+  formatAgo,
   formatClock,
   formatDuration,
   isStepSlow,
@@ -100,6 +101,13 @@ describe("timing", () => {
     expect(formatDuration(725_000)).toBe("12m 05s");
     expect(formatDuration(8_040_000)).toBe("2h 14m");
     expect(formatDuration(-5)).toBe("0s");
+  });
+
+  test("formatAgo", () => {
+    expect(formatAgo(30_000)).toBe("just now");
+    expect(formatAgo(18 * 60_000)).toBe("18 min ago");
+    expect(formatAgo(5 * 3_600_000)).toBe("5 h ago");
+    expect(formatAgo(50 * 3_600_000)).toBe("2 d ago");
   });
 
   test("formatClock", () => {
