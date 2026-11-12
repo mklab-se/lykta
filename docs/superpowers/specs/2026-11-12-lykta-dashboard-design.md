@@ -174,6 +174,31 @@ From what GitHub reports (no cluster access in v1):
 - **Burn-in**: the whole canvas drifts by a few pixels over minutes; no static pure-white elements;
   large areas stay dark.
 
+### 3.6.1 Where it failed, and holding a finished run (added 2026-11-12)
+
+Kristofer's request, from watching the wall: where a workflow failed must be visible, not only
+its log, and a run people were watching must not vanish the moment it fails.
+
+- **Across the room: how far it got.** Every failure card has a strip of blocks, one per job,
+  stage by stage (a matrix folds into one block): passed jobs green, the failed one red and
+  larger, jobs that never ran dim. Rows in a dense failure band show a small strip too.
+- **Up close: the error message itself**, not a guess at the cause. Under "job › step", the
+  first error lines of the failed step are the card's biggest text: lines GitHub flags as errors
+  and compiler-style "error:" lines, never the script that printed them, never GitHub's generic
+  "Process completed with exit code N". With no error line, the card says why the job ended
+  (timed out, cancelled, startup failure). The log lines that led up to it follow when there is
+  room. The first error rather than the last, because later ones are usually follow-ups and
+  summaries (my call).
+- **Holding a finished run.** A run that fails stays big in the running area, in the same place,
+  for `display.holdFailedSeconds` (default 180): red, the whole job graph with the failed job and
+  step marked, the error message, and when it shrinks ("shrinks in 2:41"). A pass stays green for
+  `display.holdPassedSeconds` (default 45). Then it morphs into its failure card or passed tile.
+  Each run keeps its own hold, so several failures stay side by side. When the same workflow
+  starts again, the new run takes over its space at once. Held runs take running space, never a
+  failure card's or a tile's.
+- Clicking a failure card opens the detail overlay as before. In the demo, holds are scaled to
+  its fast clock.
+
 ### 3.7 Interaction (occasional, mouse or keyboard)
 
 - Click (or arrow keys + Enter) on a workflow opens a **detail overlay**:

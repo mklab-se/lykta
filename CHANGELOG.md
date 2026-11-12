@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reusable workflows included), shows the failing step's log lines, and turns missing, disabled
   or inaccessible workflows into visible problems. A "Connecting to GitHub..." screen shows until
   the first sync.
+- Where a workflow failed is visible from across the room: failure cards show a strip of the
+  run's jobs (passed green, failed red, never run dim) and the error message itself as their
+  biggest text. A run that fails stays big where people were watching it, with its whole job
+  graph, for 3 minutes (`display.holdFailedSeconds`); a pass stays green for 45 seconds
+  (`display.holdPassedSeconds`). Then it morphs into its failure card or tile.
 - `lykta check` verifies a configuration against GitHub and prints what the wall would show;
   `lykta init` writes a starter `lykta.yaml`.
 - Live test workflows in this repository and `lykta.example.yaml` monitoring them.

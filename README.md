@@ -79,6 +79,17 @@ polling:
   budget: 0.2 # share of each organization's hourly rate limit Lykta may use
 ```
 
+When a run you were watching finishes, it stays big where it was: a failure for 3 minutes (red,
+the whole job graph with the failed job marked, and the error message), a pass for 45 seconds.
+Then it shrinks into its failure card or tile. Failure cards show how far the run got (a strip
+of passed, failed and never-run jobs) and the error message itself as their biggest text.
+
+```yaml
+display:
+  holdFailedSeconds: 180 # a failed run stays big this long (0: shrink at once)
+  holdPassedSeconds: 45 # a passed run, the same
+```
+
 ## What it shows
 
 - 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long

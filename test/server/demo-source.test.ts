@@ -107,4 +107,17 @@ describe("DemoSource", () => {
     expect(d?.runUrl).toContain("/actions/runs/");
     expect(await src.details("nope")).toBeNull();
   });
+
+  test("a demo failure names its error lines", () => {
+    const { tick, inputs } = make(14);
+    tick();
+    const failing = inputs().filter((x) => x.failure);
+    expect(failing.length).toBeGreaterThan(0);
+    for (const f of failing) expect(f.failure?.errors?.length).toBeGreaterThan(0);
+  });
+
+  test("demo holds are scaled to its fast clock", () => {
+    const { src } = make(14);
+    expect(src.holdSettings()).toEqual({ holdFailedSeconds: 180 * 60, holdPassedSeconds: 45 * 60 });
+  });
 });

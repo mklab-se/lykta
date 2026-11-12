@@ -17,12 +17,12 @@ export interface DemoCommandOptions {
 export const buildVersion = () => `${VERSION}+${process.env.LYKTA_BUILD_ID ?? Date.now()}`;
 
 export async function runDemo(opts: DemoCommandOptions): Promise<void> {
+  const source = new DemoSource({ count: opts.count, running: opts.running });
   const hub = new Hub(
     buildVersion(),
-    { lowPower: opts.lowPower ? "on" : "auto", demo: true },
+    { lowPower: opts.lowPower ? "on" : "auto", demo: true, ...source.holdSettings() },
     "Demo",
   );
-  const source = new DemoSource({ count: opts.count, running: opts.running });
   source.start((inputs) => hub.update(inputs));
   const server = startServer({
     port: opts.port,

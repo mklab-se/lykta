@@ -55,7 +55,9 @@ TypeScript run directly by Bun; `bun build --compile` produces single-file binar
 - `src/web/` (React 19 + Motion): `App.tsx` composes the three bands; `layout.ts` decides band sizes
   and densities (pure, tested); `stream.ts` (SSE, reconnect, version reload, stale banner, nightly
   reload); `canvas.ts` (virtual 1920-wide canvas); `power.ts` (low-power mode); `rotation.ts`,
-  `focus.ts`, `idle.ts`; components in `components/`. `styles.css` holds all styles (only
+  `focus.ts`, `idle.ts`; `holds.ts` (a finished run stays big for a while: which band each
+  entry is in); components in `components/` (`ProgressStrip`: how far a run got;
+  `FailureWhat`: failed job, step and error lines). `styles.css` holds all styles (only
   `transform`/`opacity` animate); `fonts.css` bundles Latin woff2 subsets.
 - `src/server/config.ts`: `lykta.yaml` (or inline `LYKTA_CONFIG`) with defaults and `LYKTA_*`
   overrides; secrets only from env vars or `*_FILE` (`LYKTA_TOKEN_<ORG>`, `LYKTA_APP_ID`,
