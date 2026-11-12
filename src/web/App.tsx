@@ -110,7 +110,7 @@ export function App() {
                   pinnedKey={openEntry?.state === "running" ? openEntry.key : undefined}
                 />
               ) : null}
-              {plan ? (
+              {plan && (plan.empty || plan.monitored.height >= 64) ? (
                 <MonitoredBand
                   entries={entries.filter(isMonitoredOnly)}
                   plan={plan.monitored}
