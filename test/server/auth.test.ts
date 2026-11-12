@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { generateKeyPairSync, verify } from "node:crypto";
 import { loadSecrets, parseConfig } from "../../src/server/config.ts";
-import { appJwt, createTokenProvider } from "../../src/server/github/auth.ts";
+import { AuthError, appJwt, createTokenProvider } from "../../src/server/github/auth.ts";
 
 const { privateKey, publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const pkcs1 = privateKey.export({ type: "pkcs1", format: "pem" }).toString();
@@ -75,5 +75,79 @@ describe("auth", () => {
       now: () => NOW,
     });
     await expect(p.token("mklab-se")).rejects.toThrow("No GitHub App installation for mklab-se");
+  });
+
+  test("every sign-in call has a timeout", async () => {
+    const signals: unknown[] = [];
+    const fake = async (_url: string | URL | Request, init?: RequestInit) => {
+      signals.push(init?.signal);
+      return new Response("Not Found", { status: 404 });
+    };
+    const p = createTokenProvider({
+      config: appConfig,
+      secrets: { appId: "123", appPrivateKey: pkcs1, tokens: {} },
+      fetch: fake as typeof fetch,
+      now: () => NOW,
+    });
+    await p.token("mklab-se").catch(() => {});
+    expect(signals.length).toBeGreaterThan(0);
+    expect(signals.every((sg) => sg instanceof AbortSignal)).toBe(true);
+  });
+
+  test("a missing installation is an AuthError and is not looked up on every poll", async () => {
+    let now = NOW;
+    let lookups = 0;
+    const fake = async (url: string | URL | Request) => {
+      if (String(url).includes("/installation")) lookups++;
+      return new Response("Not Found", { status: 404 });
+    };
+    const p = createTokenProvider({
+      config: appConfig,
+      secrets: { appId: "123", appPrivateKey: pkcs1, tokens: {} },
+      fetch: fake as typeof fetch,
+      now: () => now,
+    });
+    await expect(p.token("mklab-se")).rejects.toBeInstanceOf(AuthError);
+    const first = lookups;
+    await expect(p.token("mklab-se")).rejects.toBeInstanceOf(AuthError);
+    expect(lookups).toBe(first);
+    now += 11 * 60_000;
+    await expect(p.token("mklab-se")).rejects.toBeInstanceOf(AuthError);
+    expect(lookups).toBe(first * 2);
+  });
+
+  test("a removed installation is looked up again", async () => {
+    let installed = 42;
+    const calls: string[] = [];
+    const fake = async (url: string | URL | Request) => {
+      const u = String(url);
+      calls.push(u);
+      if (u.endsWith("/orgs/mklab-se/installation")) return Response.json({ id: installed });
+      if (u.endsWith(`/app/installations/${installed}/access_tokens`))
+        return Response.json(
+          { token: `inst-${installed}`, expires_at: new Date(NOW + 60_000).toISOString() },
+          { status: 201 },
+        );
+      return new Response("Not Found", { status: 404 });
+    };
+    const p = createTokenProvider({
+      config: appConfig,
+      secrets: { appId: "123", appPrivateKey: pkcs1, tokens: {} },
+      fetch: fake as typeof fetch,
+      now: () => NOW,
+    });
+    expect(await p.token("mklab-se")).toBe("inst-42"); // expires soon, so not cached
+    installed = 43; // the App was reinstalled
+    await expect(p.token("mklab-se")).rejects.toBeInstanceOf(AuthError);
+    expect(await p.token("mklab-se")).toBe("inst-43");
+  });
+
+  test("a missing token is an AuthError", async () => {
+    const p = createTokenProvider({
+      config: appConfig,
+      secrets: { tokens: {} },
+      now: () => NOW,
+    });
+    await expect(p.token("acme")).rejects.toBeInstanceOf(AuthError);
   });
 });

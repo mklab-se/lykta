@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { deriveEntry } from "../../src/core/state.ts";
 import type { EntryInput } from "../../src/core/types.ts";
 import { parseConfig } from "../../src/server/config.ts";
+import { AuthError } from "../../src/server/github/auth.ts";
 import { GitHubError, RateLimitError, type RateState } from "../../src/server/github/client.ts";
 import type { GhJob, GhRun } from "../../src/server/github/map.ts";
 import { type GitHubApi, GitHubSource } from "../../src/server/github/source.ts";
@@ -30,8 +31,8 @@ class FakeGitHub implements GitHubApi {
     for (const [re, fn] of this.routes) {
       const m = path.match(re);
       if (m) {
-        const out = fn(m);
-        if (out instanceof GitHubError) throw out;
+        const out = await fn(m);
+        if (out instanceof Error) throw out;
         return { data: out as T, notModified: false };
       }
     }
@@ -391,6 +392,76 @@ describe("GitHubSource", () => {
     });
     await src.syncAll();
     expect(deriveEntry(byWorkflow(got, "ci.yml")).failure?.job).toBe("Typecheck");
+  });
+
+  test("a sign-in failure marks every entry of that organization", async () => {
+    const { gh } = await setup();
+    gh.routes.unshift([/\/runs\?/, () => new AuthError("mklab-se", "Bad credentials (HTTP 401)")]);
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => NOW,
+      schedule: () => 0,
+    });
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.firstSync;
+    for (const i of got) expect(i.problem).toContain("Cannot sign in to mklab-se");
+  });
+
+  test("one stuck entry does not hold up the others", async () => {
+    const { gh, failed } = await setup();
+    let now = NOW;
+    const ticks: (() => void)[] = [];
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => now,
+      schedule: (fn) => ticks.push(fn),
+    });
+    let got: EntryInput[] = [];
+    let warnings: string[] = [];
+    src.onWarnings((w) => {
+      warnings = w;
+    });
+    src.start((i) => {
+      got = i;
+    });
+    await src.firstSync;
+    gh.routes.unshift([/workflows\/ci\.yml\/runs/, () => new Promise(() => {})]);
+    gh.routes.unshift([/workflows\/release\.yml\/runs/, () => ({ workflow_runs: [failed] })]);
+    now += 10 * 60_000;
+    ticks.at(-1)?.();
+    await Bun.sleep(20);
+    expect(deriveEntry(byWorkflow(got, "release.yml")).state).toBe("failed");
+    expect(warnings.join(" ")).toContain("Data for");
+    // and the loop keeps ticking
+    expect(ticks.length).toBeGreaterThan(1);
+  });
+
+  test("polling continues after an unexpected error", async () => {
+    const { gh } = await setup();
+    let now = NOW;
+    const ticks: (() => void)[] = [];
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => now,
+      schedule: (fn) => ticks.push(fn),
+    });
+    let calls = 0;
+    src.start(() => {
+      calls++;
+      if (calls === 2) throw new Error("subscriber broke");
+    });
+    await src.firstSync;
+    const before = ticks.length;
+    now += 10 * 60_000;
+    ticks.at(-1)?.();
+    await Bun.sleep(20);
+    expect(ticks.length).toBeGreaterThan(before);
   });
 
   test("details for a run", async () => {

@@ -4,7 +4,7 @@
  * GitHub says to slow down. Errors never include a token.
  */
 import { formatClock } from "../../core/timing.ts";
-import { API, apiHeaders, type TokenProvider } from "./auth.ts";
+import { API, AuthError, apiHeaders, TIMEOUT_MS, type TokenProvider } from "./auth.ts";
 
 export class GitHubError extends Error {
   constructor(
@@ -58,6 +58,7 @@ export class GitHubClient {
       now?: () => number;
       sleep?: (ms: number) => Promise<void>;
       userAgent: string;
+      timeoutMs?: number;
     },
   ) {
     this.doFetch = opts.fetch ?? fetch;
@@ -100,7 +101,7 @@ export class GitHubClient {
       const res = await this.request(org, path, {}, "manual");
       const location = res.headers.get("location");
       if (res.status >= 300 && res.status < 400 && location) {
-        const out = await this.doFetch(location);
+        const out = await this.fetchWithTimeout(path, location, {});
         if (!out.ok)
           throw new GitHubError(`Could not download ${path} (HTTP ${out.status})`, out.status);
         return out.text();
@@ -134,7 +135,7 @@ export class GitHubClient {
         paused,
       );
     const token = await this.opts.tokens.token(org);
-    const res = await this.doFetch(`${API}${path}`, {
+    const res = await this.fetchWithTimeout(path, `${API}${path}`, {
       headers: { ...apiHeaders(token, this.opts.userAgent), ...extra },
       redirect,
     });
@@ -160,11 +161,26 @@ export class GitHubClient {
     try {
       detail = ((await res.json()) as { message?: string }).message ?? "";
     } catch {}
+    if (res.status === 401)
+      throw new AuthError(org, `${detail || "GitHub refused the credentials"} (HTTP 401)`);
     throw new GitHubError(
       `GitHub API ${res.status} for ${path}${detail ? `: ${detail}` : ""}`,
       res.status,
       res.headers.get("x-accepted-github-permissions") ?? undefined,
     );
+  }
+
+  private async fetchWithTimeout(path: string, url: string, init: RequestInit): Promise<Response> {
+    const ms = this.opts.timeoutMs ?? TIMEOUT_MS;
+    try {
+      return await this.doFetch(url, { ...init, signal: AbortSignal.timeout(ms) });
+    } catch (e) {
+      if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError"))
+        throw new Error(
+          `GitHub did not answer ${path} within ${Math.round(ms / 1000)} s (timed out)`,
+        );
+      throw e;
+    }
   }
 
   /** 429, or a 403 that is really a (primary or secondary) rate limit, not missing access. */

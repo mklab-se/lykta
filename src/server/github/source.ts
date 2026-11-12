@@ -5,9 +5,11 @@
  * runs low. Missing or inaccessible workflows become visible problems, never silent gaps.
  */
 import { isFailureConclusion } from "../../core/state.ts";
+import { formatClock } from "../../core/timing.ts";
 import type { Conclusion, EntryInput, FailureInfo, RunRecord } from "../../core/types.ts";
 import { entryKey, type LyktaConfig, type MonitorConfig } from "../config.ts";
 import type { RunDetails, Source } from "../source.ts";
+import { AuthError } from "./auth.ts";
 import { GitHubError, RateLimitError, type RateState } from "./client.ts";
 import { cleanLog, failureExcerpt } from "./logs.ts";
 import { classifyRunner, type GhJob, type GhRun, mapRun } from "./map.ts";
@@ -38,6 +40,8 @@ interface EntryState {
   problem?: string;
   intervalMs: number;
   nextAt: number;
+  syncing: boolean;
+  syncedAt: number;
 }
 
 const completed = (r: GhRun) => r.status === "completed";
@@ -63,6 +67,8 @@ export class GitHubSource implements Source {
     { caller: WorkflowDef | null; called: Record<string, WorkflowDef | null> }
   >();
   private readonly warnings = new Map<string, number>();
+  /** Sign-in problems per org: they affect every entry of that org at once. */
+  private readonly authProblems = new Map<string, string>();
   private readonly warningListeners = new Set<(w: string[]) => void>();
   private onChange: ((inputs: EntryInput[]) => void) | undefined;
   private stopped = false;
@@ -84,6 +90,8 @@ export class GitHubSource implements Source {
       runs: [],
       intervalMs: opts.config.polling.idleSeconds * 1000,
       nextAt: 0,
+      syncing: false,
+      syncedAt: 0,
     }));
     this.firstSync = new Promise((r) => {
       this.resolveFirst = r;
@@ -93,10 +101,12 @@ export class GitHubSource implements Source {
 
   start(onChange: (inputs: EntryInput[]) => void): void {
     this.onChange = onChange;
-    this.syncAll().then(() => {
-      this.resolveFirst();
-      this.loop();
-    });
+    this.syncAll()
+      .catch((err) => console.error("lykta: first sync failed:", err))
+      .finally(() => {
+        this.resolveFirst();
+        this.loop();
+      });
   }
 
   stop(): void {
@@ -113,7 +123,7 @@ export class GitHubSource implements Source {
 
   async syncAll(): Promise<void> {
     await Promise.all(this.entries.map((e) => this.syncEntry(e)));
-    this.emit();
+    this.safeEmit();
   }
 
   async details(key: string, runId?: number): Promise<RunDetails | null> {
@@ -144,17 +154,34 @@ export class GitHubSource implements Source {
 
   // ---------- polling ----------
 
+  /** Each due entry syncs on its own, so one slow entry never holds up the others. */
   private loop(): void {
     if (this.stopped) return;
-    this.schedule(async () => {
-      if (this.stopped) return;
-      const due = this.entries.filter((e) => e.nextAt <= this.now());
-      if (due.length) {
-        await Promise.all(due.map((e) => this.syncEntry(e)));
-        this.emit();
+    this.schedule(() => {
+      try {
+        if (this.stopped) return;
+        for (const e of this.entries) {
+          if (e.syncing || e.nextAt > this.now()) continue;
+          e.syncing = true;
+          this.syncEntry(e)
+            .then(() => this.safeEmit())
+            .catch((err) => console.error("lykta: sync failed:", err))
+            .finally(() => {
+              e.syncing = false;
+            });
+        }
+      } finally {
+        this.loop();
       }
-      this.loop();
     }, LOOP_MS);
+  }
+
+  private safeEmit(): void {
+    try {
+      this.emit();
+    } catch (err) {
+      console.error("lykta: could not publish the state:", err);
+    }
   }
 
   private async syncEntry(e: EntryState): Promise<void> {
@@ -174,15 +201,18 @@ export class GitHubSource implements Source {
         if (!completed(newest)) await this.graphFor(e, newest);
       }
       await this.updateFailure(e);
+      this.authProblems.delete(e.org);
+      e.syncedAt = this.now();
     } catch (err) {
-      await this.handleError(e, err);
+      await this.handleError(e, err).catch(() => {});
     }
     const running = e.runs[0] !== undefined && !completed(e.runs[0]);
     const base =
       (running ? this.opts.config.polling.activeSeconds : this.opts.config.polling.idleSeconds) *
       1000;
     e.intervalMs = base * this.slowdown(e.org);
-    e.nextAt = this.now() + e.intervalMs;
+    // jitter, so entries (and walls started together) do not poll in lockstep
+    e.nextAt = this.now() + e.intervalMs * (0.9 + Math.random() * 0.2);
   }
 
   /**
@@ -350,6 +380,10 @@ export class GitHubSource implements Source {
 
   private async handleError(e: EntryState, err: unknown): Promise<void> {
     const { repo, workflow } = e.cfg;
+    if (err instanceof AuthError) {
+      this.authProblems.set(err.org, `Cannot sign in to ${err.org}: ${err.message}`);
+      return;
+    }
     if (err instanceof RateLimitError) {
       this.warn(err.message); // keep the last known state; the client pauses the org
       return;
@@ -394,6 +428,11 @@ export class GitHubSource implements Source {
   }
 
   private emit(): void {
+    for (const e of this.entries) {
+      const late = e.syncedAt > 0 && this.now() - e.syncedAt > 3 * e.intervalMs + LOOP_MS;
+      if (late)
+        this.warnings.set(`Data for ${e.cfg.name} is from ${formatClock(e.syncedAt)}`, this.now());
+    }
     this.publishWarnings();
     const rules = this.opts.config.runners;
     const inputs: EntryInput[] = this.entries.map((e) => {
@@ -416,7 +455,7 @@ export class GitHubSource implements Source {
         },
         runs,
         failure: e.failure,
-        problem: e.problem,
+        problem: this.authProblems.get(e.org) ?? e.problem,
       };
     });
     this.onChange?.(inputs);

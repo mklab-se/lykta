@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import type { TokenProvider } from "../../src/server/github/auth.ts";
+import { AuthError, type TokenProvider } from "../../src/server/github/auth.ts";
 import { GitHubClient, GitHubError, RateLimitError } from "../../src/server/github/client.ts";
 
 const tokens: TokenProvider = { token: async (org) => `tok-${org}`, kind: () => "token" };
 
 type Handler = (url: string, init: RequestInit) => Response | Promise<Response>;
-function client(handler: Handler, sleeps: number[] = []) {
+function client(handler: Handler, sleeps: number[] = [], timeoutMs?: number) {
   const warnings: string[] = [];
   const c = new GitHubClient({
     tokens,
@@ -16,6 +16,7 @@ function client(handler: Handler, sleeps: number[] = []) {
       sleeps.push(ms);
     },
     userAgent: "lykta/test",
+    timeoutMs,
   });
   c.onWarning((w) => warnings.push(w));
   return { c, warnings };
@@ -149,5 +150,30 @@ describe("GitHubClient", () => {
         : new Response("log line", { status: 200 }),
     );
     expect(await c.text("o", "/repos/o/r/actions/jobs/1/logs")).toBe("log line");
+  });
+
+  test("a request that hangs times out", async () => {
+    const { c } = client(
+      (_url, init) =>
+        new Promise((_resolve, reject) =>
+          init.signal?.addEventListener("abort", () => reject(init.signal?.reason)),
+        ),
+      [],
+      20,
+    );
+    await expect(c.json("o", "/slow")).rejects.toThrow("timed out");
+  });
+
+  test("401 is an AuthError for the organization", async () => {
+    const { c } = client(
+      () =>
+        new Response(JSON.stringify({ message: "Bad credentials" }), {
+          status: 401,
+          headers: rateHeaders(),
+        }),
+    );
+    const err = await c.json("acme", "/x").catch((e) => e);
+    expect(err).toBeInstanceOf(AuthError);
+    expect((err as AuthError).org).toBe("acme");
   });
 });
