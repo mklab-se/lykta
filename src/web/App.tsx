@@ -112,7 +112,13 @@ export function App() {
     >
       <div className="drift">
         <div className="screen">
-          <Header entries={entries} title={data?.title} now={now} staleMinutes={stale} />
+          <Header
+            entries={entries}
+            title={data?.title}
+            now={now}
+            staleMinutes={stale}
+            warnings={data?.warnings}
+          />
           <LayoutGroup>
             <div className="body">
               {plan?.failures ? (
@@ -141,6 +147,7 @@ export function App() {
                   now={now}
                   onOpen={(k) => open(k, "monitored")}
                   allEmpty={plan.empty}
+                  connecting={data?.synced === false}
                 />
               ) : null}
             </div>

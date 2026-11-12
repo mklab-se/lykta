@@ -11,6 +11,7 @@ import { printBannerWithVersion } from "./banner.ts";
 import { dim, setColorEnabled, yellow } from "./color.ts";
 import { generateCompletion, SHELLS, type Shell } from "./commands/completion.ts";
 import { runDemo } from "./commands/demo.ts";
+import { runServe } from "./commands/serve.ts";
 import { DESCRIPTION, NO_UPDATE_CHECK_ENV, PACKAGE_NAME, TOOL, VERSION } from "./meta.ts";
 import { checkForUpdate } from "./update.ts";
 
@@ -45,13 +46,25 @@ Lykta (Swedish for "lantern") shows at a glance which GitHub Actions workflows a
     // banner and a short note. `--help` still works.
     .action(() => {
       printBannerWithVersion();
-      console.log("Run `lykta demo` to see the dashboard with simulated workflows.");
+      console.log(
+        "Run `lykta serve --config lykta.yaml` for your workflows, or `lykta demo` to try it.",
+      );
     });
 
   program
     .command("version")
     .description("show the banner and version")
     .action(() => printBannerWithVersion());
+
+  program
+    .command("serve")
+    .description("serve the dashboard for the workflows in your configuration")
+    .option("-c, --config <path>", "configuration file (default lykta.yaml, or LYKTA_CONFIG)")
+    .option("-p, --port <port>", "port to listen on (overrides the config)", (v) =>
+      Number.parseInt(v, 10),
+    )
+    .option("--host <host>", "address to listen on (overrides the config)")
+    .action((o: { config?: string; port?: number; host?: string }) => runServe(o));
 
   program
     .command("demo")
