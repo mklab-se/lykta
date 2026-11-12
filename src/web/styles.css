@@ -1956,3 +1956,7 @@ body {
 .tile .tbar {
   flex: none;
 }
+/* each log line keeps its height; when the box is short the oldest lines are cut at the top */
+.car .carlog div {
+  flex: none;
+}
