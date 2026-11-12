@@ -1952,3 +1952,7 @@ body {
 .tile.running .foot > .tags {
   align-self: flex-end;
 }
+/* the progress bar keeps its height (with overflow hidden it could shrink to nothing) */
+.tile .tbar {
+  flex: none;
+}
