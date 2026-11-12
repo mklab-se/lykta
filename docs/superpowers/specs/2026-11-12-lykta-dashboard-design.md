@@ -395,6 +395,11 @@ Consequences for the design:
   workflow call (`uses: ./.github/workflows/ci.yml`). This is also where the open points of section 7
   are tested. Android builds, ARC and lab runners are not available there, so those are synthetic
   fixtures shaped like the real responses.
+- **Live test workflows in this repository** (`.github/workflows/live-*.yml`, Kristofer's addition):
+  started manually (`workflow_dispatch`, with inputs such as "fail in job X" and "duration") and
+  optionally on a schedule. Together they cover a `needs` chain, a matrix, a reusable workflow, a
+  long-running job, a failure on demand, and a cancelled run, so Lykta can be watched against real
+  runs end to end. They use GitHub-hosted runners and cheap steps (sleeps, echoes) only.
 - The **GitHub App** path is tested by Kristofer creating an App in `mklab-se` with `docs/github-app.md`
   (which also tests the guide).
 
