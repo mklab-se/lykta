@@ -40,4 +40,18 @@ describe("logs", () => {
     const lines = ["a", "##[error]boom", "b"];
     expect(failureExcerpt(lines, "nope")).toContain("boom");
   });
+
+  test("excerpt ends at the error, not at the cleanup after it (real failed run)", async () => {
+    const file = [
+      ...new Bun.Glob("logs-*.txt").scanSync("test/fixtures/github/live-pipeline-failed"),
+    ][0];
+    const lines = cleanLog(
+      await Bun.file(`test/fixtures/github/live-pipeline-failed/${file}`).text(),
+    );
+    // GitHub titles a run step's section with its command, not the step name ("Compile")
+    const ex = failureExcerpt(lines, "Compile");
+    expect(ex.at(-1)).toBe("Process completed with exit code 1.");
+    expect(ex.join("\n")).toContain("Battery.java:212: error: cannot find symbol");
+    expect(ex.join("\n")).not.toContain("Cleaning up orphan processes");
+  });
 });

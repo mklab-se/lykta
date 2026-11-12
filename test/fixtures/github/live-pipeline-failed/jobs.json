@@ -1,0 +1,402 @@
+{
+  "total_count": 8,
+  "jobs": [
+    {
+      "id": 131470635882,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenEKzag",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131470635882",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131470635882",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T20:28:31Z",
+      "started_at": "2026-11-12T20:28:35Z",
+      "completed_at": "2026-11-12T20:28:48Z",
+      "name": "Prepare",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T20:28:36Z",
+          "completed_at": "2026-11-12T20:28:36Z"
+        },
+        {
+          "name": "Fetch manifest",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T20:28:36Z",
+          "completed_at": "2026-11-12T20:28:46Z"
+        },
+        {
+          "name": "Fail on purpose",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3,
+          "started_at": "2026-11-12T20:28:46Z",
+          "completed_at": "2026-11-12T20:28:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T20:28:46Z",
+          "completed_at": "2026-11-12T20:28:46Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131470635882",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006322,
+      "runner_name": "GitHub Actions 1000006322",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131470800179,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenEU1Mw",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131470800179",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131470800179",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-12T20:28:48Z",
+      "started_at": "2026-11-12T20:28:50Z",
+      "completed_at": "2026-11-12T20:29:43Z",
+      "name": "Build linux-arm64",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T20:28:51Z",
+          "completed_at": "2026-11-12T20:28:51Z"
+        },
+        {
+          "name": "Fetch sources",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T20:28:51Z",
+          "completed_at": "2026-11-12T20:29:11Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 3,
+          "started_at": "2026-11-12T20:29:11Z",
+          "completed_at": "2026-11-12T20:29:41Z"
+        },
+        {
+          "name": "Upload artifacts",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 4,
+          "started_at": "2026-11-12T20:29:41Z",
+          "completed_at": "2026-11-12T20:29:41Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T20:29:41Z",
+          "completed_at": "2026-11-12T20:29:41Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131470800179",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006323,
+      "runner_name": "GitHub Actions 1000006323",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131470800275,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenEU1kw",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131470800275",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131470800275",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T20:28:48Z",
+      "started_at": "2026-11-12T20:28:50Z",
+      "completed_at": "2026-11-12T20:29:49Z",
+      "name": "Build macos-arm64",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T20:28:51Z",
+          "completed_at": "2026-11-12T20:28:51Z"
+        },
+        {
+          "name": "Fetch sources",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T20:28:51Z",
+          "completed_at": "2026-11-12T20:29:12Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T20:29:12Z",
+          "completed_at": "2026-11-12T20:29:42Z"
+        },
+        {
+          "name": "Upload artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T20:29:42Z",
+          "completed_at": "2026-11-12T20:29:47Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T20:29:47Z",
+          "completed_at": "2026-11-12T20:29:47Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131470800275",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006326,
+      "runner_name": "GitHub Actions 1000006326",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131470800350,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenEU13g",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131470800350",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131470800350",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T20:28:48Z",
+      "started_at": "2026-11-12T20:28:50Z",
+      "completed_at": "2026-11-12T20:29:49Z",
+      "name": "Build windows-x64",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T20:28:51Z",
+          "completed_at": "2026-11-12T20:28:51Z"
+        },
+        {
+          "name": "Fetch sources",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T20:28:51Z",
+          "completed_at": "2026-11-12T20:29:12Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T20:29:12Z",
+          "completed_at": "2026-11-12T20:29:42Z"
+        },
+        {
+          "name": "Upload artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T20:29:42Z",
+          "completed_at": "2026-11-12T20:29:47Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T20:29:47Z",
+          "completed_at": "2026-11-12T20:29:47Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131470800350",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006324,
+      "runner_name": "GitHub Actions 1000006324",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131470800356,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenEU15A",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131470800356",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131470800356",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T20:28:48Z",
+      "started_at": "2026-11-12T20:28:50Z",
+      "completed_at": "2026-11-12T20:29:47Z",
+      "name": "Build linux-x64",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T20:28:50Z",
+          "completed_at": "2026-11-12T20:28:50Z"
+        },
+        {
+          "name": "Fetch sources",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T20:28:50Z",
+          "completed_at": "2026-11-12T20:29:11Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T20:29:11Z",
+          "completed_at": "2026-11-12T20:29:41Z"
+        },
+        {
+          "name": "Upload artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T20:29:41Z",
+          "completed_at": "2026-11-12T20:29:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T20:29:46Z",
+          "completed_at": "2026-11-12T20:29:46Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131470800356",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006325,
+      "runner_name": "GitHub Actions 1000006325",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131471385775,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenE4krw",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131471385775",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131471385775",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-11-12T20:29:49Z",
+      "started_at": "2026-11-12T20:29:49Z",
+      "completed_at": "2026-11-12T20:29:49Z",
+      "name": "Checks",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131471385775",
+      "labels": [],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    },
+    {
+      "id": 131471386126,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenE4mDg",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131471386126",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131471386126",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-11-12T20:29:49Z",
+      "started_at": "2026-11-12T20:29:49Z",
+      "completed_at": "2026-11-12T20:29:49Z",
+      "name": "Long build",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131471386126",
+      "labels": ["ubuntu-latest"],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    },
+    {
+      "id": 131471387403,
+      "run_id": 43300656194,
+      "workflow_name": "Live pipeline",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43300656194",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAenE4rCw",
+      "head_sha": "3550ca82e82b3afe910ee32d2bce5455fb3d52fe",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131471387403",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43300656194/job/131471387403",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-11-12T20:29:50Z",
+      "started_at": "2026-11-12T20:29:50Z",
+      "completed_at": "2026-11-12T20:29:49Z",
+      "name": "Deploy",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131471387403",
+      "labels": ["ubuntu-latest"],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    }
+  ]
+}

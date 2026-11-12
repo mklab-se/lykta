@@ -1,0 +1,102 @@
+# Live test pipeline for Lykta: a needs chain, a matrix, a reusable workflow, a long job and
+# failures on demand. Manual only (no schedule), echo/sleep only: costs a few runner minutes.
+name: Live pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail_at:
+        description: Which stage should fail
+        type: choice
+        options: [none, prepare, build, test, deploy]
+        default: none
+      minutes:
+        description: Length of the long job in minutes (1-6)
+        type: number
+        default: 3
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch manifest
+        run: sleep 10 && echo "manifest ok"
+      - name: Fail on purpose
+        if: inputs.fail_at == 'prepare'
+        run: |
+          echo "fatal: could not read manifest revision 'release/9.9'"
+          echo "::error::Prepare failed on purpose (fail_at=prepare)"
+          exit 1
+
+  build:
+    name: Build ${{ matrix.target }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [linux-x64, linux-arm64, macos-arm64, windows-x64]
+    steps:
+      - name: Fetch sources
+        run: sleep 20 && echo "sources for ${{ matrix.target }}"
+      - name: Compile
+        run: |
+          sleep 30
+          if [ "${{ inputs.fail_at }}" = "build" ] && [ "${{ matrix.target }}" = "linux-arm64" ]; then
+            echo "[ 87% 118342/136011] //frameworks/base:framework-minus-apex javac"
+            echo "frameworks/base/core/java/android/os/Battery.java:212: error: cannot find symbol"
+            echo "::error::Build failed on purpose (fail_at=build)"
+            exit 1
+          fi
+          echo "compiled ${{ matrix.target }}"
+      - name: Upload artifacts
+        run: sleep 5 && echo "uploaded"
+
+  checks:
+    name: Checks
+    needs: build
+    uses: ./.github/workflows/live-reusable.yml
+    with:
+      fail: ${{ inputs.fail_at == 'test' }}
+
+  long:
+    name: Long build
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Minute 1
+        run: sleep 60
+      - name: Minute 2
+        if: inputs.minutes >= 2
+        run: sleep 60
+      - name: Minute 3
+        if: inputs.minutes >= 3
+        run: sleep 60
+      - name: Minute 4
+        if: inputs.minutes >= 4
+        run: sleep 60
+      - name: Minute 5
+        if: inputs.minutes >= 5
+        run: sleep 60
+      - name: Minute 6
+        if: inputs.minutes >= 6
+        run: sleep 60
+
+  deploy:
+    name: Deploy
+    needs: [checks, long]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Roll out
+        run: |
+          sleep 15
+          if [ "${{ inputs.fail_at }}" = "deploy" ]; then
+            echo "Error: UPGRADE FAILED: timed out waiting for the condition"
+            echo "::error::Deploy failed on purpose (fail_at=deploy)"
+            exit 1
+          fi
+          echo "deployed"

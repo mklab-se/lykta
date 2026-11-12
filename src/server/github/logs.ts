@@ -30,11 +30,14 @@ function present(lines: string[]): { text: string; error: boolean }[] {
     });
 }
 
+/** Lines leading up to the first error, ending with the error lines themselves. */
 function around(lines: { text: string; error: boolean }[], max: number): string[] {
   const firstError = lines.findIndex((l) => l.error);
   if (firstError < 0) return lines.slice(-max).map((l) => l.text);
-  const after = Math.min(4, Math.max(0, lines.length - firstError - 1));
-  const end = Math.min(lines.length, firstError + 1 + after);
+  // include the run of error lines that follows (e.g. "Process completed with exit code 1."),
+  // but never what comes after it (post-job cleanup)
+  let end = firstError + 1;
+  while (end < lines.length && lines[end]?.error) end++;
   return lines.slice(Math.max(0, end - max), end).map((l) => l.text);
 }
 
