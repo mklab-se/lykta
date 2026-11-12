@@ -5,8 +5,14 @@
 import { useEffect, useReducer } from "react";
 import type { DashboardState } from "../core/types.ts";
 
-export type DisplaySettings = { lowPower: "auto" | "on" | "off"; demo: boolean };
-export type ClientState = DashboardState & { display?: DisplaySettings };
+export type DisplaySettings = {
+  lowPower: "auto" | "on" | "off";
+  demo: boolean;
+  holdFailedSeconds?: number;
+  holdPassedSeconds?: number;
+  clockScale?: number;
+};
+export type ClientState = DashboardState & { display?: DisplaySettings; synced?: boolean };
 
 export interface StreamState {
   data: ClientState | null;

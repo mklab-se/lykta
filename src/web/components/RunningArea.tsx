@@ -5,12 +5,22 @@ import type { EntryView, RunRecord } from "../../core/types.ts";
 import { newFailingRun } from "../arrivals.ts";
 import type { LayoutPlan } from "../layout.ts";
 import { dwellSeconds, nextSelection, type Selection } from "../rotation.ts";
+import { FailureWhat } from "./FailureWhat.tsx";
 import { JobGraph } from "./JobGraph.tsx";
 import { JobLanes } from "./JobLanes.tsx";
 
 type Plan = NonNullable<LayoutPlan["running"]>;
 
 const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
+
+/** The run an active entry shows: the running one, or the finished one being held. */
+const runOf = (e: EntryView) => (e.current ?? e.latestCompleted) as RunRecord;
+
+/** "2:50": time left before a held run shrinks. */
+export function countdown(ms: number): string {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
 
 /** "QUEUED" / "WAITING" for runs that have not started, else "RUNNING". */
 export function runLabel(run: RunRecord): "QUEUED" | "WAITING" | "RUNNING" {
@@ -36,6 +46,53 @@ export function timingLabels(e: EntryView, now: number) {
   };
 }
 
+function HeldCard(props: {
+  e: EntryView;
+  until: number;
+  height: number;
+  columns: number;
+  now: number;
+  onOpen: (key: string) => void;
+  layoutId?: string;
+}) {
+  const { e, now } = props;
+  const run = runOf(e);
+  const failed = run.conclusion !== "success";
+  const done = run.jobs.filter((j) => j.status === "success").length;
+  return (
+    <motion.div
+      className={`run held ${failed ? "failed" : "passed"}`}
+      layoutId={props.layoutId ?? e.key}
+      layoutDependency={`${e.key}:${props.height}:held`}
+      data-entry={e.key}
+      onClick={() => props.onOpen(e.key)}
+    >
+      <div className="tag">
+        <span className={`dot ${failed ? "failed" : "passed"}`} />
+        {failed ? "FAILED" : "PASSED"}
+        <span className="progress">
+          {done}/{run.jobs.length} jobs
+        </span>
+        <span className="elapsed">shrinks in {countdown(props.until - now)}</span>
+      </div>
+      <div className="name ellipsis">
+        {e.name} <span className="repo">· {repoName(e)}</span>
+      </div>
+      <JobGraph run={run} columns={props.columns} />
+      {failed ? <FailureWhat e={e} big /> : null}
+      <div className="meta">
+        <span>
+          <b>{run.branch}</b>
+        </span>
+        <span className="mono">{run.sha.slice(0, 7)}</span>
+        <span>
+          by <b>{run.actor}</b>
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
 function RunCard(props: {
   e: EntryView;
   height: number;
@@ -43,7 +100,9 @@ function RunCard(props: {
   now: number;
   onOpen: (key: string) => void;
   layoutId?: string;
+  until?: number;
 }) {
+  if (props.until !== undefined) return <HeldCard {...props} until={props.until} />;
   const { e, now } = props;
   const run = e.current as RunRecord;
   const t = timingLabels(e, now);
@@ -98,13 +157,54 @@ function RunCard(props: {
   );
 }
 
+function HeldRow(props: {
+  e: EntryView;
+  until: number;
+  selected: boolean;
+  height: number;
+  now: number;
+  onOpen: (key: string) => void;
+}) {
+  const { e, now } = props;
+  const failed = runOf(e).conclusion !== "success";
+  const compact = props.height < 44;
+  const f = e.failure;
+  return (
+    <motion.div
+      layoutId={e.key}
+      layoutDependency={`${props.height}:${props.selected}:held`}
+      className={`rrow held ${failed ? "failed" : "passed"}${props.selected ? " sel" : ""}${compact ? " compact" : ""}`}
+      style={{ height: props.height }}
+      data-entry={e.key}
+      onClick={() => props.onOpen(e.key)}
+    >
+      <div className="sel-bg" />
+      <div className="r1">
+        <span className={`dot ${failed ? "failed" : "passed"}`} />
+        <span className="nm ellipsis">
+          {e.name} <span className="repo">· {repoName(e)}</span>
+        </span>
+        <span className="el">{failed ? "FAILED" : "PASSED"}</span>
+      </div>
+      {props.height >= 86 && failed && f ? (
+        <div className="r3 ellipsis">{f.step ? `${f.job} › ${f.step}` : f.job}</div>
+      ) : null}
+      {!compact ? (
+        <div className="r2 shrinks">shrinks in {countdown(props.until - now)}</div>
+      ) : null}
+    </motion.div>
+  );
+}
+
 function RunRow(props: {
   e: EntryView;
   selected: boolean;
   height: number;
   now: number;
   onOpen: (key: string) => void;
+  until?: number;
 }) {
+  if (props.until !== undefined) return <HeldRow {...props} until={props.until} />;
   const { e, now } = props;
   const t = timingLabels(e, now);
   const active = e.current?.jobs.filter((j) => j.status === "running") ?? [];
@@ -152,15 +252,21 @@ export function RunningArea(props: {
   now: number;
   pinnedKey?: string;
   onOpen: (key: string) => void;
+  /** Finished runs still shown big, and until when (see holds.ts). */
+  heldUntil?: Record<string, number>;
 }) {
   const { entries, plan, now } = props;
+  const held = props.heldUntil ?? {};
+  const runningCount = entries.filter((e) => held[e.key] === undefined).length;
+  const heldCount = entries.length - runningCount;
+  const label = `IN PROGRESS · ${runningCount}${heldCount ? ` · JUST FINISHED · ${heldCount}` : ""}`;
   const keys = entries.map((e) => e.key);
   const [sel, setSel] = useState<Selection>({ selectedKey: null, selectedAt: now });
   const seenFailing = useRef(new Set<string>());
   const runs = entries.map((e) => ({
     key: e.key,
-    runId: e.current?.id ?? 0,
-    failed: e.current?.jobs.some((j) => j.status === "failure") ?? false,
+    runId: runOf(e)?.id ?? 0,
+    failed: runOf(e)?.jobs.some((j) => j.status === "failure") ?? false,
   }));
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: advance once per clock tick
@@ -183,9 +289,10 @@ export function RunningArea(props: {
   if (plan.mode === "single") {
     return (
       <div className="band" style={{ height: plan.height + 28 }}>
-        <div className="section-label">IN PROGRESS · 1</div>
+        <div className="section-label">{label}</div>
         <div style={{ height: plan.height, display: "grid" }}>
           <RunCard
+            until={held[selected.key]}
             e={selected}
             height={plan.height}
             columns={plan.graphColumns}
@@ -214,6 +321,7 @@ export function RunningArea(props: {
       {shown.map((e) => (
         <RunRow
           key={e.key}
+          until={held[e.key]}
           e={e}
           selected={plan.mode === "split" && e.key === selected.key}
           height={plan.rowHeight}
@@ -226,7 +334,7 @@ export function RunningArea(props: {
   );
   return (
     <div className="band">
-      <div className="section-label">IN PROGRESS · {entries.length}</div>
+      <div className="section-label">{label}</div>
       {plan.mode === "list" ? (
         <div style={{ height: plan.height }}>{list}</div>
       ) : (
@@ -237,6 +345,7 @@ export function RunningArea(props: {
           {list}
           <div className="detail">
             <RunCard
+              until={held[selected.key]}
               e={selected}
               height={plan.height}
               columns={plan.graphColumns}

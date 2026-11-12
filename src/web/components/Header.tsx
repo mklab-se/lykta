@@ -6,6 +6,7 @@ export function Header(props: {
   title?: string;
   now: number;
   staleMinutes: number | null;
+  warnings?: string[];
 }) {
   const { entries } = props;
   const failing = entries.filter((e) => e.failing || e.state === "missing").length;
@@ -32,6 +33,7 @@ export function Header(props: {
           <b>{entries.length}</b> monitored
         </div>
       </div>
+      {props.warnings?.length ? <div className="stale ellipsis">{props.warnings[0]}</div> : null}
       {props.staleMinutes !== null ? (
         <div className="stale">Data is {props.staleMinutes} min old</div>
       ) : null}

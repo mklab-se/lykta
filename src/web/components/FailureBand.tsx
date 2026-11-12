@@ -3,12 +3,21 @@ import { formatDuration } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
 import { uniqueKeys } from "../keys.ts";
 import type { LayoutPlan } from "../layout.ts";
+import { FailureWhat } from "./FailureWhat.tsx";
+import { ProgressStrip } from "./ProgressStrip.tsx";
 import { RunnerBadge } from "./RunnerBadge.tsx";
 
 type Plan = NonNullable<LayoutPlan["failures"]>;
 
 const ERROR_LINE = /error|FAILED|failed|Error|timeout|not found/;
 const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
+
+/**
+ * A failure that is not re-running shares its identity with the run card it came from, so
+ * when a held run's time is up it morphs into this card. While it re-runs it is in both
+ * places at once and keeps its own.
+ */
+const failLayoutId = (e: EntryView) => (e.state === "running" ? `fail:${e.key}` : e.key);
 
 function broken(e: EntryView, now: number): string {
   return e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
@@ -32,11 +41,13 @@ function FailCard(props: {
   fresh: boolean;
   now: number;
   small: boolean;
+  /** A short card (busy wall): the error must still fit, so less important lines go. */
+  tight?: boolean;
   onOpen: (key: string) => void;
 }) {
   const { e, now } = props;
   const commonProps = {
-    layoutId: `fail:${e.key}`,
+    layoutId: failLayoutId(e),
     layoutDependency: `${e.state}:${props.small}`,
     initial: { opacity: 0, scale: 0.96 },
     animate: { opacity: 1, scale: 1 },
@@ -53,13 +64,17 @@ function FailCard(props: {
           <span className="dot missing" />
           NOT FOUND
         </div>
-        <div className="name ellipsis">{e.repo}</div>
+        <div className="name ellipsis">{e.name}</div>
+        <div className="repo ellipsis" style={{ marginTop: -6, fontSize: 20 }}>
+          {e.repo} · {e.branch}
+        </div>
         <div className="problem">{e.problem}</div>
       </motion.div>
     );
   }
   const f = e.failure;
   const run = e.latestCompleted;
+  const tight = props.small || props.tight === true;
   return (
     <motion.div {...commonProps}>
       <div className="glow" />
@@ -67,22 +82,22 @@ function FailCard(props: {
       <div className="tag">
         <span className="dot failed" />
         FAILED
+        {tight ? <span className="brokentag">Broken for {broken(e, now)}</span> : null}
       </div>
       <div className="name ellipsis">{e.name}</div>
-      <div className="repo ellipsis" style={{ marginTop: -6, fontSize: 20 }}>
-        {e.repo} · {e.branch}
-      </div>
-      <div className="broken">Broken for {broken(e, now)}</div>
-      {f ? (
-        <div className="where">
-          <span className="x">✕</span>
-          <span className="ellipsis">
-            {f.job} › {f.step}
-          </span>
-        </div>
-      ) : null}
-      <RunnerBadge runner={f?.runner} />
-      {!props.small && f?.logExcerpt.length ? (
+      {tight ? null : (
+        <>
+          <div className="repo ellipsis" style={{ marginTop: -6, fontSize: 20 }}>
+            {e.repo} · {e.branch}
+          </div>
+          <div className="broken">Broken for {broken(e, now)}</div>
+        </>
+      )}
+      {run?.jobs.length ? <ProgressStrip jobs={run.jobs} labels={!props.small} /> : null}
+      <FailureWhat e={e} />
+      {tight ? null : <RunnerBadge runner={f?.runner} />}
+      {/* with error lines, the log behind them is left to the detail view */}
+      {!props.small && !f?.errors?.length && f?.logExcerpt.length ? (
         <div className="log">
           {(() => {
             const lines = f.logExcerpt.slice(-4);
@@ -95,7 +110,7 @@ function FailCard(props: {
           ))}
         </div>
       ) : null}
-      {!props.small && run ? (
+      {!tight && run ? (
         <div className="meta">
           <span className="mono">{run.sha.slice(0, 7)}</span>
           <span>
@@ -122,7 +137,7 @@ function FailRow(props: {
         : "";
   return (
     <motion.div
-      layoutId={`fail:${e.key}`}
+      layoutId={failLayoutId(e)}
       layoutDependency={e.state}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -139,6 +154,9 @@ function FailRow(props: {
         </div>
         <div className="sub ellipsis">{sub}</div>
       </div>
+      {e.latestCompleted?.jobs.length && e.state !== "missing" ? (
+        <ProgressStrip jobs={e.latestCompleted.jobs} />
+      ) : null}
       <div className="dur">{e.state === "missing" ? "404" : broken(e, now)}</div>
     </motion.div>
   );
@@ -180,6 +198,7 @@ export function FailureBand(props: {
                 e={e}
                 now={props.now}
                 small={plan.mode === "small"}
+                tight={plan.mode === "card" && plan.height < 280}
                 fresh={props.isFresh?.(e.key) ?? false}
                 onOpen={props.onOpen}
               />

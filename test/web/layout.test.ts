@@ -46,8 +46,16 @@ describe("computeLayout", () => {
   test("few failures are cards", () => {
     const p = computeLayout(state({ failed: 2, passed: 5 }), screen, 0);
     expect(p.failures?.mode).toBe("card");
-    expect(p.failures?.height).toBe(320);
+    expect(computeLayout(state({ failed: 2, running: 1 }), screen, 1).failures?.height).toBe(320);
     expect(computeLayout(state({ failed: 2, running: 6 }), screen, 6).failures?.height).toBe(230);
+  });
+
+  test("a calm wall gives failure cards room for their log lines", () => {
+    // measured on the real wall: a failure card with 4 log lines needs about 430 px
+    const p = computeLayout(state({ failed: 1, passed: 2 }), screen, 0);
+    expect(p.failures?.mode).toBe("card");
+    expect(p.failures?.height).toBeGreaterThanOrEqual(430);
+    expect(p.monitored.height).toBeGreaterThan(300);
   });
 
   test("many failures become rows", () => {
@@ -113,5 +121,16 @@ describe("computeLayout", () => {
 
   test("empty state layout", () => {
     expect(computeLayout(state({}), screen, 0).empty).toBe(true);
+  });
+
+  test("held runs take running space, not failure or monitored space", () => {
+    const st = state({ failed: 2, passed: 3 });
+    const held = new Set(["failed0", "passed0"]);
+    const p = computeLayout(st, screen, 2, held);
+    expect(p.failures?.columns).toBe(1); // only failed1 is in the band
+    expect(p.running).not.toBeNull();
+    expect(p.monitored.columns * p.monitored.rows).toBeGreaterThanOrEqual(2);
+    // nothing held: both failures are cards in the band
+    expect(computeLayout(st, screen, 0).failures?.columns).toBe(2);
   });
 });

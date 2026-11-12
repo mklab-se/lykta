@@ -73,6 +73,8 @@ describe("FailureBand", () => {
     ]);
     expect(html).toContain("NOT FOUND");
     expect(html).toContain("not found (404)");
+    // the configured name leads, so two missing workflows in one repo can be told apart
+    expect(html).toMatch(/class="name ellipsis">Nightly build</);
   });
 
   test("small mode drops the log", () => {
@@ -87,5 +89,86 @@ describe("FailureBand", () => {
   test("long names are truncated with ellipsis class", () => {
     const html = render([failed({ name: "N".repeat(200) })]);
     expect(html).toMatch(/class="name ellipsis"[^>]*>N{200}/);
+  });
+
+  const pipeline = (): NonNullable<EntryView["latestCompleted"]> => {
+    const job = (id: string, status: "success" | "failure" | "skipped", needs: string[] = []) => ({
+      id,
+      name: id,
+      status,
+      needs,
+      steps: [],
+      startedAt: null,
+      completedAt: null,
+    });
+    return {
+      ...(failed().latestCompleted as NonNullable<EntryView["latestCompleted"]>),
+      jobs: [
+        job("Prepare", "success"),
+        job("Build", "failure", ["Prepare"]),
+        job("Checks", "skipped", ["Build"]),
+        job("Deploy", "skipped", ["Checks"]),
+      ],
+    };
+  };
+
+  test("card shows how far the run got: passed, failed and never-run stages", () => {
+    const html = render([failed({ latestCompleted: pipeline() })]);
+    expect(html).toContain('class="strip');
+    expect(html.match(/class="seg success/g)).toHaveLength(1);
+    expect(html.match(/class="seg failure/g)).toHaveLength(1);
+    expect(html.match(/class="seg skipped/g)).toHaveLength(2);
+  });
+
+  test("the error message is the card's biggest text", () => {
+    const e = failed({
+      latestCompleted: pipeline(),
+      failure: {
+        ...(failed().failure as NonNullable<EntryView["failure"]>),
+        errors: ["Battery.java:212: error: cannot find symbol"],
+      },
+    });
+    const html = render([e]);
+    expect(html).toContain('class="errline"');
+    expect(html).toContain("Battery.java:212: error: cannot find symbol");
+    expect(render([e], "small")).toContain("Battery.java:212: error: cannot find symbol");
+    // the log behind it is in the detail view; on the card it would only be a clipped sliver
+    expect(html).not.toContain("ninja: build stopped");
+  });
+
+  test("no error line: the card says why the job ended", () => {
+    const e = failed({
+      failure: {
+        ...(failed().failure as NonNullable<EntryView["failure"]>),
+        errors: [],
+        reason: "The job timed out",
+      },
+    });
+    expect(render([e])).toContain("The job timed out");
+  });
+
+  test("rows show the strip too", () => {
+    expect(render([failed({ latestCompleted: pipeline() })], "row")).toContain('class="strip');
+  });
+
+  test("a short card keeps the error: broken-for moves up, repo and runner go", () => {
+    const e = failed({
+      failure: {
+        ...(failed().failure as NonNullable<EntryView["failure"]>),
+        errors: ["UPGRADE FAILED: timed out waiting for the condition"],
+      },
+    });
+    const html = renderToString(
+      <FailureBand
+        entries={[e]}
+        plan={{ mode: "card", columns: 2, rows: 1, height: 230 }}
+        now={NOW}
+        onOpen={() => {}}
+      />,
+    );
+    expect(html).toContain("UPGRADE FAILED");
+    expect(html).toContain('class="brokentag"');
+    expect(html).not.toContain("mklab-se/android-platform · main");
+    expect(html).not.toContain("K8S");
   });
 });

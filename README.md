@@ -38,6 +38,58 @@ Move the mouse to show the demo bar (how many workflows run at once, or "Break o
 `lykta demo --count 100 --running 12` shows a busy day; `--low-power` forces the reduced-motion mode
 used on weak screens.
 
+## Try it against GitHub
+
+This repository has live test workflows (`live-pipeline.yml`, `live-quick.yml`) and an example
+configuration that monitors them. With the [GitHub CLI](https://cli.github.com) signed in:
+
+```sh
+LYKTA_TOKEN_MKLAB_SE=$(gh auth token) lykta serve --config lykta.example.yaml
+gh workflow run live-pipeline.yml -R mklab-se/lykta -f fail_at=build -f minutes=4
+```
+
+For your own workflows: `lykta init` writes a starter `lykta.yaml`, and `lykta check` verifies it
+against GitHub before it goes on a wall.
+
+## Configuration
+
+A YAML file (`lykta.yaml`, or the whole file in `LYKTA_CONFIG`); see
+[`lykta.example.yaml`](lykta.example.yaml). Secrets never go in the file:
+
+| Organization signs in with | Set |
+| --- | --- |
+| a fine-grained token | `LYKTA_TOKEN_<ORG>` (e.g. `LYKTA_TOKEN_MKLAB_SE`), or `LYKTA_TOKEN_<ORG>_FILE` |
+| a GitHub App | `LYKTA_APP_ID` and `LYKTA_APP_PRIVATE_KEY` (or `LYKTA_APP_PRIVATE_KEY_FILE`) |
+
+Each entry under `monitor` is one tile: a repository, a workflow file and a branch (default
+`main`). Watching the same workflow on another branch is another entry. `LYKTA_PORT`,
+`LYKTA_HOST`, `LYKTA_TITLE` and `LYKTA_LOW_POWER` override the file.
+
+Lykta shares each organization's GitHub rate limit with everyone else using it (other teams'
+tools, other Lykta walls). It stays sparse on purpose: unchanged answers (`304`) are free, and it
+slows down as soon as less than half of the limit is left, or when its own use in the last hour
+nears `polling.budget` (default `0.2`, a fifth of the hourly limit). When GitHub says to slow
+down, Lykta stops calling that organization until the reset and keeps showing the last known
+state with a warning.
+
+```yaml
+polling:
+  activeSeconds: 15 # running workflows
+  idleSeconds: 60 # waiting for new runs
+  budget: 0.2 # share of each organization's hourly rate limit Lykta may use
+```
+
+When a run you were watching finishes, it stays big where it was: a failure for 3 minutes (red,
+the whole job graph with the failed job marked, and the error message), a pass for 45 seconds.
+Then it shrinks into its failure card or tile. Failure cards show how far the run got (a strip
+of passed, failed and never-run jobs) and the error message itself as their biggest text.
+
+```yaml
+display:
+  holdFailedSeconds: 180 # a failed run stays big this long (0: shrink at once)
+  holdPassedSeconds: 45 # a passed run, the same
+```
+
 ## What it shows
 
 - 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long

@@ -150,4 +150,94 @@ describe("RunningArea", () => {
     expect(html).not.toContain("RUNNING");
     expect(html).not.toContain("NaN");
   });
+
+  test("a failed run stays big: FAILED, where it broke, the error, and when it shrinks", () => {
+    const e = running(1, 10);
+    const run = e.current as RunRecord;
+    const ended = new Date(NOW - 10_000).toISOString();
+    const failedRun: RunRecord = {
+      ...run,
+      status: "completed",
+      conclusion: "failure",
+      completedAt: ended,
+      jobs: [
+        run.jobs[0] as RunRecord["jobs"][number],
+        {
+          ...(run.jobs[1] as RunRecord["jobs"][number]),
+          status: "failure",
+          completedAt: ended,
+          steps: [
+            { name: "repo sync -j16", status: "success", startedAt: ended, completedAt: ended },
+            { name: "m -j64", status: "failure", startedAt: ended, completedAt: ended },
+          ],
+        },
+        {
+          id: "deploy",
+          name: "Deploy",
+          status: "skipped",
+          needs: ["build"],
+          steps: [],
+          startedAt: null,
+          completedAt: null,
+        },
+      ],
+    };
+    const held: EntryView = {
+      ...e,
+      state: "failed",
+      failing: true,
+      current: undefined,
+      latestCompleted: failedRun,
+      failure: {
+        job: "Build · lynx-user",
+        step: "m -j64",
+        logExcerpt: ["ninja: build stopped"],
+        errors: ["Battery.java:212: error: cannot find symbol"],
+      },
+    };
+    const html = renderToString(
+      <RunningArea
+        entries={[held]}
+        plan={plan("single")}
+        now={NOW}
+        onOpen={() => {}}
+        heldUntil={{ r1: NOW + 170_000 }}
+      />,
+    );
+    expect(html).toContain("FAILED");
+    expect(html).toContain("node failure");
+    expect(html).toContain("Battery.java:212: error: cannot find symbol");
+    expect(html).toContain("Build · lynx-user › m -j64");
+    expect(html).toContain("2:50");
+    expect(html).not.toContain("RUNNING");
+  });
+
+  test("a passed run stays big for a moment, all green", () => {
+    const e = running(1, 10);
+    const run = e.current as RunRecord;
+    const ended = new Date(NOW - 5_000).toISOString();
+    const passed: EntryView = {
+      ...e,
+      state: "passed",
+      current: undefined,
+      latestCompleted: {
+        ...run,
+        status: "completed",
+        conclusion: "success",
+        completedAt: ended,
+        jobs: run.jobs.map((j) => ({ ...j, status: "success" as const })),
+      },
+    };
+    const html = renderToString(
+      <RunningArea
+        entries={[passed, running(2, 5)]}
+        plan={plan("split")}
+        now={NOW}
+        onOpen={() => {}}
+        heldUntil={{ r1: NOW + 40_000 }}
+      />,
+    );
+    expect(html).toContain("PASSED");
+    expect(html).toContain("Android build 2");
+  });
 });

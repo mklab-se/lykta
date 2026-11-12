@@ -1,0 +1,234 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  # Run the full CI suite before building release artifacts
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  # The tag must match package.json, or the binaries would report the wrong version
+  version:
+    name: Check version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tag matches package.json
+        run: |
+          PKG="v$(jq -r .version package.json)"
+          if [ "$PKG" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG"
+            exit 1
+          fi
+
+  # Single-file executables (bun build --compile) for each platform
+  build:
+    name: Build ${{ matrix.target }}
+    needs: [ci, version]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            bun-target: bun-linux-x64
+            os: ubuntu-latest
+            archive: tar.gz
+            smoke: true
+          - target: x86_64-apple-darwin
+            bun-target: bun-darwin-x64
+            os: macos-latest
+            archive: tar.gz
+            smoke: false
+          - target: aarch64-apple-darwin
+            bun-target: bun-darwin-arm64
+            os: macos-latest
+            archive: tar.gz
+            smoke: true
+          - target: x86_64-pc-windows-msvc
+            bun-target: bun-windows-x64
+            os: windows-latest
+            archive: zip
+            smoke: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+
+      - name: Compile
+        shell: bash
+        run: |
+          EXT=""
+          [ "${{ matrix.archive }}" = "zip" ] && EXT=".exe"
+          bun build src/cli.ts --compile --minify --sourcemap \
+            --target=${{ matrix.bun-target }} --outfile "dist/lykta${EXT}"
+
+      # macOS refuses to run unsigned arm64 binaries; an ad-hoc signature is enough
+      - name: Ad-hoc sign (macOS)
+        if: runner.os == 'macOS'
+        run: codesign --force --sign - dist/lykta
+
+      - name: Smoke test
+        if: matrix.smoke
+        shell: bash
+        run: |
+          EXT=""
+          [ "${{ matrix.archive }}" = "zip" ] && EXT=".exe"
+          "./dist/lykta${EXT}" --version
+
+      - name: Package (Unix)
+        if: matrix.archive == 'tar.gz'
+        run: tar -czf "lykta-${{ github.ref_name }}-${{ matrix.target }}.tar.gz" -C dist lykta
+
+      - name: Package (Windows)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: Compress-Archive -Path dist/lykta.exe -DestinationPath "lykta-${{ github.ref_name }}-${{ matrix.target }}.zip"
+
+      - name: SBOM (CycloneDX)
+        shell: bash
+        run: bun scripts/sbom.ts --target ${{ matrix.target }} > "lykta-${{ github.ref_name }}-${{ matrix.target }}.cdx.json"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: lykta-${{ matrix.target }}
+          path: lykta-${{ github.ref_name }}-${{ matrix.target }}.*
+
+  # Create GitHub Release with all binaries and SBOMs
+  github-release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true
+          files: artifacts/*
+
+  # Publish to npm (scoped package, with provenance)
+  npm:
+    name: Publish to npm
+    needs: [ci, version]
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v7
+        with:
+          node-version: node
+          registry-url: https://registry.npmjs.org
+      - run: bun install --frozen-lockfile
+      # Trusted Publishing: npm authenticates this workflow through GitHub's OIDC token (hence
+      # id-token: write), so no long-lived secret is needed. Set it up on npmjs.com under the
+      # package's Settings > Trusted Publisher (workflow release.yml, environment npm).
+      # NPM_TOKEN is only a fallback for a brand-new package's very first publish, since npm
+      # can only attach a trusted publisher to a package that already exists.
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm install -g npm@latest
+          npm --version
+          npm publish --provenance --access public
+
+  # Update Homebrew tap with new version and SHA256 hashes
+  homebrew:
+    name: Update Homebrew Tap
+    needs: github-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update formula
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          set -e
+          VERSION="${GITHUB_REF_NAME#v}"
+          TAG="${GITHUB_REF_NAME}"
+          BASE_URL="https://github.com/mklab-se/lykta/releases/download/${TAG}"
+
+          # Download release artifacts and compute SHA256
+          curl -sL "${BASE_URL}/lykta-${TAG}-aarch64-apple-darwin.tar.gz" -o aarch64-darwin.tar.gz
+          curl -sL "${BASE_URL}/lykta-${TAG}-x86_64-apple-darwin.tar.gz" -o x86_64-darwin.tar.gz
+          curl -sL "${BASE_URL}/lykta-${TAG}-x86_64-unknown-linux-gnu.tar.gz" -o x86_64-linux.tar.gz
+
+          SHA_AARCH64=$(sha256sum aarch64-darwin.tar.gz | cut -d' ' -f1)
+          SHA_X86_64=$(sha256sum x86_64-darwin.tar.gz | cut -d' ' -f1)
+          SHA_LINUX=$(sha256sum x86_64-linux.tar.gz | cut -d' ' -f1)
+
+          # Generate formula
+          cat > formula.rb <<RUBY
+          class Lykta < Formula
+            desc "A highly visible dashboard for monitoring GitHub Actions workflows"
+            homepage "https://github.com/mklab-se/lykta"
+            version "${VERSION}"
+            license "MIT"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/mklab-se/lykta/releases/download/v#{version}/lykta-v#{version}-aarch64-apple-darwin.tar.gz"
+                sha256 "${SHA_AARCH64}"
+              else
+                url "https://github.com/mklab-se/lykta/releases/download/v#{version}/lykta-v#{version}-x86_64-apple-darwin.tar.gz"
+                sha256 "${SHA_X86_64}"
+              end
+            end
+
+            on_linux do
+              url "https://github.com/mklab-se/lykta/releases/download/v#{version}/lykta-v#{version}-x86_64-unknown-linux-gnu.tar.gz"
+              sha256 "${SHA_LINUX}"
+            end
+
+            def install
+              bin.install "lykta"
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/lykta --version")
+            end
+          end
+          RUBY
+
+          # Push to homebrew-tap repo via GitHub API
+          CONTENT=$(base64 -w 0 < formula.rb)
+          FILE_SHA=$(gh api repos/mklab-se/homebrew-tap/contents/Formula/lykta.rb --jq '.sha' 2>/dev/null || echo "")
+
+          if [ -n "$FILE_SHA" ]; then
+            gh api repos/mklab-se/homebrew-tap/contents/Formula/lykta.rb \
+              -X PUT \
+              -f message="Update lykta to ${VERSION}" \
+              -f content="$CONTENT" \
+              -f sha="$FILE_SHA" \
+              && echo "Homebrew formula updated to ${VERSION}" \
+              || echo "::warning::Failed to update Homebrew tap. Add HOMEBREW_TAP_TOKEN secret with repo scope for mklab-se/homebrew-tap."
+          else
+            gh api repos/mklab-se/homebrew-tap/contents/Formula/lykta.rb \
+              -X PUT \
+              -f message="Add lykta ${VERSION}" \
+              -f content="$CONTENT" \
+              && echo "Homebrew formula created for ${VERSION}" \
+              || echo "::warning::Failed to create Homebrew formula. Add HOMEBREW_TAP_TOKEN secret with repo scope for mklab-se/homebrew-tap."
+          fi

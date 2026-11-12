@@ -107,8 +107,20 @@ export function MonitoredBand(props: {
   onOpen: (key: string) => void;
   /** Show the "nothing monitored" message when there are no entries at all. */
   allEmpty?: boolean;
+  /** The server has not finished its first sync with GitHub yet. */
+  connecting?: boolean;
 }) {
   const { plan, entries } = props;
+  if (props.connecting && entries.length === 0) {
+    return (
+      <div className="empty">
+        <div>
+          Connecting to GitHub...
+          <small>Reading the monitored workflows. This takes a few seconds.</small>
+        </div>
+      </div>
+    );
+  }
   if ((props.allEmpty ?? entries.length === 0) && entries.length === 0) {
     return (
       <div className="empty">

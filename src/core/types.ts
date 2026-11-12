@@ -67,6 +67,10 @@ export interface FailureInfo {
   step: string;
   runner?: RunnerInfo;
   logExcerpt: string[];
+  /** The error message itself (at most 3 lines), shown as the biggest text on the card. */
+  errors?: string[];
+  /** When there is no error line: why the job ended ("The job timed out"). */
+  reason?: string;
 }
 
 /** One configured tile: one workflow on one branch. */

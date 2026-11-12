@@ -1,0 +1,51 @@
+﻿2026-11-12T20:28:51.4795394Z Current runner version: '2.338.2'
+2026-11-12T20:28:51.4815546Z ##[group]Runner Image Provisioner
+2026-11-12T20:28:51.4816440Z Hosted Compute Agent
+2026-11-12T20:28:51.4816916Z Version: 20261028.624
+2026-11-12T20:28:51.4817531Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T20:28:51.4818119Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T20:28:51.4818705Z Worker ID: {fd0c117a-5d9e-42d3-b9a8-899f45b9e596}
+2026-11-12T20:28:51.4819329Z Region: westus2
+2026-11-12T20:28:51.4819771Z Cloud: Azure
+2026-11-12T20:28:51.4820297Z ##[endgroup]
+2026-11-12T20:28:51.4821388Z ##[group]Operating System
+2026-11-12T20:28:51.4821938Z Ubuntu
+2026-11-12T20:28:51.4822381Z 26.04.1
+2026-11-12T20:28:51.4822808Z LTS
+2026-11-12T20:28:51.4823303Z ##[endgroup]
+2026-11-12T20:28:51.4823756Z ##[group]Runner Image
+2026-11-12T20:28:51.4824228Z Image: ubuntu-26.04
+2026-11-12T20:28:51.4824777Z Version: 20261101.186.1
+2026-11-12T20:28:51.4825879Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-12T20:28:51.4827198Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-12T20:28:51.4828033Z ##[endgroup]
+2026-11-12T20:28:51.4828918Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T20:28:51.4830808Z Contents: read
+2026-11-12T20:28:51.4831441Z Metadata: read
+2026-11-12T20:28:51.4831905Z ##[endgroup]
+2026-11-12T20:28:51.4833663Z Secret source: Actions
+2026-11-12T20:28:51.4834411Z Cache mode: write
+2026-11-12T20:28:51.4835388Z Prepare workflow directory
+2026-11-12T20:28:51.5098316Z Prepare all required actions
+2026-11-12T20:28:51.5181494Z Complete job name: Build linux-arm64
+2026-11-12T20:28:51.6270235Z ##[group]Run sleep 20 && echo "sources for linux-arm64"
+2026-11-12T20:28:51.6271072Z [36;1msleep 20 && echo "sources for linux-arm64"[0m
+2026-11-12T20:28:51.7184362Z shell: /usr/bin/bash -e {0}
+2026-11-12T20:28:51.7185394Z ##[endgroup]
+2026-11-12T20:29:11.7456995Z sources for linux-arm64
+2026-11-12T20:29:11.7545577Z ##[group]Run sleep 30
+2026-11-12T20:29:11.7546103Z [36;1msleep 30[0m
+2026-11-12T20:29:11.7546423Z [36;1mif [ "build" = "build" ] && [ "linux-arm64" = "linux-arm64" ]; then[0m
+2026-11-12T20:29:11.7546878Z [36;1m  echo "[ 87% 118342/136011] //frameworks/base:framework-minus-apex javac"[0m
+2026-11-12T20:29:11.7547383Z [36;1m  echo "frameworks/base/core/java/android/os/Battery.java:212: error: cannot find symbol"[0m
+2026-11-12T20:29:11.7547854Z [36;1m  echo "::error::Build failed on purpose (fail_at=build)"[0m
+2026-11-12T20:29:11.7548161Z [36;1m  exit 1[0m
+2026-11-12T20:29:11.7548371Z [36;1mfi[0m
+2026-11-12T20:29:11.7548596Z [36;1mecho "compiled linux-arm64"[0m
+2026-11-12T20:29:11.7593757Z shell: /usr/bin/bash -e {0}
+2026-11-12T20:29:11.7594027Z ##[endgroup]
+2026-11-12T20:29:41.7684202Z [ 87% 118342/136011] //frameworks/base:framework-minus-apex javac
+2026-11-12T20:29:41.7684989Z frameworks/base/core/java/android/os/Battery.java:212: error: cannot find symbol
+2026-11-12T20:29:41.7710691Z ##[error]Build failed on purpose (fail_at=build)
+2026-11-12T20:29:41.7717387Z ##[error]Process completed with exit code 1.
+2026-11-12T20:29:41.7809036Z Cleaning up orphan processes

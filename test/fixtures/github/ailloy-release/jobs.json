@@ -1,0 +1,853 @@
+{
+  "total_count": 8,
+  "jobs": [
+    {
+      "id": 129697913419,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMpkaSw",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129697913419",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129697913419",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:41:33Z",
+      "started_at": "2026-11-10T07:41:35Z",
+      "completed_at": "2026-11-10T07:44:15Z",
+      "name": "CI",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:41:36Z",
+          "completed_at": "2026-11-10T07:41:36Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:41:36Z",
+          "completed_at": "2026-11-10T07:41:38Z"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:41:38Z",
+          "completed_at": "2026-11-10T07:41:39Z"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:41:39Z",
+          "completed_at": "2026-11-10T07:41:40Z"
+        },
+        {
+          "name": "Run cargo fmt --all -- --check",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-10T07:41:40Z",
+          "completed_at": "2026-11-10T07:41:41Z"
+        },
+        {
+          "name": "Run cargo clippy --all-targets -- -D warnings",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T07:41:41Z",
+          "completed_at": "2026-11-10T07:42:45Z"
+        },
+        {
+          "name": "Run cargo test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-10T07:42:45Z",
+          "completed_at": "2026-11-10T07:44:05Z"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-10T07:44:05Z",
+          "completed_at": "2026-11-10T07:44:14Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-11-10T07:44:14Z",
+          "completed_at": "2026-11-10T07:44:14Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-10T07:44:14Z",
+          "completed_at": "2026-11-10T07:44:14Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129697913419",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006188,
+      "runner_name": "GitHub Actions 1000006188",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129698936393,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMqi2SQ",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129698936393",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129698936393",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:44:16Z",
+      "started_at": "2026-11-10T07:44:19Z",
+      "completed_at": "2026-11-10T07:45:51Z",
+      "name": "Publish to crates.io",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:44:19Z",
+          "completed_at": "2026-11-10T07:44:20Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:44:20Z",
+          "completed_at": "2026-11-10T07:44:22Z"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:44:22Z",
+          "completed_at": "2026-11-10T07:44:22Z"
+        },
+        {
+          "name": "Publish",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:44:22Z",
+          "completed_at": "2026-11-10T07:45:48Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-10T07:45:48Z",
+          "completed_at": "2026-11-10T07:45:48Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T07:45:48Z",
+          "completed_at": "2026-11-10T07:45:48Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129698936393",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006193,
+      "runner_name": "GitHub Actions 1000006193",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129698936574,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMqi2_g",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129698936574",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129698936574",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:44:16Z",
+      "started_at": "2026-11-10T07:44:18Z",
+      "completed_at": "2026-11-10T07:47:45Z",
+      "name": "Build (x86_64-apple-darwin)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:44:18Z",
+          "completed_at": "2026-11-10T07:44:23Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:44:23Z",
+          "completed_at": "2026-11-10T07:44:26Z"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:44:26Z",
+          "completed_at": "2026-11-10T07:44:32Z"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:44:32Z",
+          "completed_at": "2026-11-10T07:44:33Z"
+        },
+        {
+          "name": "Install NASM (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5,
+          "started_at": "2026-11-10T07:44:33Z",
+          "completed_at": "2026-11-10T07:44:33Z"
+        },
+        {
+          "name": "Install SBOM tooling",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T07:44:33Z",
+          "completed_at": "2026-11-10T07:44:34Z"
+        },
+        {
+          "name": "Build (auditable)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-10T07:44:34Z",
+          "completed_at": "2026-11-10T07:47:20Z"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-10T07:47:20Z",
+          "completed_at": "2026-11-10T07:47:21Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T07:47:21Z",
+          "completed_at": "2026-11-10T07:47:22Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-11-10T07:47:22Z",
+          "completed_at": "2026-11-10T07:47:22Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T07:47:22Z",
+          "completed_at": "2026-11-10T07:47:23Z"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-10T07:47:23Z",
+          "completed_at": "2026-11-10T07:47:40Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-10T07:47:40Z",
+          "completed_at": "2026-11-10T07:47:41Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-10T07:47:41Z",
+          "completed_at": "2026-11-10T07:47:43Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129698936574",
+      "labels": ["macos-latest"],
+      "runner_id": 1000006189,
+      "runner_name": "GitHub Actions 1000006189",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129698936591,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMqi3Dw",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129698936591",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129698936591",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:44:16Z",
+      "started_at": "2026-11-10T07:44:18Z",
+      "completed_at": "2026-11-10T07:48:28Z",
+      "name": "Build (x86_64-pc-windows-msvc)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:44:19Z",
+          "completed_at": "2026-11-10T07:44:22Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:44:22Z",
+          "completed_at": "2026-11-10T07:44:29Z"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:44:29Z",
+          "completed_at": "2026-11-10T07:44:36Z"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:44:36Z",
+          "completed_at": "2026-11-10T07:44:38Z"
+        },
+        {
+          "name": "Install NASM (Windows)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-10T07:44:38Z",
+          "completed_at": "2026-11-10T07:44:39Z"
+        },
+        {
+          "name": "Install SBOM tooling",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T07:44:39Z",
+          "completed_at": "2026-11-10T07:44:43Z"
+        },
+        {
+          "name": "Build (auditable)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-10T07:44:43Z",
+          "completed_at": "2026-11-10T07:47:56Z"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-10T07:47:56Z",
+          "completed_at": "2026-11-10T07:47:57Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-11-10T07:47:57Z",
+          "completed_at": "2026-11-10T07:47:57Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-10T07:47:57Z",
+          "completed_at": "2026-11-10T07:47:58Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T07:47:58Z",
+          "completed_at": "2026-11-10T07:48:00Z"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-10T07:48:00Z",
+          "completed_at": "2026-11-10T07:48:24Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-10T07:48:24Z",
+          "completed_at": "2026-11-10T07:48:26Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-10T07:48:26Z",
+          "completed_at": "2026-11-10T07:48:26Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129698936591",
+      "labels": ["windows-latest"],
+      "runner_id": 1000006192,
+      "runner_name": "GitHub Actions 1000006192",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129698936617,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMqi3KQ",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129698936617",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129698936617",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:44:16Z",
+      "started_at": "2026-11-10T07:44:19Z",
+      "completed_at": "2026-11-10T07:48:12Z",
+      "name": "Build (aarch64-apple-darwin)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:44:20Z",
+          "completed_at": "2026-11-10T07:44:24Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:44:24Z",
+          "completed_at": "2026-11-10T07:44:27Z"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:44:27Z",
+          "completed_at": "2026-11-10T07:44:29Z"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:44:29Z",
+          "completed_at": "2026-11-10T07:44:30Z"
+        },
+        {
+          "name": "Install NASM (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5,
+          "started_at": "2026-11-10T07:44:30Z",
+          "completed_at": "2026-11-10T07:44:30Z"
+        },
+        {
+          "name": "Install SBOM tooling",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T07:44:30Z",
+          "completed_at": "2026-11-10T07:44:31Z"
+        },
+        {
+          "name": "Build (auditable)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-10T07:44:31Z",
+          "completed_at": "2026-11-10T07:47:42Z"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-10T07:47:42Z",
+          "completed_at": "2026-11-10T07:47:43Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T07:47:43Z",
+          "completed_at": "2026-11-10T07:47:43Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-11-10T07:47:43Z",
+          "completed_at": "2026-11-10T07:47:43Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T07:47:43Z",
+          "completed_at": "2026-11-10T07:47:46Z"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-10T07:47:46Z",
+          "completed_at": "2026-11-10T07:48:06Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-10T07:48:06Z",
+          "completed_at": "2026-11-10T07:48:08Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-10T07:48:08Z",
+          "completed_at": "2026-11-10T07:48:10Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129698936617",
+      "labels": ["macos-latest"],
+      "runner_id": 1000006190,
+      "runner_name": "GitHub Actions 1000006190",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129698936621,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMqi3LQ",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129698936621",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129698936621",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:44:16Z",
+      "started_at": "2026-11-10T07:44:18Z",
+      "completed_at": "2026-11-10T07:46:45Z",
+      "name": "Build (x86_64-unknown-linux-gnu)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:44:19Z",
+          "completed_at": "2026-11-10T07:44:21Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:44:21Z",
+          "completed_at": "2026-11-10T07:44:22Z"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:44:22Z",
+          "completed_at": "2026-11-10T07:44:23Z"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:44:23Z",
+          "completed_at": "2026-11-10T07:44:24Z"
+        },
+        {
+          "name": "Install NASM (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5,
+          "started_at": "2026-11-10T07:44:24Z",
+          "completed_at": "2026-11-10T07:44:24Z"
+        },
+        {
+          "name": "Install SBOM tooling",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-10T07:44:24Z",
+          "completed_at": "2026-11-10T07:44:25Z"
+        },
+        {
+          "name": "Build (auditable)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-10T07:44:25Z",
+          "completed_at": "2026-11-10T07:46:35Z"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-10T07:46:35Z",
+          "completed_at": "2026-11-10T07:46:35Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-10T07:46:35Z",
+          "completed_at": "2026-11-10T07:46:36Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-11-10T07:46:36Z",
+          "completed_at": "2026-11-10T07:46:36Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-10T07:46:36Z",
+          "completed_at": "2026-11-10T07:46:38Z"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-10T07:46:38Z",
+          "completed_at": "2026-11-10T07:46:43Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-10T07:46:43Z",
+          "completed_at": "2026-11-10T07:46:43Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-10T07:46:43Z",
+          "completed_at": "2026-11-10T07:46:43Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129698936621",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006191,
+      "runner_name": "GitHub Actions 1000006191",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129700543345,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMsE7cQ",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129700543345",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129700543345",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:48:28Z",
+      "started_at": "2026-11-10T07:48:30Z",
+      "completed_at": "2026-11-10T07:48:44Z",
+      "name": "GitHub Release",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:48:31Z",
+          "completed_at": "2026-11-10T07:48:32Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v8",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:48:32Z",
+          "completed_at": "2026-11-10T07:48:33Z"
+        },
+        {
+          "name": "Create Release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:48:33Z",
+          "completed_at": "2026-11-10T07:48:43Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:48:43Z",
+          "completed_at": "2026-11-10T07:48:43Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129700543345",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006194,
+      "runner_name": "GitHub Actions 1000006194",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 129700640299,
+      "run_id": 42777054897,
+      "workflow_name": "Release",
+      "head_branch": "v3.3.0",
+      "run_url": "https://api.github.com/repos/mklab-se/ailloy/actions/runs/42777054897",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORdkbbM8AAAAeMsK2Kw",
+      "head_sha": "ce11d794fb6b05274b8c893cd14ff55884662ff1",
+      "url": "https://api.github.com/repos/mklab-se/ailloy/actions/jobs/129700640299",
+      "html_url": "https://github.com/mklab-se/ailloy/actions/runs/42777054897/job/129700640299",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-10T07:48:44Z",
+      "started_at": "2026-11-10T07:48:46Z",
+      "completed_at": "2026-11-10T07:48:52Z",
+      "name": "Update Homebrew Tap",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-10T07:48:47Z",
+          "completed_at": "2026-11-10T07:48:47Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v8",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-10T07:48:47Z",
+          "completed_at": "2026-11-10T07:48:49Z"
+        },
+        {
+          "name": "Compute checksums and update formula",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-10T07:48:49Z",
+          "completed_at": "2026-11-10T07:48:50Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-10T07:48:50Z",
+          "completed_at": "2026-11-10T07:48:51Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/ailloy/check-runs/129700640299",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006195,
+      "runner_name": "GitHub Actions 1000006195",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

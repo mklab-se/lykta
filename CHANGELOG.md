@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `lykta serve --config lykta.yaml`: the dashboard on real GitHub Actions data, from several
+  organizations, signing in with a GitHub App (recommended) or fine-grained tokens. Polls
+  sparingly, since other teams and other walls share the same rate limits: cheap repeat requests,
+  at most a share of each organization's hourly limit (`polling.budget`, default 20%), slower as
+  soon as under half is left, and a pause with a warning (never a retry storm) when GitHub says
+  to slow down. A re-run of a failed workflow keeps the failure on the wall until it decides. Builds each running workflow's job graph from its workflow file (matrices and
+  reusable workflows included), shows the failing step's log lines, and turns missing, disabled
+  or inaccessible workflows into visible problems. A "Connecting to GitHub..." screen shows until
+  the first sync.
+- Where a workflow failed is visible from across the room: failure cards show a strip of the
+  run's jobs (passed green, failed red, never run dim) and the error message itself as their
+  biggest text. A run that fails stays big where people were watching it, with its whole job
+  graph, for 3 minutes (`display.holdFailedSeconds`); a pass stays green for 45 seconds
+  (`display.holdPassedSeconds`). Then it morphs into its failure card or tile.
+- `lykta check` verifies a configuration against GitHub and prints what the wall would show;
+  `lykta init` writes a starter `lykta.yaml`.
+- Live test workflows in this repository and `lykta.example.yaml` monitoring them.
+
 - The dashboard (Command Center layout) with `lykta demo`, driven by simulated workflows: failures
   pinned at the top with broken-for, failing job and step, runner and log excerpt; every running
   workflow in a list with progress against its usual duration and expected finish, and rotating

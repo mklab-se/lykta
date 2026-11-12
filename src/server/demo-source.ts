@@ -26,6 +26,7 @@ import {
   REPOS,
   STORY,
 } from "./demo-data.ts";
+import { failureErrors } from "./github/logs.ts";
 import type { RunDetails, Source } from "./source.ts";
 
 export interface DemoOptions {
@@ -96,7 +97,7 @@ export class DemoSource implements Source {
   private readonly rand: () => number;
   private readonly now: () => number;
   private readonly tickMs: number;
-  private readonly speed: number;
+  readonly speed: number;
   private sim: number;
   private target: number;
   private entries: SimEntry[] = [];
@@ -336,6 +337,7 @@ export class DemoSource implements Source {
       step: step.name,
       runner: job.tpl.runner,
       logExcerpt: failLogFor(job.tpl.name),
+      errors: failureErrors(failLogFor(job.tpl.name), step.name),
     };
   }
 
@@ -369,6 +371,11 @@ export class DemoSource implements Source {
       failure: e.failure,
       problem: e.problem,
     };
+  }
+
+  /** Timestamps here age `speed` times faster than real time; the wall's holds allow for it. */
+  holdSettings(): { clockScale: number } {
+    return { clockScale: this.speed };
   }
 
   /** Simulated time to a real ISO timestamp, so the browser's clock agrees with the run. */

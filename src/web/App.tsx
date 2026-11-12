@@ -10,8 +10,9 @@ import { Header } from "./components/Header.tsx";
 import { MonitoredBand } from "./components/MonitoredBand.tsx";
 import { RunningArea } from "./components/RunningArea.tsx";
 import { moveFocus } from "./focus.ts";
+import { heldUntil, holdsFrom, partition } from "./holds.ts";
 import { useAutoClose } from "./idle.ts";
-import { computeLayout, isFailingEntry, isMonitoredOnly } from "./layout.ts";
+import { computeLayout } from "./layout.ts";
 import { usePowerMode } from "./power.ts";
 import { isStale, useDashboard } from "./stream.ts";
 
@@ -34,9 +35,17 @@ export function App() {
   const data = stream.data;
   const stale = isStale(stream, now) ? Math.floor((now - stream.lastMessageAt) / 60_000) : null;
   const entries = data?.entries ?? [];
-  const running = entries.filter((e) => e.state === "running");
-  const plan = data ? computeLayout(data, canvas, running.length) : null;
-  const failingKeys = entries.filter(isFailingEntry).map((e) => e.key);
+  const holds = holdsFrom(data?.display);
+  // running runs plus finished ones still held big (see holds.ts)
+  const bands = partition(entries, now, holds);
+  const running = bands.active;
+  const held: Record<string, number> = {};
+  for (const e of running) {
+    const until = heldUntil(e, now, holds);
+    if (until !== null) held[e.key] = until;
+  }
+  const plan = data ? computeLayout(data, canvas, running.length, bands.held) : null;
+  const failingKeys = bands.failing.map((e) => e.key);
   const [arrivals, setArrivals] = useState(emptyArrivals);
   // biome-ignore lint/correctness/useExhaustiveDependencies: track when the set of failures changes
   useEffect(() => {
@@ -64,9 +73,8 @@ export function App() {
       .catch(() => id === request.current && setDetails(null));
   };
   const bandOf = (key: string): "failures" | "running" | "monitored" => {
-    const e = entries.find((x) => x.key === key);
-    if (e && isFailingEntry(e)) return "failures";
-    return e?.state === "running" ? "running" : "monitored";
+    if (bands.failing.some((x) => x.key === key)) return "failures";
+    return running.some((x) => x.key === key) ? "running" : "monitored";
   };
   const close = () => {
     setOpenKey(null);
@@ -75,9 +83,9 @@ export function App() {
   const countdown = useAutoClose(openKey !== null || focusKey !== null, close);
   const openEntry = entries.find((e) => e.key === openKey);
   const order = [
-    ...entries.filter(isFailingEntry),
-    ...running.filter((e) => !isFailingEntry(e)),
-    ...entries.filter(isMonitoredOnly),
+    ...bands.failing,
+    ...running.filter((e) => !bands.failing.includes(e)),
+    ...bands.monitored,
   ].map((e) => e.key);
   const orderKey = order.join("|");
 
@@ -112,12 +120,18 @@ export function App() {
     >
       <div className="drift">
         <div className="screen">
-          <Header entries={entries} title={data?.title} now={now} staleMinutes={stale} />
+          <Header
+            entries={entries}
+            title={data?.title}
+            now={now}
+            staleMinutes={stale}
+            warnings={data?.warnings}
+          />
           <LayoutGroup>
             <div className="body">
               {plan?.failures ? (
                 <FailureBand
-                  entries={entries.filter(isFailingEntry)}
+                  entries={bands.failing}
                   plan={plan.failures}
                   now={now}
                   onOpen={(k) => open(k, "failures")}
@@ -131,16 +145,18 @@ export function App() {
                   now={now}
                   onOpen={(k) => open(k, "running")}
                   pinnedKey={openEntry && view === "running" ? openEntry.key : undefined}
+                  heldUntil={held}
                 />
               ) : null}
               {plan && (plan.empty || plan.monitored.height >= 64) ? (
                 <MonitoredBand
-                  entries={entries.filter(isMonitoredOnly)}
+                  entries={bands.monitored}
                   plan={plan.monitored}
                   page={page}
                   now={now}
                   onOpen={(k) => open(k, "monitored")}
                   allEmpty={plan.empty}
+                  connecting={data?.synced === false}
                 />
               ) : null}
             </div>

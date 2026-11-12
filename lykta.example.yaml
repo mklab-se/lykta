@@ -1,0 +1,38 @@
+# Example Lykta configuration. Copy to lykta.yaml and adapt.
+# Secrets never go in this file: set them as environment variables (or *_FILE variants):
+#   auth: token -> LYKTA_TOKEN_<ORG>   e.g. LYKTA_TOKEN_MKLAB_SE
+#   auth: app   -> LYKTA_APP_ID and LYKTA_APP_PRIVATE_KEY (or LYKTA_APP_PRIVATE_KEY_FILE)
+
+title: Lykta live test
+
+defaults:
+  branch: main
+  # runs started by these triggers never count on the wall (e.g. manual experiments)
+  ignoreEvents: []
+
+organizations:
+  mklab-se:
+    auth: token
+
+# One entry = one tile. Watching the same workflow on another branch is another entry.
+monitor:
+  - repo: mklab-se/lykta
+    workflow: live-pipeline.yml
+    name: Live pipeline
+  - repo: mklab-se/lykta
+    workflow: live-quick.yml
+    name: Live quick
+  - repo: mklab-se/lykta
+    workflow: ci.yml
+    name: Lykta CI
+
+# Optional: describe where jobs run. The first matching rule wins.
+runners:
+  - match: { runnerName: "lab-bench-2*" }
+    kind: lab
+    label: "lab-bench-2 · Pixel 9"
+  - match: { group: "arc-aosp-64core" }
+    kind: k8s
+
+server:
+  port: 8080
