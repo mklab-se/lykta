@@ -57,7 +57,8 @@ export function runProgress(run: RunRecord, expectedMs: number | undefined, now:
     elapsedMs,
     fraction: Math.min(0.999, elapsedMs / expectedMs),
     slow: elapsedMs > SLOW_RUN * expectedMs,
-    etaMs: now + Math.max(0, expectedMs - elapsedMs),
+    // past the usual duration there is no honest finish estimate
+    etaMs: elapsedMs <= expectedMs ? now + (expectedMs - elapsedMs) : null,
   };
 }
 

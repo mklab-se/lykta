@@ -12,15 +12,27 @@ type Plan = NonNullable<LayoutPlan["running"]>;
 
 const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
 
+/** "QUEUED" / "WAITING" for runs that have not started, else "RUNNING". */
+export function runLabel(run: RunRecord): "QUEUED" | "WAITING" | "RUNNING" {
+  if (run.status === "queued") return "QUEUED";
+  if (run.status === "waiting") return "WAITING";
+  return "RUNNING";
+}
+
 export function timingLabels(e: EntryView, now: number) {
   const run = e.current as RunRecord;
   const p = runProgress(run, e.expectedMs, now);
+  const overdue = e.expectedMs !== undefined && p.elapsedMs > e.expectedMs;
+  const label = runLabel(run);
   return {
     progress: p,
-    text: e.expectedMs
-      ? `${formatDuration(p.elapsedMs)} of ~${formatDuration(e.expectedMs)}`
-      : formatDuration(p.elapsedMs),
-    eta: p.etaMs ? `done ~${formatClock(p.etaMs)}` : "",
+    text:
+      label !== "RUNNING"
+        ? label.toLowerCase()
+        : e.expectedMs
+          ? `${formatDuration(p.elapsedMs)} of ~${formatDuration(e.expectedMs)}`
+          : formatDuration(p.elapsedMs),
+    eta: p.etaMs ? `done ~${formatClock(p.etaMs)}` : overdue ? "overdue" : "",
   };
 }
 
@@ -47,8 +59,8 @@ function RunCard(props: {
       onClick={() => props.onOpen(e.key)}
     >
       <div className="tag">
-        <span className="dot running" />
-        RUNNING
+        <span className={`dot ${runLabel(run) === "RUNNING" ? "running" : "never"}`} />
+        {runLabel(run)}
         <span className="progress">
           {done}/{run.jobs.length} jobs
         </span>

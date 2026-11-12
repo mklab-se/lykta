@@ -18,4 +18,8 @@ describe("power", () => {
   test("median ignores a few long frames", () => {
     expect(shouldUseLowPower([...Array(110).fill(16), ...Array(10).fill(200)], "auto")).toBe(false);
   });
+
+  test("once on, low power stays on (no flapping)", () => {
+    expect(shouldUseLowPower(Array(120).fill(16), "auto", true)).toBe(true);
+  });
 });

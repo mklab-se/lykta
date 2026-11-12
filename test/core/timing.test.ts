@@ -71,6 +71,17 @@ describe("timing", () => {
     expect(p.etaMs).toBe(start + 60 * MIN);
   });
 
+  test("overdue runs have no finish estimate", () => {
+    const live = {
+      ...runs([1])[0],
+      status: "in_progress",
+      completedAt: null,
+      conclusion: null,
+    } as RunRecord;
+    const start = Date.parse(live.startedAt as string);
+    expect(runProgress(live, 60 * MIN, start + 70 * MIN).etaMs).toBeNull();
+  });
+
   test("timing handles missing start", () => {
     const queued = {
       ...runs([1])[0],

@@ -136,4 +136,18 @@ describe("RunningArea", () => {
     expect(html).toContain("+5 more running");
     expect(html).not.toContain('class="detail"');
   });
+
+  test("a queued run says queued, not running", () => {
+    const e = running(1, 0);
+    const queued: EntryView = {
+      ...e,
+      current: { ...(e.current as RunRecord), status: "queued", startedAt: null, jobs: [] },
+    };
+    const html = renderToString(
+      <RunningArea entries={[queued]} plan={plan("single")} now={NOW} onOpen={() => {}} />,
+    );
+    expect(html).toContain("QUEUED");
+    expect(html).not.toContain("RUNNING");
+    expect(html).not.toContain("NaN");
+  });
 });
