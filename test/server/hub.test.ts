@@ -30,4 +30,23 @@ describe("Hub", () => {
     expect(JSON.parse(seen[0] as string).entries[0].name).toBe("CI");
     expect(hub.serialized()).toBe(seen[0] as string);
   });
+
+  test("warnings are broadcast and the snapshot says when synced", () => {
+    const hub = new Hub("1");
+    expect(hub.snapshot().synced).toBe(false);
+    let last = "";
+    hub.subscribe((json) => {
+      last = json;
+    });
+    hub.update([input("CI")]);
+    expect(hub.snapshot().synced).toBe(true);
+    hub.setWarnings(["GitHub rate limit for acme: data delayed until 13:00"]);
+    expect(JSON.parse(last).warnings).toEqual([
+      "GitHub rate limit for acme: data delayed until 13:00",
+    ]);
+    let calls = 0;
+    hub.subscribe(() => calls++);
+    hub.setWarnings(["GitHub rate limit for acme: data delayed until 13:00"]);
+    expect(calls).toBe(0);
+  });
 });

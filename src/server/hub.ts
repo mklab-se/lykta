@@ -11,7 +11,8 @@ export interface DisplaySettings {
   demo: boolean;
 }
 
-export type HubState = DashboardState & { display: DisplaySettings };
+/** synced: the source has delivered its first full picture (until then: "connecting"). */
+export type HubState = DashboardState & { display: DisplaySettings; synced: boolean };
 
 export class Hub {
   ready = false;
@@ -32,6 +33,7 @@ export class Hub {
       entries: [],
       warnings: [],
       display,
+      synced: false,
     };
   }
 
@@ -51,7 +53,18 @@ export class Hub {
     this.fingerprint = fingerprint;
     this.ready = true;
     if (!changed) return;
-    this.state = { ...this.state, entries, generatedAt: new Date().toISOString() };
+    this.state = { ...this.state, entries, synced: true, generatedAt: new Date().toISOString() };
+    this.broadcast();
+  }
+
+  /** Problems worth showing on the wall (rate limits, GitHub unreachable). */
+  setWarnings(warnings: string[]): void {
+    if (JSON.stringify(warnings) === JSON.stringify(this.state.warnings)) return;
+    this.state = { ...this.state, warnings };
+    this.broadcast();
+  }
+
+  private broadcast(): void {
     this.json = JSON.stringify(this.state);
     for (const fn of this.subscribers) fn(this.json);
   }
