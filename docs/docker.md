@@ -40,7 +40,7 @@ monitor:             # one entry = one tile, shown in this order
   - repo: acme/android
     workflow: nightly.yml
     labels: [mobile]       # optional: shown as #mobile, filterable over MCP
-    color: "#a78bfa"       # optional: the tile's border
+    color: "#a78bfa"       # optional: the label tag's color
   - repo: acme/web
     workflow: ci.yml
   - repo: acme/web

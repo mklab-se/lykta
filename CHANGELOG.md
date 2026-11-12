@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   blurred track (`display.spotlightSeconds`, `display.spotlightEverySeconds`); a finished run gets
   one last turn before a failure enters the pit. History strips always show the last 10 results.
 - Labels and colors: teams sharing a wall give their workflows `labels` (shown as `#hashtags` in
-  the tile's corner) and a `color` (the tile's border), per workflow or as defaults. Tiles follow
+  the tile's corner) and a `color` (the tags become luggage tags in that color), per workflow or as
+  defaults. Tiles follow
   the order of the configuration file; the track is labelled THE GRID, the pit THE PIT.
 - A lantern: Lykta's mark in the header (its flame sways slowly) and as the browser tab's icon.
 - Where a workflow failed is visible from across the room: pit cards show a strip of the run's

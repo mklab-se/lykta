@@ -84,7 +84,7 @@ export interface MonitoredEntry {
   name: string;
   /** Shown as #hashtags in the tile's corner; for filtering (which team or area). */
   labels?: string[];
-  /** A CSS color for the tile's border. */
+  /** A CSS color for the label tags. */
   color?: string;
 }
 

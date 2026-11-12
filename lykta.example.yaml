@@ -16,7 +16,7 @@ organizations:
 
 # One entry = one tile, shown in this order. Watching the same workflow on another branch is
 # another entry. Optional per entry (or under defaults): labels, shown as #hashtags and used for
-# filtering, and a color for the tile's border; teams sharing a wall can tell their tiles apart.
+# filtering, and a color for those label tags; teams sharing a wall can tell their tiles apart.
 monitor:
   - repo: mklab-se/lykta
     workflow: live-pipeline.yml

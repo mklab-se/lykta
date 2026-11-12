@@ -55,8 +55,9 @@ When a run finishes it gets one last turn, so the people watching see it land.
 
 <p align="center"><img src="https://raw.githubusercontent.com/mklab-se/lykta/main/media/spotlight.png" alt="The spotlight: a running workflow's job graph opened over the blurred grid, with the pit beside it" width="100%"></p>
 
-**Teams share one screen.** Give workflows labels and a color: each team's tiles get their own
-border and a `#hashtag` in the corner, and anyone can ask about just their team's workflows.
+**Teams share one screen.** Give workflows labels and a color: each team's tiles carry a
+`#hashtag` on a luggage tag in the team's color, and anyone can ask about just their team's
+workflows.
 
 **Ask it from your AI assistant.** Lykta speaks MCP: point Claude Code, Cursor or any MCP client
 at it and ask *"what is failing for #mobile, and why?"*. Read-only, opt-in, and build output is
@@ -91,7 +92,7 @@ monitor:                 # one entry = one tile, in this order
   - repo: acme/android
     workflow: nightly.yml
     labels: [mobile]     # optional: shown as #mobile, filterable over MCP
-    color: "#a78bfa"     # optional: the tile's border
+    color: "#a78bfa"     # optional: the label tag's color
   - repo: acme/web
     workflow: ci.yml
   - repo: acme/web
@@ -135,7 +136,7 @@ in environment variables: `LYKTA_TOKEN_<ORG>` per organization, or `LYKTA_APP_ID
 | Setting | Default | |
 | --- | --- | --- |
 | `monitor[].branch` | `main` | the branch a tile follows; another branch is another tile |
-| `monitor[].labels`, `color` | none | team labels (`#hashtags`) and the tile's border color |
+| `monitor[].labels`, `color` | none | team labels (`#hashtags`) and the color of their tags |
 | `monitor[].ignoreEvents` | none | triggers that never count, for example `workflow_dispatch` |
 | `polling.budget` | `0.2` | the share of each organization's hourly rate limit Lykta may use |
 | `display.spotlightSeconds`, `spotlightEverySeconds` | `8`, `20` | how long a diagram stays open, and how often one opens |

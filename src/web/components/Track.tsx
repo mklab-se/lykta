@@ -38,14 +38,35 @@ function Progress(props: { e: EntryView; now: number; unit: TileUnit }) {
   );
 }
 
-/** A workflow's labels as #hashtags, in its color; nothing at all without labels. */
+/** Dark text on light colors, light text on dark ones (CSS color names: light text). */
+export function tagText(color: string): string {
+  const hex = color.match(/^#([0-9a-f]{3,8})$/i)?.[1];
+  if (!hex) return "#fff";
+  const full = hex.length <= 4 ? [...hex.slice(0, 3)].map((c) => c + c).join("") : hex.slice(0, 6);
+  const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16) / 255);
+  const luminance = 0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0);
+  return luminance > 0.55 ? "#111" : "#fff";
+}
+
+/**
+ * A workflow's labels as luggage tags in its color: #label on a rounded patch. A color without
+ * labels is an empty tag; neither means nothing at all (the tile looks as usual).
+ */
 export function Tags(props: { e: EntryView }) {
-  if (!props.e.labels?.length) return null;
+  const { labels, color } = props.e;
+  if (!labels?.length && !color) return null;
+  const style = color ? { background: color, color: tagText(color) } : undefined;
   return (
-    <div className="tags" style={props.e.color ? { color: props.e.color } : undefined}>
-      {props.e.labels.map((l) => (
-        <span key={l}>{`#${l}`}</span>
-      ))}
+    <div className="tags">
+      {labels?.length ? (
+        labels.map((l) => (
+          <span key={l} className="tag" style={style}>
+            {`#${l}`}
+          </span>
+        ))
+      ) : (
+        <span className="tag empty" style={style} />
+      )}
     </div>
   );
 }
@@ -60,8 +81,6 @@ function Tile(props: { e: EntryView; unit: TileUnit; now: number; onOpen: (key: 
       layoutId={e.key}
       layoutDependency={`${e.state}:${unit}`}
       className={`tile ${unit} ${e.state}`}
-      // a team's color is the tile's border; the state still shows in its fill and glow
-      style={e.color ? { borderColor: e.color } : undefined}
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}
     >

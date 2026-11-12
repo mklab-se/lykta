@@ -1927,10 +1927,6 @@ body {
   align-self: flex-end;
   font-size: 14px;
 }
-/* a colored tile keeps its color as its border whatever its state */
-.tile[style*="border-color"] {
-  border-width: 2px;
-}
 
 /* the grid's own label, matching the pit's */
 .grid-label {
@@ -1959,4 +1955,27 @@ body {
 /* each log line keeps its height; when the box is short the oldest lines are cut at the top */
 .car .carlog div {
   flex: none;
+}
+
+/* labels as luggage tags: the team's color as a rounded patch, the #label printed on it */
+.tags .tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: #2a3039;
+  color: #c9d1db;
+  font-weight: 800;
+}
+.tags .tag.empty {
+  width: 46px;
+  height: 20px;
+  padding: 0;
+}
+.tile.xl .tags .tag {
+  padding: 4px 12px;
+  border-radius: 9px;
+}
+.tile.xl .tags .tag.empty {
+  width: 60px;
+  height: 26px;
 }

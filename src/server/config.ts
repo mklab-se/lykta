@@ -12,7 +12,7 @@ export interface MonitorConfig {
   ignoreEvents: string[];
   /** Labels (shown as #hashtags, and for filtering): which team or area it belongs to. */
   labels: string[];
-  /** A CSS color for the tile's border; none means the usual look. */
+  /** A CSS color for the label tags (an empty tag without labels); none means the usual look. */
   color?: string;
 }
 

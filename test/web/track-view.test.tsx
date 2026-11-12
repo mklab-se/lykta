@@ -128,27 +128,57 @@ describe("track", () => {
 });
 
 describe("labels and colors", () => {
-  test("a colored, labelled workflow: its border in its color, #labels in the lower right", () => {
+  test("a colored, labelled workflow: its #labels on tags in its color; the border stays", () => {
     const layout = trackLayout(2, 0, canvas);
     const html = renderToString(
       <Track
-        entries={[entry("a", { labels: ["android", "nightly"], color: "#a78bfa" }), entry("b")]}
+        entries={[entry("a", { labels: ["android", "nightly"], color: "#a78bfa" })]}
         pit={new Set()}
         layout={layout}
         now={NOW}
         onOpen={() => {}}
       />,
     );
-    expect(html).toContain("border-color:#a78bfa");
+    expect(html).not.toContain("border-color");
     expect(html).toContain('class="tags"');
+    expect(html.match(/class="tag" style="background:#a78bfa/g)).toHaveLength(2);
     expect(html).toContain("#android");
     expect(html).toContain("#nightly");
-    // the plain one looks exactly as before: no tags, no border override
+    // the plain one looks exactly as before: no tags at all
     const plain = renderToString(
       <Track entries={[entry("b")]} pit={new Set()} layout={layout} now={NOW} onOpen={() => {}} />,
     );
     expect(plain).not.toContain('class="tags"');
-    expect(plain).not.toContain("border-color");
+  });
+
+  test("a color without labels: an empty tag in that color where the #label would be", () => {
+    const layout = trackLayout(1, 0, canvas);
+    const html = renderToString(
+      <Track
+        entries={[entry("a", { color: "#38bdf8" })]}
+        pit={new Set()}
+        layout={layout}
+        now={NOW}
+        onOpen={() => {}}
+      />,
+    );
+    expect(html).toContain('class="tag empty" style="background:#38bdf8');
+  });
+
+  test("tag text stays readable: dark on light colors, light on dark ones", () => {
+    const layout = trackLayout(2, 0, canvas);
+    const html = (color: string) =>
+      renderToString(
+        <Track
+          entries={[entry("a", { labels: ["x"], color })]}
+          pit={new Set()}
+          layout={layout}
+          now={NOW}
+          onOpen={() => {}}
+        />,
+      );
+    expect(html("#fde047")).toContain("color:#111");
+    expect(html("#1e3a8a")).toContain("color:#fff");
   });
 
   test("a car in the pit keeps its labels", () => {
