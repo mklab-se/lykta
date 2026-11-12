@@ -12,6 +12,9 @@ import { ProgressStrip } from "./ProgressStrip.tsx";
 import { RunnerBadge } from "./RunnerBadge.tsx";
 import { Tags } from "./Track.tsx";
 
+const CARD_CHROME = 300;
+const LOG_LINE = 19;
+
 const broken = (e: EntryView, now: number) =>
   e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
 
@@ -65,6 +68,14 @@ function Car(props: {
     );
   }
   const run = e.latestCompleted;
+  // the rest of a card (title, strip, where, errors, labels) takes about this much height
+  const roomForLog = Math.floor((props.height - CARD_CHROME) / LOG_LINE);
+  const logLines =
+    mode === "card" && f
+      ? f.logExcerpt
+          .filter((l) => !f.errors?.includes(l) && !GENERIC.test(l))
+          .slice(-Math.max(0, roomForLog))
+      : [];
   return (
     <motion.div {...motionProps} className={`fail car ${mode}`}>
       <div className="glow" />
@@ -87,15 +98,13 @@ function Car(props: {
           ) : null}
           {run?.jobs.length ? <ProgressStrip jobs={run.jobs} labels={mode === "card"} /> : null}
           <FailureWhat e={e} max={mode === "card" ? 3 : 1} />
-          {mode === "card" && f?.logExcerpt.length ? (
-            // what led up to it, as many lines as the car has room for (newest at the bottom)
+          {roomForLog >= 2 && logLines.length ? (
+            // what led up to it: as many whole lines as the car has room for, newest last
             <div className="carlog">
-              {f.logExcerpt
-                .filter((l) => !f.errors?.includes(l) && !GENERIC.test(l))
-                .map((l, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: log lines are positional
-                  <div key={i}>{shortenPaths(l)}</div>
-                ))}
+              {logLines.map((l, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: log lines are positional
+                <div key={i}>{shortenPaths(l)}</div>
+              ))}
             </div>
           ) : null}
         </>
