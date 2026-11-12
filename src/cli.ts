@@ -9,8 +9,10 @@
 import { Argument, Command } from "commander";
 import { printBannerWithVersion } from "./banner.ts";
 import { dim, setColorEnabled, yellow } from "./color.ts";
+import { runCheckCommand } from "./commands/check.ts";
 import { generateCompletion, SHELLS, type Shell } from "./commands/completion.ts";
 import { runDemo } from "./commands/demo.ts";
+import { runInit } from "./commands/init.ts";
 import { runServe } from "./commands/serve.ts";
 import { DESCRIPTION, NO_UPDATE_CHECK_ENV, PACKAGE_NAME, TOOL, VERSION } from "./meta.ts";
 import { checkForUpdate } from "./update.ts";
@@ -65,6 +67,19 @@ Lykta (Swedish for "lantern") shows at a glance which GitHub Actions workflows a
     )
     .option("--host <host>", "address to listen on (overrides the config)")
     .action((o: { config?: string; port?: number; host?: string }) => runServe(o));
+
+  program
+    .command("check")
+    .description("check the configuration against GitHub before it goes on a wall")
+    .option("-c, --config <path>", "configuration file (default lykta.yaml, or LYKTA_CONFIG)")
+    .action((o: { config?: string }) => runCheckCommand(o));
+
+  program
+    .command("init")
+    .description("write a starter lykta.yaml by answering a few questions")
+    .option("-o, --output <path>", "file to write", "lykta.yaml")
+    .option("--force", "overwrite an existing file", false)
+    .action((o: { output: string; force: boolean }) => runInit(o));
 
   program
     .command("demo")
