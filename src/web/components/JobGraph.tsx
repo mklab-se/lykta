@@ -110,16 +110,32 @@ function Node(props: { run: RunRecord; n: GraphNode }) {
   );
 }
 
+const NODE_GAP = 8;
+
+/** How many nodes stack in a graph this tall (Infinity until it has been measured). */
+export function rowsThatFit(height: number, nodeHeight: number): number {
+  if (height <= 0 || nodeHeight <= 0) return Number.POSITIVE_INFINITY;
+  return Math.max(1, Math.floor((height + NODE_GAP) / (nodeHeight + NODE_GAP)));
+}
+
 interface Edge {
   d: string;
   color: string;
   flow: boolean;
 }
 
-export function JobGraph(props: { run: RunRecord; columns: number; style?: React.CSSProperties }) {
+export function JobGraph(props: {
+  run: RunRecord;
+  columns: number;
+  style?: React.CSSProperties;
+  /** Nodes per column before it flows into sub-columns; measured in the browser. */
+  maxRows?: number;
+}) {
   const model = buildGraph(props.run.jobs, props.columns);
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [fit, setFit] = useState(Number.POSITIVE_INFINITY);
+  const maxRows = props.maxRows ?? fit;
   const signature = JSON.stringify(model.columns.map((c) => c.map((n) => `${n.id}:${n.status}`)));
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: redraw only when the graph shape or statuses change
@@ -127,6 +143,10 @@ export function JobGraph(props: { run: RunRecord; columns: number; style?: React
     const el = ref.current;
     if (!el) return;
     const draw = () => {
+      // a column taller than the graph flows into sub-columns instead of spilling over
+      const nodes = [...el.querySelectorAll<HTMLElement>(".node")];
+      const tallest = Math.max(0, ...nodes.map((n) => n.offsetHeight));
+      setFit(rowsThatFit(el.clientHeight, tallest));
       const base = el.getBoundingClientRect();
       const k = base.width ? el.offsetWidth / base.width : 1;
       const byId = new Map(model.columns.flat().map((n) => [n.id, n]));
@@ -164,7 +184,7 @@ export function JobGraph(props: { run: RunRecord; columns: number; style?: React
     const ro = new ResizeObserver(draw);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [signature, props.run.id]);
+  }, [signature, props.run.id, maxRows]);
 
   return (
     <div className="graph" ref={ref} style={props.style}>
@@ -183,7 +203,21 @@ export function JobGraph(props: { run: RunRecord; columns: number; style?: React
         ))}
       </svg>
       {model.columns.map((c) => (
-        <div className="col" key={c.map((n) => n.id).join("|")}>
+        <div
+          className="col"
+          key={c.map((n) => n.id).join("|")}
+          style={
+            c.length > maxRows
+              ? {
+                  display: "grid",
+                  gridTemplateRows: `repeat(${maxRows}, auto)`,
+                  gridAutoFlow: "column",
+                  gap: NODE_GAP,
+                  alignContent: "center",
+                }
+              : undefined
+          }
+        >
           {c.map((n) => (
             <Node key={n.id} run={props.run} n={n} />
           ))}

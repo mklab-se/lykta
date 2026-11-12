@@ -617,6 +617,9 @@ body {
   display: flex;
   gap: 26px;
   align-items: center;
+  /* tall columns flow into sub-columns (JobGraph); never cover the card's text */
+  overflow: hidden;
+  padding: 0 4px;
 }
 .graph svg.edges {
   position: absolute;
