@@ -1943,3 +1943,12 @@ body {
 .grid-label.dimmed {
   filter: blur(7px) brightness(0.45);
 }
+/* running: the progress line needs the full width; the #labels go below it, still lower right */
+.tile.running .foot {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.tile.running .foot > .tags {
+  align-self: flex-end;
+}
