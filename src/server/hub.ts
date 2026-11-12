@@ -28,6 +28,7 @@ export class Hub {
     readonly version: string,
     display: DisplaySettings = { lowPower: "auto", demo: false },
     title?: string,
+    private readonly now: () => number = Date.now,
   ) {
     this.state = {
       version,
@@ -41,12 +42,21 @@ export class Hub {
   }
 
   update(inputs: EntryInput[]): void {
+    // a pass is held big for a while (see web/holds.ts); a little extra covers clock skew
+    const heldMs = ((this.state.display.holdPassedSeconds ?? 45) + 15) * 1000;
     const entries = inputs.map((input) => {
       const view = deriveEntry(input);
+      const last = view.latestCompleted;
+      // the wall needs a finished run's jobs only while it fails (how far it got) or is held;
+      // overlays fetch details on demand
+      const keep =
+        view.failing ||
+        (last?.completedAt !== null &&
+          last?.completedAt !== undefined &&
+          this.now() - Date.parse(last.completedAt) < heldMs);
       return {
         ...view,
-        // the wall only needs the jobs of a running run; overlays fetch details on demand
-        latestCompleted: view.latestCompleted ? { ...view.latestCompleted, jobs: [] } : undefined,
+        latestCompleted: last ? { ...last, jobs: keep ? last.jobs : [] } : undefined,
         expectedMs: expectedDuration(input.runs),
       };
     });

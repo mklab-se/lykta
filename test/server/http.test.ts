@@ -93,9 +93,14 @@ describe("http", () => {
     expect((await fetch(`${base}/api/demo/break`, { method: "POST" })).status).toBe(200);
   });
 
-  test("snapshot keeps completed runs light", () => {
+  test("snapshot keeps completed runs light (except failing and just-finished ones)", () => {
     const { hub } = boot();
-    for (const e of hub.snapshot().entries) expect(e.latestCompleted?.jobs ?? []).toEqual([]);
+    const old = (iso: string | null | undefined) => !iso || Date.now() - Date.parse(iso) > 60_000;
+    const light = hub
+      .snapshot()
+      .entries.filter((e) => !e.failing && old(e.latestCompleted?.completedAt));
+    expect(light.length).toBeGreaterThan(0);
+    for (const e of light) expect(e.latestCompleted?.jobs ?? []).toEqual([]);
   });
 
   test("details for a specific run", async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { EntryInput } from "../../src/core/types.ts";
+import type { EntryInput, RunRecord } from "../../src/core/types.ts";
 import { Hub } from "../../src/server/hub.ts";
 
 const input = (name: string): EntryInput => ({
@@ -48,5 +48,60 @@ describe("Hub", () => {
     hub.subscribe(() => calls++);
     hub.setWarnings(["GitHub rate limit for acme: data delayed until 13:00"]);
     expect(calls).toBe(0);
+  });
+
+  test("finished runs keep their jobs while failing or held, and drop them later", () => {
+    const NOW = Date.UTC(2026, 10, 12, 12, 0);
+    const run = (
+      id: number,
+      conclusion: "success" | "failure",
+      endedSecondsAgo: number,
+    ): RunRecord => {
+      const at = new Date(NOW - endedSecondsAgo * 1000).toISOString();
+      return {
+        id,
+        url: "",
+        branch: "main",
+        sha: "abc",
+        actor: "a",
+        event: "push",
+        createdAt: at,
+        startedAt: at,
+        completedAt: at,
+        status: "completed",
+        conclusion,
+        jobs: [
+          {
+            id: "j",
+            name: "Build",
+            status: conclusion,
+            needs: [],
+            steps: [],
+            startedAt: at,
+            completedAt: at,
+          },
+        ],
+      };
+    };
+    const entry = (key: string, runs: RunRecord[]): EntryInput => ({
+      entry: { key, repo: "o/r", workflow: `${key}.yml`, branch: "main", name: key },
+      runs,
+    });
+    const hub = new Hub(
+      "1",
+      { lowPower: "auto", demo: false, holdPassedSeconds: 45 },
+      undefined,
+      () => NOW,
+    );
+    hub.update([
+      entry("failing", [run(1, "failure", 3600)]),
+      entry("just-passed", [run(2, "success", 20)]),
+      entry("old-pass", [run(3, "success", 3600)]),
+    ]);
+    const jobs = (key: string) =>
+      hub.snapshot().entries.find((e) => e.key === key)?.latestCompleted?.jobs.length;
+    expect(jobs("failing")).toBe(1);
+    expect(jobs("just-passed")).toBe(1);
+    expect(jobs("old-pass")).toBe(0);
   });
 });
