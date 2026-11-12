@@ -1,9 +1,9 @@
 import { AnimatePresence, LayoutGroup } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RunDetails } from "../server/source.ts";
 import { useVirtualCanvas } from "./canvas.ts";
 import { DemoControls } from "./components/DemoControls.tsx";
-import { DetailOverlay } from "./components/DetailOverlay.tsx";
+import { DetailOverlay, type OverlayView, viewFor } from "./components/DetailOverlay.tsx";
 import { FailureBand } from "./components/FailureBand.tsx";
 import { Header } from "./components/Header.tsx";
 import { MonitoredBand } from "./components/MonitoredBand.tsx";
@@ -38,13 +38,28 @@ export function App() {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [details, setDetails] = useState<RunDetails | null>(null);
   const [focusKey, setFocusKey] = useState<string | null>(null);
-  const open = (key: string) => {
+  const [view, setView] = useState<OverlayView>("passed");
+  const request = useRef(0);
+  const open = (key: string, from: "failures" | "running" | "monitored") => {
+    const e = entries.find((x) => x.key === key);
+    if (!e) return;
+    const v = viewFor(e, from);
+    const run = v === "running" ? e.current : (e.latestCompleted ?? e.current);
+    const id = ++request.current;
     setOpenKey(key);
+    setView(v);
     setDetails(null);
-    fetch(`/api/entries/${encodeURIComponent(key)}/details`)
+    const q = run ? `?run=${run.id}` : "";
+    fetch(`/api/entries/${encodeURIComponent(key)}/details${q}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then(setDetails)
-      .catch(() => setDetails(null));
+      // a slow answer for an earlier click must not fill this overlay
+      .then((d) => id === request.current && setDetails(d))
+      .catch(() => id === request.current && setDetails(null));
+  };
+  const bandOf = (key: string): "failures" | "running" | "monitored" => {
+    const e = entries.find((x) => x.key === key);
+    if (e && isFailingEntry(e)) return "failures";
+    return e?.state === "running" ? "running" : "monitored";
   };
   const close = () => {
     setOpenKey(null);
@@ -66,7 +81,7 @@ export function App() {
         ev.key
       ] as "up" | "down" | "left" | "right" | undefined;
       if (dir) setFocusKey((k) => moveFocus(order, k, dir));
-      else if (ev.key === "Enter" && focusKey) open(focusKey);
+      else if (ev.key === "Enter" && focusKey) open(focusKey, bandOf(focusKey));
       else if (ev.key === "Escape") close();
     };
     window.addEventListener("keydown", onKey);
@@ -98,7 +113,7 @@ export function App() {
                   entries={entries.filter(isFailingEntry)}
                   plan={plan.failures}
                   now={now}
-                  onOpen={open}
+                  onOpen={(k) => open(k, "failures")}
                 />
               ) : null}
               {plan?.running ? (
@@ -106,8 +121,8 @@ export function App() {
                   entries={running}
                   plan={plan.running}
                   now={now}
-                  onOpen={open}
-                  pinnedKey={openEntry?.state === "running" ? openEntry.key : undefined}
+                  onOpen={(k) => open(k, "running")}
+                  pinnedKey={openEntry && view === "running" ? openEntry.key : undefined}
                 />
               ) : null}
               {plan && (plan.empty || plan.monitored.height >= 64) ? (
@@ -116,7 +131,7 @@ export function App() {
                   plan={plan.monitored}
                   page={page}
                   now={now}
-                  onOpen={open}
+                  onOpen={(k) => open(k, "monitored")}
                   allEmpty={plan.empty}
                 />
               ) : null}
@@ -129,6 +144,7 @@ export function App() {
           <DetailOverlay
             key={openEntry.key}
             entry={openEntry}
+            view={view}
             details={details}
             now={now}
             countdown={countdown}

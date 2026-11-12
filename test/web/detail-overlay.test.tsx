@@ -58,9 +58,20 @@ const details = (log: string[]): RunDetails => ({
   ],
 });
 
-const render = (e: EntryView, d: RunDetails | null) =>
+const render = (
+  e: EntryView,
+  d: RunDetails | null,
+  view: "failure" | "running" | "passed" = "passed",
+) =>
   renderToString(
-    <DetailOverlay entry={e} details={d} now={NOW} countdown={null} onClose={() => {}} />,
+    <DetailOverlay
+      entry={e}
+      view={view}
+      details={d}
+      now={NOW}
+      countdown={null}
+      onClose={() => {}}
+    />,
   );
 
 describe("DetailOverlay", () => {
@@ -92,10 +103,36 @@ describe("DetailOverlay", () => {
         logExcerpt: ["ninja: build stopped: subcommand failed."],
       },
     };
-    const html = render(failed, details(["ninja: build stopped: subcommand failed."]));
+    const html = render(failed, details(["ninja: build stopped: subcommand failed."]), "failure");
     expect(html).toContain("m -j64");
     expect(html).toContain("Publish OTA");
     expect(html).toContain("ninja: build stopped");
     expect(html).toContain("2h 00m");
+  });
+
+  test("a failure that is being re-run opens as the failure, with the failed run's link", () => {
+    const fixing: EntryView = {
+      ...base,
+      state: "running",
+      failing: true,
+      brokenSince: new Date(NOW - 7_200_000).toISOString(),
+      failure: { job: "Build", step: "m -j64", logExcerpt: ["error: cannot find symbol"] },
+      latestCompleted: {
+        ...(base.latestCompleted as NonNullable<EntryView["latestCompleted"]>),
+        conclusion: "failure",
+      },
+      current: {
+        ...(base.latestCompleted as NonNullable<EntryView["latestCompleted"]>),
+        id: 43,
+        url: "https://github.com/mklab-se/x/actions/runs/43",
+        status: "in_progress",
+        conclusion: null,
+        completedAt: null,
+      },
+    };
+    const html = render(fixing, null, "failure");
+    expect(html).toContain("m -j64");
+    expect(html).toContain("error: cannot find symbol");
+    expect(html).not.toContain("running for");
   });
 });

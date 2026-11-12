@@ -97,4 +97,14 @@ describe("http", () => {
     const { hub } = boot();
     for (const e of hub.snapshot().entries) expect(e.latestCompleted?.jobs ?? []).toEqual([]);
   });
+
+  test("details for a specific run", async () => {
+    const { base, hub } = boot();
+    const e = hub.snapshot().entries.find((x) => x.latestCompleted);
+    const id = e?.latestCompleted?.id;
+    const res = await fetch(`${base}/api/entries/${e?.key}/details?run=${id}`);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { runUrl: string }).runUrl).toEndWith(`/actions/runs/${id}`);
+    expect((await fetch(`${base}/api/entries/${e?.key}/details?run=1`)).status).toBe(404);
+  });
 });

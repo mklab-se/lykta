@@ -67,7 +67,11 @@ export function startServer(opts: ServerOptions): Server<undefined> {
       "/readyz": () =>
         hub.ready ? new Response("ready") : new Response("not ready", { status: 503 }),
       "/api/entries/:key/details": async (req) => {
-        const details = await source.details(req.params.key);
+        const run = new URL(req.url).searchParams.get("run");
+        const runId = run === null ? undefined : Number.parseInt(run, 10);
+        if (runId !== undefined && !Number.isFinite(runId))
+          return new Response("bad request", { status: 400 });
+        const details = await source.details(req.params.key, runId);
         return details ? Response.json(details) : new Response("not found", { status: 404 });
       },
       ...(opts.routes ?? {}),

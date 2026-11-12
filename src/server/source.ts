@@ -14,5 +14,6 @@ export interface RunDetails {
 export interface Source {
   start(onChange: (inputs: EntryInput[]) => void): void;
   stop(): void;
-  details(entryKey: string): Promise<RunDetails | null>;
+  /** Details of a run: `runId`, or the entry's newest run when omitted. */
+  details(entryKey: string, runId?: number): Promise<RunDetails | null>;
 }

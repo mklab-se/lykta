@@ -52,25 +52,28 @@ function Jobs(props: { jobs: JobRecord[] }) {
 }
 
 /** Details for a person standing at the screen, with a QR code to open the run on a phone. */
+export type OverlayView = "failure" | "running" | "passed";
+
+/** Which view a click opens: from the failure band, the running area, or the monitored band. */
+export function viewFor(e: EntryView, from: "failures" | "running" | "monitored"): OverlayView {
+  if (from === "failures") return "failure";
+  if (from === "running") return "running";
+  return e.failing || e.state === "missing" ? "failure" : "passed";
+}
+
 export function DetailOverlay(props: {
   entry: EntryView;
+  view: OverlayView;
   details: RunDetails | null;
   now: number;
   countdown: number | null;
   onClose: () => void;
 }) {
   const { entry: e, details, now } = props;
-  const run = e.current ?? e.latestCompleted;
+  const run =
+    props.view === "running" ? (e.current ?? e.latestCompleted) : (e.latestCompleted ?? e.current);
   const url = details?.runUrl ?? run?.url ?? `https://github.com/${e.repo}/actions`;
-  const failed = e.failing || e.state === "failed";
-  const kind =
-    e.state === "running"
-      ? "running"
-      : failed
-        ? "failed"
-        : e.state === "missing"
-          ? "failed"
-          : "passed";
+  const kind = props.view === "failure" ? "failed" : props.view;
   const jobs = details?.jobs ?? run?.jobs ?? [];
   const skipped = jobs.filter((j) => j.status === "skipped");
 

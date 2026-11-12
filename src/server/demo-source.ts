@@ -159,20 +159,19 @@ export class DemoSource implements Source {
     this.emit();
   }
 
-  async details(entryKey: string): Promise<RunDetails | null> {
+  async details(entryKey: string, runId?: number): Promise<RunDetails | null> {
     const e = this.entries.find((x) => x.entry.key === entryKey);
-    const run = e?.runs[0];
+    const run = runId === undefined ? e?.runs[0] : e?.runs.find((r) => r.id === runId);
     if (!e || !run) return null;
     const record = this.record(e, run);
-    const logExcerpt =
-      run.failed && e.failure
-        ? e.failure.logExcerpt
-        : [
-            "Run actions/upload-artifact@v4",
-            "Artifact upload complete",
-            "Post job cleanup.",
-            "Cleaning up orphan processes",
-          ];
+    const logExcerpt = run.failed
+      ? failLogFor(run.jobs.find((j) => j.fails && !j.blocked)?.tpl.name ?? "")
+      : [
+          "Run actions/upload-artifact@v4",
+          "Artifact upload complete",
+          "Post job cleanup.",
+          "Cleaning up orphan processes",
+        ];
     return { entryKey, runUrl: record.url, logExcerpt, jobs: record.jobs };
   }
 
