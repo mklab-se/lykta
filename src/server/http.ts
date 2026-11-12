@@ -4,6 +4,7 @@
  */
 import type { Server } from "bun";
 import index from "../web/index.html";
+import type { DemoSource } from "./demo-source.ts";
 import type { Hub, HubState } from "./hub.ts";
 import type { Source } from "./source.ts";
 
@@ -73,4 +74,23 @@ export function startServer(opts: ServerOptions): Server<undefined> {
     },
     fetch: () => new Response("not found", { status: 404 }),
   });
+}
+
+/** Controls for demo mode only: change how many workflows run, or break one. */
+export function demoRoutes(source: DemoSource): NonNullable<ServerOptions["routes"]> {
+  return {
+    "/api/demo/running/:n": (req) => {
+      const n = Number.parseInt(req.params.n ?? "", 10);
+      if (req.method !== "POST" || !Number.isFinite(n) || n < 0 || n > 50) {
+        return new Response("bad request", { status: 400 });
+      }
+      source.setRunning(n);
+      return new Response("ok");
+    },
+    "/api/demo/break": (req) => {
+      if (req.method !== "POST") return new Response("bad request", { status: 400 });
+      source.breakOne();
+      return new Response("ok");
+    },
+  };
 }

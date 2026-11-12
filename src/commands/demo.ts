@@ -3,7 +3,7 @@
  */
 import { VERSION } from "../meta.ts";
 import { DemoSource } from "../server/demo-source.ts";
-import { startServer } from "../server/http.ts";
+import { demoRoutes, startServer } from "../server/http.ts";
 import { Hub } from "../server/hub.ts";
 
 export interface DemoCommandOptions {
@@ -24,7 +24,13 @@ export async function runDemo(opts: DemoCommandOptions): Promise<void> {
   );
   const source = new DemoSource({ count: opts.count, running: opts.running });
   source.start((inputs) => hub.update(inputs));
-  const server = startServer({ port: opts.port, hostname: opts.host, hub, source });
+  const server = startServer({
+    port: opts.port,
+    hostname: opts.host,
+    hub,
+    source,
+    routes: demoRoutes(source),
+  });
   const shown = opts.host === "0.0.0.0" ? "localhost" : opts.host;
   console.log(`Lykta demo running at http://${shown}:${server.port}  (Ctrl+C to stop)`);
   await new Promise(() => {});

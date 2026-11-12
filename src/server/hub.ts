@@ -34,10 +34,15 @@ export class Hub {
   }
 
   update(inputs: EntryInput[]): void {
-    const entries = inputs.map((input) => ({
-      ...deriveEntry(input),
-      expectedMs: expectedDuration(input.runs),
-    }));
+    const entries = inputs.map((input) => {
+      const view = deriveEntry(input);
+      return {
+        ...view,
+        // the wall only needs the jobs of a running run; overlays fetch details on demand
+        latestCompleted: view.latestCompleted ? { ...view.latestCompleted, jobs: [] } : undefined,
+        expectedMs: expectedDuration(input.runs),
+      };
+    });
     this.state = { ...this.state, entries, generatedAt: new Date().toISOString() };
     this.ready = true;
     for (const fn of this.subscribers) fn(this.state);

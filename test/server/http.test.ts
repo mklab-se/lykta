@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { DemoSource } from "../../src/server/demo-source.ts";
-import { startServer } from "../../src/server/http.ts";
+import { demoRoutes, startServer } from "../../src/server/http.ts";
 import { Hub } from "../../src/server/hub.ts";
 
 let stops: (() => void)[] = [];
@@ -13,7 +13,13 @@ function boot(opts: { startSource?: boolean } = {}) {
   const hub = new Hub("0.0.1+test");
   const source = new DemoSource({ count: 14, running: 2, seed: 7, tickMs: 60_000 });
   if (opts.startSource !== false) source.start((inputs) => hub.update(inputs));
-  const server = startServer({ port: 0, hostname: "127.0.0.1", hub, source });
+  const server = startServer({
+    port: 0,
+    hostname: "127.0.0.1",
+    hub,
+    source,
+    routes: demoRoutes(source),
+  });
   stops.push(() => {
     source.stop();
     server.stop(true);
@@ -77,5 +83,18 @@ describe("http", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toContain("text/html");
     expect(await res.text()).toContain(`id="root"`);
+  });
+
+  test("demo controls change running target", async () => {
+    const { base, hub } = boot();
+    const res = await fetch(`${base}/api/demo/running/5`, { method: "POST" });
+    expect(res.status).toBe(200);
+    expect(hub.snapshot().entries.filter((e) => e.state === "running")).toHaveLength(5);
+    expect((await fetch(`${base}/api/demo/break`, { method: "POST" })).status).toBe(200);
+  });
+
+  test("snapshot keeps completed runs light", () => {
+    const { hub } = boot();
+    for (const e of hub.snapshot().entries) expect(e.latestCompleted?.jobs ?? []).toEqual([]);
   });
 });

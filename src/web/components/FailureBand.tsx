@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { formatDuration } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
 import { uniqueKeys } from "../keys.ts";
@@ -38,6 +38,9 @@ function FailCard(props: {
   const { e, now } = props;
   const commonProps = {
     layoutId: `fail:${e.key}`,
+    initial: { opacity: 0, scale: 0.96 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.9, transition: { duration: 0.6 } },
     className: "fail",
     "data-entry": e.key,
     onClick: () => props.onOpen(e.key),
@@ -115,6 +118,9 @@ function FailRow(props: { e: EntryView; now: number; onOpen: (key: string) => vo
   return (
     <motion.div
       layoutId={`fail:${e.key}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.6 } }}
       className="failrow"
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}
@@ -149,19 +155,21 @@ export function FailureBand(props: {
           height: plan.height,
         }}
       >
-        {props.entries.map((e) =>
-          plan.mode === "row" ? (
-            <FailRow key={e.key} e={e} now={props.now} onOpen={props.onOpen} />
-          ) : (
-            <FailCard
-              key={e.key}
-              e={e}
-              now={props.now}
-              small={plan.mode === "small"}
-              onOpen={props.onOpen}
-            />
-          ),
-        )}
+        <AnimatePresence mode="popLayout">
+          {props.entries.map((e) =>
+            plan.mode === "row" ? (
+              <FailRow key={e.key} e={e} now={props.now} onOpen={props.onOpen} />
+            ) : (
+              <FailCard
+                key={e.key}
+                e={e}
+                now={props.now}
+                small={plan.mode === "small"}
+                onOpen={props.onOpen}
+              />
+            ),
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
