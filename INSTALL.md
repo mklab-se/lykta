@@ -1,5 +1,15 @@
 # Installing lykta
 
+## Container (Docker, Kubernetes)
+
+```sh
+docker run --rm -p 8080:8080 ghcr.io/mklab-se/lykta demo     # try it
+```
+
+`ghcr.io/mklab-se/lykta` (linux/amd64, linux/arm64). Running it against GitHub:
+[docs/docker.md](docs/docker.md). Kubernetes, Helm and Argo CD:
+[docs/kubernetes.md](docs/kubernetes.md) (chart: `oci://ghcr.io/mklab-se/charts/lykta`).
+
 ## Homebrew (macOS / Linux)
 
 ```sh
