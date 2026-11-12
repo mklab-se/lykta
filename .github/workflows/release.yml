@@ -142,14 +142,17 @@ jobs:
           node-version: node
           registry-url: https://registry.npmjs.org
       - run: bun install --frozen-lockfile
+      # Trusted Publishing: npm authenticates this workflow through GitHub's OIDC token (hence
+      # id-token: write), so no long-lived secret is needed. Set it up on npmjs.com under the
+      # package's Settings > Trusted Publisher (workflow release.yml, environment npm).
+      # NPM_TOKEN is only a fallback for a brand-new package's very first publish, since npm
+      # can only attach a trusted publisher to a package that already exists.
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::warning::NPM_TOKEN is not set in the 'npm' environment; skipping npm publish."
-            exit 0
-          fi
+          npm install -g npm@latest
+          npm --version
           npm publish --provenance --access public
 
   # Update Homebrew tap with new version and SHA256 hashes

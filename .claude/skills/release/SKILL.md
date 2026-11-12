@@ -60,8 +60,8 @@ $ARGUMENTS must be one of: `major`, `minor`, `patch`. If empty or invalid, stop 
 - When green, confirm:
   - `gh release view v{NEW} --repo mklab-se/lykta --json assets -q '.assets[].name'` lists
     3 `.tar.gz`, 1 `.zip` and 4 `.cdx.json`
-  - `npm view @mklab-se/lykta version` shows {NEW} (unless the npm step warned that `NPM_TOKEN`
-    is missing)
+  - `npm view @mklab-se/lykta version` shows {NEW} (if the npm job fails with an authentication
+    error, check the package's Trusted Publisher settings on npmjs.com: workflow `release.yml`, environment `npm`)
   - `Formula/lykta.rb` in `mklab-se/homebrew-tap` carries {NEW}
 
 ### 8. Confirm

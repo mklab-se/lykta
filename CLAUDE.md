@@ -74,7 +74,8 @@ single-file release binaries.
   (`tsc --noEmit`, TypeScript 7), Biome for lint and format (2 spaces, width 100, double quotes).
 - Prefer Bun built-ins over dependencies (`Bun.YAML`, `Bun.JSONC`, `Bun.semver`, `Bun.file`,
   `Bun.spawn`, `fetch`). Runtime dependencies today: `commander` only.
-- Distribution: npm as `@mklab-se/<tool>` (the `bin` is the short name), single-file binaries for
+- Distribution: npm as `@mklab-se/<tool>` (the `bin` is the short name) via Trusted Publishing
+  (GitHub OIDC, no stored token; see README "Releasing"), single-file binaries for
   4 targets on GitHub Releases with CycloneDX SBOMs, and the Homebrew tap `mklab-se/homebrew-tap`.
 - CI gates (run them locally before pushing): `bun run lint`, `bun run typecheck`, `bun test`,
   `bun run build` (all at once: `bun run check && bun run build`).

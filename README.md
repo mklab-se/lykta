@@ -67,10 +67,22 @@ tags `vX.Y.Z`. Pushing the tag triggers `.github/workflows/release.yml`, which:
 
 | Secret               | Where                 | Purpose                     | How to create                                                                           |
 | -------------------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------- |
-| `NPM_TOKEN`          | Environment **`npm`** | Publish to npm              | npmjs.com → Access Tokens → granular token with read and write on the `@mklab-se` scope |
 | `HOMEBREW_TAP_TOKEN` | Repository secret     | Push the formula to the tap | A GitHub PAT with `repo` scope for `mklab-se/homebrew-tap`                              |
 
-If either secret is missing, the release still succeeds; that step just logs a warning.
+If `HOMEBREW_TAP_TOKEN` is missing, the release still succeeds; the Homebrew step just logs a warning.
+
+### npm: Trusted Publishing
+
+npm publishing needs **no stored secret**. The workflow proves its identity to npm with GitHub's
+OIDC token (Trusted Publishing), and npm attaches a signed provenance statement to every version.
+On npmjs.com, under the package's **Settings > Trusted Publisher**, add GitHub Actions with
+organization `mklab-se`, repository `lykta`, workflow `release.yml`, environment `npm`, and tick
+**Allow npm publish**. The GitHub repository needs an environment named `npm` (it may be empty).
+
+npm can only attach a trusted publisher to a package that already exists, so a **brand-new**
+package is published once with a token: put a short-lived granular token (read and write on the
+`@mklab-se` scope) in the `npm` environment as `NPM_TOKEN`, release, set up Trusted Publishing as
+above, then delete the secret and revoke the token.
 
 ## Development
 
