@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-13
+
 ### Added
 
+- **Ask Lykta from an AI assistant:** an opt-in, read-only MCP endpoint at `/mcp`
+  (`mcp.enabled`, `LYKTA_MCP=on`; always on in the demo) with `list_workflows`, `list_failures`,
+  `list_labels` and `get_workflow`, filterable by label. Build output is handed over as data,
+  never as instructions.
+- **Container image** `ghcr.io/mklab-se/lykta` (linux/amd64, linux/arm64; non-root, distroless),
+  a **Helm chart** `oci://ghcr.io/mklab-se/charts/lykta`, plain Kubernetes manifests and a
+  Compose file, with guides for Docker, Kubernetes and Argo CD, the GitHub App and MCP.
 - `lykta serve --config lykta.yaml`: the dashboard on real GitHub Actions data, from several
   organizations, signing in with a GitHub App (recommended) or fine-grained tokens. Polls
   sparingly, since other teams and other walls share the same rate limits: cheap repeat requests,
@@ -67,7 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Rust release, reserving the `lykta` name on crates.io.
 
-[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mklab-se/lykta/compare/v0.0.3...v0.1.0
 [0.0.3]: https://github.com/mklab-se/lykta/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/mklab-se/lykta/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/mklab-se/lykta/releases/tag/v0.0.1
