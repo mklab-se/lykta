@@ -4,7 +4,7 @@ import { heldUntil, holdsFrom, partition } from "../../src/web/holds.ts";
 
 const NOW = Date.UTC(2026, 10, 12, 12, 0);
 const SEC = 1000;
-const holds = { failedMs: 180 * SEC, passedMs: 45 * SEC };
+const holds = { failedMs: 180 * SEC, passedMs: 45 * SEC, clockScale: 1 };
 
 function run(conclusion: RunRecord["conclusion"], endedSecondsAgo: number): RunRecord {
   const at = new Date(NOW - endedSecondsAgo * SEC).toISOString();
@@ -86,7 +86,15 @@ describe("holds", () => {
     expect(holdsFrom({ holdFailedSeconds: 60, holdPassedSeconds: 0 })).toEqual({
       failedMs: 60_000,
       passedMs: 0,
+      clockScale: 1,
     });
-    expect(holdsFrom(undefined)).toEqual({ failedMs: 180_000, passedMs: 45_000 });
+    expect(holdsFrom(undefined)).toEqual({ failedMs: 180_000, passedMs: 45_000, clockScale: 1 });
+  });
+
+  test("on a fast clock (the demo) holds and countdowns stay in real time", () => {
+    const fast = { ...holds, clockScale: 60 };
+    // finished 10 real seconds ago = 600 seconds on the fast clock: 170 real seconds left
+    expect(heldUntil(entry("a", "failed", run("failure", 600)), NOW, fast)).toBe(NOW + 170 * SEC);
+    expect(heldUntil(entry("a", "failed", run("failure", 181 * 60)), NOW, fast)).toBeNull();
   });
 });

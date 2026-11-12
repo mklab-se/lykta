@@ -118,6 +118,6 @@ describe("DemoSource", () => {
 
   test("demo holds are scaled to its fast clock", () => {
     const { src } = make(14);
-    expect(src.holdSettings()).toEqual({ holdFailedSeconds: 180 * 60, holdPassedSeconds: 45 * 60 });
+    expect(src.holdSettings()).toEqual({ clockScale: 60 });
   });
 });

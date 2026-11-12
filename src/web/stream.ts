@@ -10,6 +10,7 @@ export type DisplaySettings = {
   demo: boolean;
   holdFailedSeconds?: number;
   holdPassedSeconds?: number;
+  clockScale?: number;
 };
 export type ClientState = DashboardState & { display?: DisplaySettings; synced?: boolean };
 

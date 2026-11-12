@@ -11,15 +11,19 @@ import { isFailingEntry, isMonitoredOnly } from "./layout.ts";
 export interface Holds {
   failedMs: number;
   passedMs: number;
+  /** How much faster run timestamps age than real time (60 in the demo, else 1). */
+  clockScale: number;
 }
 
 export function holdsFrom(display?: {
   holdFailedSeconds?: number;
   holdPassedSeconds?: number;
+  clockScale?: number;
 }): Holds {
   return {
     failedMs: (display?.holdFailedSeconds ?? 180) * 1000,
     passedMs: (display?.holdPassedSeconds ?? 45) * 1000,
+    clockScale: display?.clockScale ?? 1,
   };
 }
 
@@ -33,8 +37,8 @@ export function heldUntil(e: EntryView, now: number, holds: Holds): number | nul
     : run.conclusion === "success"
       ? holds.passedMs
       : 0;
-  const until = Date.parse(run.completedAt) + ms;
-  return until > now ? until : null;
+  const left = ms - (now - Date.parse(run.completedAt)) / holds.clockScale;
+  return left > 0 ? now + left : null;
 }
 
 /** Which band each entry belongs in right now; held runs stay with the running ones. */

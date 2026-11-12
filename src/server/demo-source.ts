@@ -373,12 +373,9 @@ export class DemoSource implements Source {
     };
   }
 
-  /**
-   * Holds for the wall, in this clock's seconds: timestamps age `speed` times faster here,
-   * so 3 minutes and 45 seconds of real time are scaled up the same way.
-   */
-  holdSettings(): { holdFailedSeconds: number; holdPassedSeconds: number } {
-    return { holdFailedSeconds: 180 * this.speed, holdPassedSeconds: 45 * this.speed };
+  /** Timestamps here age `speed` times faster than real time; the wall's holds allow for it. */
+  holdSettings(): { clockScale: number } {
+    return { clockScale: this.speed };
   }
 
   /** Simulated time to a real ISO timestamp, so the browser's clock agrees with the run. */

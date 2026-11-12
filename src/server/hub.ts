@@ -12,6 +12,8 @@ export interface DisplaySettings {
   /** How long a run that just finished stays big on the wall (seconds). */
   holdFailedSeconds?: number;
   holdPassedSeconds?: number;
+  /** How much faster run timestamps age than real time (the demo's fast clock), default 1. */
+  clockScale?: number;
 }
 
 /** synced: the source has delivered its first full picture (until then: "connecting"). */
@@ -43,7 +45,8 @@ export class Hub {
 
   update(inputs: EntryInput[]): void {
     // a pass is held big for a while (see web/holds.ts); a little extra covers clock skew
-    const heldMs = ((this.state.display.holdPassedSeconds ?? 45) + 15) * 1000;
+    const d = this.state.display;
+    const heldMs = ((d.holdPassedSeconds ?? 45) + 15) * 1000 * (d.clockScale ?? 1);
     const entries = inputs.map((input) => {
       const view = deriveEntry(input);
       const last = view.latestCompleted;

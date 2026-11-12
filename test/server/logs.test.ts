@@ -90,5 +90,9 @@ describe("logs", () => {
       "FATAL: three",
     ]);
     expect(failureErrors(["all good", "done"], "x")).toEqual([]);
+    // the same generic line without GitHub's marker (as some tools print it)
+    expect(
+      failureErrors(["boom: error here", "Error: Process completed with exit code 1."], "x"),
+    ).toEqual(["boom: error here"]);
   });
 });

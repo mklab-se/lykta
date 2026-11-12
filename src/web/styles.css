@@ -1283,18 +1283,30 @@ body {
 .seg.running {
   background: var(--amber);
 }
+/* one fixed height, however many jobs a stage has, so the error below always fits */
+.strip.labelled {
+  height: 36px;
+  align-items: stretch;
+}
+.strip.labelled .stage {
+  gap: 3px;
+}
 .strip.labelled .seg {
-  height: 28px;
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
   display: flex;
   align-items: center;
   padding: 0 8px;
   font-size: 14px;
+  line-height: 1;
   font-weight: 700;
   color: #000;
+  overflow: hidden;
 }
 .strip.labelled .seg.failure {
-  height: 34px;
-  font-size: 16px;
+  height: auto;
+  font-size: 15px;
 }
 .strip.labelled .seg.skipped,
 .strip.labelled .seg.queued {

@@ -21,7 +21,7 @@ export function cleanLog(raw: string): string[] {
 const isStepStart = (l: string) => l.startsWith("##[group]Run ");
 
 /** GitHub's closing line for every failed run step; it says nothing about what failed. */
-const EXIT_LINE = /^##\[error\]Process completed with exit code \d+\.?$/;
+const EXIT_LINE = /^(##\[error\]|Error: )?Process completed with exit code \d+\.?$/;
 
 /** Display lines: group markers and the exit-code line dropped, "##[error]" prefixes removed. */
 function present(lines: string[]): { text: string; error: boolean }[] {
