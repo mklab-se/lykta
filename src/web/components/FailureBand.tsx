@@ -41,6 +41,8 @@ function FailCard(props: {
   fresh: boolean;
   now: number;
   small: boolean;
+  /** A short card (busy wall): the error must still fit, so less important lines go. */
+  tight?: boolean;
   onOpen: (key: string) => void;
 }) {
   const { e, now } = props;
@@ -72,6 +74,7 @@ function FailCard(props: {
   }
   const f = e.failure;
   const run = e.latestCompleted;
+  const tight = props.small || props.tight === true;
   return (
     <motion.div {...commonProps}>
       <div className="glow" />
@@ -79,15 +82,20 @@ function FailCard(props: {
       <div className="tag">
         <span className="dot failed" />
         FAILED
+        {tight ? <span className="brokentag">Broken for {broken(e, now)}</span> : null}
       </div>
       <div className="name ellipsis">{e.name}</div>
-      <div className="repo ellipsis" style={{ marginTop: -6, fontSize: 20 }}>
-        {e.repo} · {e.branch}
-      </div>
-      <div className="broken">Broken for {broken(e, now)}</div>
+      {tight ? null : (
+        <>
+          <div className="repo ellipsis" style={{ marginTop: -6, fontSize: 20 }}>
+            {e.repo} · {e.branch}
+          </div>
+          <div className="broken">Broken for {broken(e, now)}</div>
+        </>
+      )}
       {run?.jobs.length ? <ProgressStrip jobs={run.jobs} labels={!props.small} /> : null}
       <FailureWhat e={e} />
-      {props.small ? null : <RunnerBadge runner={f?.runner} />}
+      {tight ? null : <RunnerBadge runner={f?.runner} />}
       {/* with error lines, the log behind them is left to the detail view */}
       {!props.small && !f?.errors?.length && f?.logExcerpt.length ? (
         <div className="log">
@@ -102,7 +110,7 @@ function FailCard(props: {
           ))}
         </div>
       ) : null}
-      {!props.small && run ? (
+      {!tight && run ? (
         <div className="meta">
           <span className="mono">{run.sha.slice(0, 7)}</span>
           <span>
@@ -190,6 +198,7 @@ export function FailureBand(props: {
                 e={e}
                 now={props.now}
                 small={plan.mode === "small"}
+                tight={plan.mode === "card" && plan.height < 280}
                 fresh={props.isFresh?.(e.key) ?? false}
                 onOpen={props.onOpen}
               />

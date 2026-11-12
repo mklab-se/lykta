@@ -150,4 +150,25 @@ describe("FailureBand", () => {
   test("rows show the strip too", () => {
     expect(render([failed({ latestCompleted: pipeline() })], "row")).toContain('class="strip');
   });
+
+  test("a short card keeps the error: broken-for moves up, repo and runner go", () => {
+    const e = failed({
+      failure: {
+        ...(failed().failure as NonNullable<EntryView["failure"]>),
+        errors: ["UPGRADE FAILED: timed out waiting for the condition"],
+      },
+    });
+    const html = renderToString(
+      <FailureBand
+        entries={[e]}
+        plan={{ mode: "card", columns: 2, rows: 1, height: 230 }}
+        now={NOW}
+        onOpen={() => {}}
+      />,
+    );
+    expect(html).toContain("UPGRADE FAILED");
+    expect(html).toContain('class="brokentag"');
+    expect(html).not.toContain("mklab-se/android-platform · main");
+    expect(html).not.toContain("K8S");
+  });
 });

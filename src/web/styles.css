@@ -1321,3 +1321,11 @@ body {
 .failrow .seg.failure {
   height: 16px;
 }
+
+.fail .brokentag {
+  margin-left: auto;
+  letter-spacing: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffb3ba;
+}
