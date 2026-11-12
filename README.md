@@ -1,4 +1,4 @@
-<p align="center"><img src="media/lykta-banner.svg" alt="Lykta: a GitHub Actions wall that nobody can ignore" width="900"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mklab-se/lykta/main/media/lykta-banner.svg" alt="Lykta: a GitHub Actions wall that nobody can ignore" width="900"></p>
 
 <p align="center">
 <a href="https://github.com/mklab-se/lykta/actions/workflows/ci.yml"><img src="https://github.com/mklab-se/lykta/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -30,7 +30,7 @@ docker run --rm -p 8080:8080 ghcr.io/mklab-se/lykta demo
 
 Open <http://localhost:8080> and watch simulated workflows run, fail and recover.
 
-<p align="center"><img src="media/wall.png" alt="The Lykta wall: the pit with two failing workflows on the left, every other workflow in its place in the grid, running ones glowing yellow" width="100%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mklab-se/lykta/main/media/wall.png" alt="The Lykta wall: the pit with two failing workflows on the left, every other workflow in its place in the grid, running ones glowing yellow" width="100%"></p>
 
 ## Why teams put Lykta on the wall
 
@@ -53,7 +53,7 @@ as a large diagram over the grid: the job graph with matrices and reusable workf
 job runs (GitHub-hosted, Kubernetes runners, a lab bench and its device), and which step it is on.
 When a run finishes it gets one last turn, so the people watching see it land.
 
-<p align="center"><img src="media/spotlight.png" alt="The spotlight: a running workflow's job graph opened over the blurred grid, with the pit beside it" width="100%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mklab-se/lykta/main/media/spotlight.png" alt="The spotlight: a running workflow's job graph opened over the blurred grid, with the pit beside it" width="100%"></p>
 
 **Teams share one screen.** Give workflows labels and a color: each team's tiles get their own
 border and a `#hashtag` in the corner, and anyone can ask about just their team's workflows.
