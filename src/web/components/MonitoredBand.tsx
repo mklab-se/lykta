@@ -28,7 +28,13 @@ function Tile(props: {
 }) {
   const { e, now, unit } = props;
   const never = e.state === "never";
-  const common = { layoutId: e.key, "data-entry": e.key, onClick: () => props.onOpen(e.key) };
+  // measure only when what decides the layout changes, not on every clock tick
+  const common = {
+    layoutId: e.key,
+    layoutDependency: `${e.state}:${unit}`,
+    "data-entry": e.key,
+    onClick: () => props.onOpen(e.key),
+  };
   if (unit === "big") {
     const run = e.latestCompleted;
     return (

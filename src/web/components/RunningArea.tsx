@@ -55,6 +55,7 @@ function RunCard(props: {
     <motion.div
       className="run"
       layoutId={props.layoutId ?? e.key}
+      layoutDependency={`${e.key}:${props.height}`}
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}
     >
@@ -114,6 +115,7 @@ function RunRow(props: {
   return (
     <motion.div
       layoutId={e.key}
+      layoutDependency={`${props.height}:${props.selected}`}
       className={`rrow${props.selected ? " sel" : ""}${t.progress.slow ? " slow" : ""}${compact ? " compact" : ""}`}
       style={{ height: props.height }}
       data-entry={e.key}

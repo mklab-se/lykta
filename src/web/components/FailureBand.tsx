@@ -37,6 +37,7 @@ function FailCard(props: {
   const { e, now } = props;
   const commonProps = {
     layoutId: `fail:${e.key}`,
+    layoutDependency: `${e.state}:${props.small}`,
     initial: { opacity: 0, scale: 0.96 },
     animate: { opacity: 1, scale: 1 },
     exit: { opacity: 0, scale: 0.9, transition: { duration: 0.6 } },
@@ -122,6 +123,7 @@ function FailRow(props: {
   return (
     <motion.div
       layoutId={`fail:${e.key}`}
+      layoutDependency={e.state}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.6 } }}
