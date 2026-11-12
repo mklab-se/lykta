@@ -130,10 +130,44 @@ body {
   color: #cfd6de;
 }
 .lantern {
-  width: 24px;
-  height: 32px;
-  border-radius: 8px 8px 10px 10px;
-  background: radial-gradient(circle at 50% 60%, #ffd27a 0 30%, #b97a10 70%);
+  flex: none;
+  overflow: visible;
+}
+/* the flame sways slowly and its halo breathes; never a blink */
+.lantern .lk-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flicker 3.2s ease-in-out infinite;
+}
+.lantern .lk-halo {
+  animation: halo 3.2s ease-in-out infinite;
+}
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scale(1, 1) rotate(0deg);
+  }
+  30% {
+    transform: scale(0.96, 1.05) rotate(-2deg);
+  }
+  60% {
+    transform: scale(1.03, 0.97) rotate(1.5deg);
+  }
+}
+@keyframes halo {
+  50% {
+    opacity: 0.7;
+  }
+}
+[data-power="low"] .lantern .lk-flame,
+[data-power="low"] .lantern .lk-halo {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lantern .lk-flame,
+  .lantern .lk-halo {
+    animation: none;
+  }
 }
 .title {
   font-size: 24px;

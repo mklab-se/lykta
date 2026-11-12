@@ -1,5 +1,6 @@
 import { formatClock } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
+import { Lantern } from "./Lantern.tsx";
 
 export function Header(props: {
   entries: EntryView[];
@@ -15,7 +16,7 @@ export function Header(props: {
   return (
     <div className="header">
       <div className="brand">
-        <div className="lantern" />
+        <Lantern />
         LYKTA
       </div>
       {props.title ? <div className="title">{props.title}</div> : null}
