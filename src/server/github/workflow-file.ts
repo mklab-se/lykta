@@ -77,6 +77,55 @@ export function groupName(def: JobDef): string {
     .trim();
 }
 
+/**
+ * GitHub creates a job only when it is about to run, so early in a run the API knows only
+ * the first jobs. Every definition with no job yet becomes a waiting node, so the whole
+ * pipeline is visible from the start.
+ */
+function placeholders(
+  caller: WorkflowDef,
+  called: Record<string, WorkflowDef | null>,
+  matches: Map<string, Match>,
+): JobRecord[] {
+  const paths = [...matches.values()].map((m) => m.path);
+  const covered = (path: string) => paths.some((p) => p === path || p.startsWith(`${path}/`));
+  const out: JobRecord[] = [];
+  const add = (path: string, name: string, m: Match) => {
+    const id = `wf:${path}`;
+    matches.set(id, m);
+    out.push({
+      id,
+      name,
+      status: "queued",
+      needs: [],
+      group: m.group,
+      steps: [],
+      startedAt: null,
+      completedAt: null,
+    });
+  };
+  for (const top of caller.jobs) {
+    if (covered(top.id)) continue;
+    const inner = top.uses ? called[top.uses] : undefined;
+    if (top.uses && inner) {
+      for (const callee of inner.jobs) {
+        if (callee.uses) continue;
+        const name = `${display(top)} / ${callee.matrix ? groupName(callee) : display(callee)}`;
+        add(`${top.id}/${callee.id}`, name, {
+          path: `${top.id}/${callee.id}`,
+          group: display(top),
+          top,
+          callee,
+        });
+      }
+    } else {
+      const name = top.matrix ? groupName(top) : display(top);
+      add(top.id, name, { path: top.id, group: top.matrix ? name : undefined, top });
+    }
+  }
+  return out;
+}
+
 interface Match {
   path: string; // "build", or "ci/lint" for a reusable workflow's job
   group?: string;
@@ -91,6 +140,8 @@ function matchJob(
 ): Match | null {
   for (const def of caller.jobs) {
     if (def.uses) {
+      // a call that never ran (skipped) appears under the caller's name alone
+      if (apiName === display(def)) return { path: def.id, top: def };
       const prefix = `${display(def)} / `;
       if (!apiName.startsWith(prefix)) continue;
       const inner = called[def.uses];
@@ -121,6 +172,7 @@ export function attachGraph(
       const m = matchJob(j.name, caller, called);
       if (m) matches.set(j.id, m);
     }
+    jobs = [...jobs, ...placeholders(caller, called, matches)];
     // all API job ids under a definition path ("ci" covers every "ci/…" job)
     const under = (path: string) =>
       jobs

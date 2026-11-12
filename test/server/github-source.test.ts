@@ -352,8 +352,13 @@ describe("GitHubSource", () => {
     expect(view.state).toBe("running");
     expect(view.failing).toBe(true);
     expect(view.failure?.job).toBe("Lint");
-    expect(view.current?.jobs.map((j) => j.name)).toEqual(["Test", "Build"]);
-    expect(view.current?.jobs.every((j) => j.status === "running")).toBe(true);
+    // attempt 2's own jobs only; the rest of its workflow waits (not attempt 1's results)
+    const started = view.current?.jobs.filter((j) => !j.id.startsWith("wf:"));
+    expect(started?.map((j) => j.name)).toEqual(["Test", "Build"]);
+    expect(started?.every((j) => j.status === "running")).toBe(true);
+    expect(
+      view.current?.jobs.filter((j) => j.id.startsWith("wf:")).every((j) => j.status === "queued"),
+    ).toBe(true);
   });
 
   test("a re-run that passes clears the failure", async () => {

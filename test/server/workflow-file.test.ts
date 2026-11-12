@@ -125,4 +125,49 @@ jobs:
     ]);
     expect(quick?.jobs).toHaveLength(1);
   });
+
+  test("jobs GitHub has not created yet are drawn as waiting nodes", async () => {
+    const all = await realJobs("live-pipeline-failed");
+    // early in a run: only Prepare and the four builds exist in the API
+    const early = all
+      .filter((j) => j.name === "Prepare" || j.name.startsWith("Build "))
+      .map((j) => ({ ...j, status: "running" as const }));
+    const caller = parseWorkflow(await text("live-pipeline-failed", "workflow.yml"));
+    const called = {
+      "./.github/workflows/live-reusable.yml": parseWorkflow(
+        await text("live-pipeline-failed", "called-live-reusable.yml"),
+      ),
+    };
+    const jobs = attachGraph(early, caller, called);
+    const waiting = jobs.filter((j) => j.status === "queued").map((j) => j.name);
+    expect(waiting.sort()).toEqual(
+      ["Checks / Lint", "Checks / Report", "Checks / Typecheck", "Deploy", "Long build"].sort(),
+    );
+    const builds = idsOf(jobs, [
+      "Build linux-x64",
+      "Build linux-arm64",
+      "Build macos-arm64",
+      "Build windows-x64",
+    ]);
+    expect(byName(jobs, "Long build").needs.sort()).toEqual(builds);
+    expect(byName(jobs, "Checks / Lint").needs.sort()).toEqual(builds);
+    expect(byName(jobs, "Checks / Lint").group).toBe("Checks");
+    // a callee job needs what the caller needs, plus its own needs
+    expect(byName(jobs, "Checks / Report").needs.sort()).toEqual(
+      [...builds, ...idsOf(jobs, ["Checks / Lint", "Checks / Typecheck"])].sort(),
+    );
+    expect(byName(jobs, "Deploy").needs.sort()).toEqual(
+      idsOf(jobs, ["Checks / Lint", "Checks / Report", "Checks / Typecheck", "Long build"]),
+    );
+    // the graph model accepts them
+    expect(buildGraph(jobs, 10).columns.length).toBeGreaterThanOrEqual(4);
+  });
+
+  test("a skipped reusable call (named without its jobs) still takes its place", async () => {
+    const all = await realJobs("live-pipeline-failed");
+    const caller = parseWorkflow(await text("live-pipeline-failed", "workflow.yml"));
+    const jobs = attachGraph(all, caller, {});
+    expect(byName(jobs, "Checks").needs.length).toBe(4);
+    expect(jobs.filter((j) => j.status === "queued")).toHaveLength(0);
+  });
 });
