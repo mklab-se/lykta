@@ -11,7 +11,7 @@ import { entryKey, type LyktaConfig, type MonitorConfig } from "../config.ts";
 import type { RunDetails, Source } from "../source.ts";
 import { AuthError } from "./auth.ts";
 import { GitHubError, RateLimitError, type RateState } from "./client.ts";
-import { cleanLog, failureExcerpt } from "./logs.ts";
+import { cleanLog, failureErrors, failureExcerpt } from "./logs.ts";
 import { classifyRunner, type GhJob, type GhRun, mapRun } from "./map.ts";
 import { attachGraph, parseWorkflow, type WorkflowDef } from "./workflow-file.ts";
 
@@ -206,7 +206,7 @@ export class GitHubSource implements Source {
       const newest = e.runs[0];
       if (newest) {
         await this.jobsFor(e, newest);
-        if (!completed(newest)) await this.graphFor(e, newest);
+        await this.graphFor(e, newest); // workflow files are cached per commit
       }
       await this.updateFailure(e);
       this.authProblems.delete(e.org);
@@ -389,19 +389,33 @@ export class GitHubSource implements Source {
     if (e.failureRunId === runKey(decisive)) return;
     const jobs = await this.jobsFor(e, decisive);
     const job = jobs.find((j) => isFailureConclusion(j.conclusion as Conclusion));
+    await this.graphFor(e, decisive).catch(() => undefined);
     const step =
       job?.steps?.find((s) => isFailureConclusion(s.conclusion as Conclusion))?.name ?? "";
     let logExcerpt: string[] = [];
+    let errors: string[] = [];
     if (job) {
       try {
-        logExcerpt = failureExcerpt(await this.logOf(e, job.id), step);
+        const lines = await this.logOf(e, job.id);
+        logExcerpt = failureExcerpt(lines, step);
+        errors = failureErrors(lines, step);
       } catch {}
     }
+    const reason =
+      job?.conclusion === "timed_out" || decisive.conclusion === "timed_out"
+        ? "The job timed out"
+        : decisive.conclusion === "startup_failure"
+          ? "The workflow could not start (startup failure)"
+          : job?.conclusion === "cancelled"
+            ? "The job was cancelled"
+            : undefined;
     e.failure = {
       job: job?.name ?? "workflow",
       step: step || (job ? "" : "setup"),
       runner: job ? classifyRunner(job, this.opts.config.runners) : undefined,
       logExcerpt,
+      errors,
+      reason,
     };
     e.failureRunId = runKey(decisive);
   }
@@ -481,11 +495,11 @@ export class GitHubSource implements Source {
       const runs: RunRecord[] = e.runs.map((run) => {
         const jobs = this.runJobs.get(runKey(run)) ?? this.liveJobs.get(runKey(run)) ?? [];
         const record = mapRun(run, jobs, rules);
-        if (completed(run)) return record;
         const graph = this.graphs.get(runKey(run));
         if (!graph) return record;
         const { caller, called } = graph;
-        return { ...record, jobs: attachGraph(record.jobs, caller, called) };
+        const finished = completed(run);
+        return { ...record, jobs: attachGraph(record.jobs, caller, called, { finished }) };
       });
       return {
         entry: {

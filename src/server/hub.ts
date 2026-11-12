@@ -9,6 +9,9 @@ import type { DashboardState, EntryInput } from "../core/types.ts";
 export interface DisplaySettings {
   lowPower: "auto" | "on" | "off";
   demo: boolean;
+  /** How long a run that just finished stays big on the wall (seconds). */
+  holdFailedSeconds?: number;
+  holdPassedSeconds?: number;
 }
 
 /** synced: the source has delivered its first full picture (until then: "connecting"). */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { cleanLog, failureExcerpt } from "../../src/server/github/logs.ts";
+import { cleanLog, failureErrors, failureExcerpt } from "../../src/server/github/logs.ts";
 
 const raw = () => Bun.file("test/fixtures/github/lykta-ci-failed/logs-131431121549.txt").text();
 
@@ -55,5 +55,40 @@ describe("logs", () => {
     expect(ex.join("\n")).not.toContain("Process completed with exit code");
     expect(ex.join("\n")).toContain("Battery.java:212: error: cannot find symbol");
     expect(ex.join("\n")).not.toContain("Cleaning up orphan processes");
+  });
+
+  test("the error lines of a real failed step, without the script that printed them", async () => {
+    const file = [
+      ...new Bun.Glob("logs-*.txt").scanSync("test/fixtures/github/live-pipeline-failed"),
+    ][0];
+    const lines = cleanLog(
+      await Bun.file(`test/fixtures/github/live-pipeline-failed/${file}`).text(),
+    );
+    expect(failureErrors(lines, "Compile")).toEqual([
+      "frameworks/base/core/java/android/os/Battery.java:212: error: cannot find symbol",
+      "Build failed on purpose (fail_at=build)",
+    ]);
+  });
+
+  test("error lines: the first three distinct, flagged or compiler-style, never the exit line", () => {
+    const lines = [
+      "##[group]Run make",
+      "make",
+      "##[endgroup]",
+      "compiling a.c",
+      "a.c:1: error: one",
+      "a.c:2: error: two",
+      "warning: fine",
+      "FATAL: three",
+      "##[error]four",
+      "##[error]Process completed with exit code 2.",
+    ];
+    // the first error is usually the cause; later ones are follow-ups and summaries
+    expect(failureErrors(lines, "make")).toEqual([
+      "a.c:1: error: one",
+      "a.c:2: error: two",
+      "FATAL: three",
+    ]);
+    expect(failureErrors(["all good", "done"], "x")).toEqual([]);
   });
 });

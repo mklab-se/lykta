@@ -599,6 +599,22 @@ describe("GitHubSource", () => {
     expect(view.brokenSince).toBe(failed.updated_at);
   });
 
+  test("a failure names its error lines", async () => {
+    const { inputs } = await setup();
+    const f = byWorkflow(inputs(), "ci.yml").failure;
+    expect(f?.errors?.[0]).toContain("Provide an explicit type attribute");
+    expect(f?.errors?.length).toBeLessThanOrEqual(3);
+  });
+
+  test("a finished run keeps its job graph", async () => {
+    const { inputs } = await setup();
+    const run = byWorkflow(inputs(), "release.yml").runs[0];
+    expect(run?.status).toBe("completed");
+    const build = run?.jobs.find((j) => j.name === "Build aarch64-apple-darwin");
+    expect(build?.group).toBe("Build");
+    expect(build?.needs.length).toBeGreaterThan(0);
+  });
+
   test("details for a run", async () => {
     const { src, failed } = await setup();
     const d = await src.details("mklab-se/lykta:ci.yml:main", failed.id);

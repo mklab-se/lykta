@@ -164,6 +164,7 @@ export function attachGraph(
   jobs: JobRecord[],
   caller: WorkflowDef | null,
   called: Record<string, WorkflowDef | null>,
+  opts: { finished?: boolean } = {},
 ): JobRecord[] {
   if (!caller) return jobs.map((j) => ({ ...j, needs: [] }));
   try {
@@ -172,7 +173,11 @@ export function attachGraph(
       const m = matchJob(j.name, caller, called);
       if (m) matches.set(j.id, m);
     }
-    jobs = [...jobs, ...placeholders(caller, called, matches)];
+    // in a finished run, jobs GitHub never created did not run (skipped), they do not wait
+    const extra = placeholders(caller, called, matches).map((j) =>
+      opts.finished ? { ...j, status: "skipped" as const } : j,
+    );
+    jobs = [...jobs, ...extra];
     // all API job ids under a definition path ("ci" covers every "ci/…" job)
     const under = (path: string) =>
       jobs

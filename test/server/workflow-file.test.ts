@@ -170,4 +170,13 @@ jobs:
     expect(byName(jobs, "Checks").needs.length).toBe(4);
     expect(jobs.filter((j) => j.status === "queued")).toHaveLength(0);
   });
+
+  test("in a finished run, jobs that never started are skipped, not waiting", async () => {
+    const all = await realJobs("live-pipeline-failed");
+    const early = all.filter((j) => j.name === "Prepare" || j.name.startsWith("Build "));
+    const caller = parseWorkflow(await text("live-pipeline-failed", "workflow.yml"));
+    const jobs = attachGraph(early, caller, {}, { finished: true });
+    expect(byName(jobs, "Deploy").status).toBe("skipped");
+    expect(jobs.some((j) => j.status === "queued")).toBe(false);
+  });
 });

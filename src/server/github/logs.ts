@@ -44,11 +44,12 @@ function around(lines: { text: string; error: boolean }[], max: number): string[
   return lines.slice(Math.max(0, end - max), end).map((l) => l.text);
 }
 
-export function failureExcerpt(lines: string[], failedStep: string, max = 12): string[] {
+/** The failing step's own section, or the whole log when the step cannot be found. */
+function section(lines: string[], failedStep: string): string[] {
   const start = lines.findIndex(
     (l) => l === `##[group]${failedStep}` || l === `##[group]Run ${failedStep}`,
   );
-  if (start < 0) return around(present(lines), max);
+  if (start < 0) return lines;
   let end = lines.length;
   for (let i = start + 1; i < lines.length; i++) {
     if (isStepStart(lines[i] as string)) {
@@ -56,5 +57,40 @@ export function failureExcerpt(lines: string[], failedStep: string, max = 12): s
       break;
     }
   }
-  return around(present(lines.slice(start, end)), max);
+  return lines.slice(start, end);
+}
+
+export function failureExcerpt(lines: string[], failedStep: string, max = 12): string[] {
+  return around(present(section(lines, failedStep)), max);
+}
+
+const ERROR_WORD = /\b(error|fatal)\b/i;
+
+/**
+ * The error message itself, for the biggest text on a failure card: lines GitHub flags as
+ * errors and compiler-style "error:" lines, never the script that printed them (shown in a
+ * step's opening group) and never the generic exit-code line. The first `max` distinct
+ * lines: the first error is usually the cause, later ones follow-ups and summaries.
+ */
+export function failureErrors(lines: string[], failedStep: string, max = 3): string[] {
+  const found: string[] = [];
+  let inGroup = false;
+  for (const l of section(lines, failedStep)) {
+    if (l.startsWith("##[group]")) {
+      inGroup = true;
+      continue;
+    }
+    if (l.startsWith("##[endgroup]")) {
+      inGroup = false;
+      continue;
+    }
+    if (inGroup || EXIT_LINE.test(l)) continue;
+    const m = l.match(MARKER);
+    const text = m ? l.slice(m[0].length) : l;
+    if ((m?.[1] === "error" || (!m && ERROR_WORD.test(l))) && !found.includes(text)) {
+      found.push(text);
+      if (found.length === max) break;
+    }
+  }
+  return found;
 }

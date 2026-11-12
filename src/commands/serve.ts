@@ -36,7 +36,12 @@ export async function runServe(opts: ServeOptions): Promise<void> {
   });
   const hub = new Hub(
     buildVersion(),
-    { lowPower: config.display.lowPower, demo: false },
+    {
+      lowPower: config.display.lowPower,
+      demo: false,
+      holdFailedSeconds: config.display.holdFailedSeconds,
+      holdPassedSeconds: config.display.holdPassedSeconds,
+    },
     config.title,
   );
   const source = new GitHubSource({ config, client });
