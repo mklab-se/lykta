@@ -61,6 +61,19 @@ describe("DemoSource", () => {
     expect(run?.jobs.filter((j) => j.group === "Build")).toHaveLength(4);
   });
 
+  test("running jobs list every step, queued ones too", () => {
+    const { tick, inputs } = make(14);
+    tick();
+    const run = inputs().find(
+      (i) => i.entry.repo.endsWith("android-platform") && i.runs[0]?.status !== "completed",
+    )?.runs[0];
+    const build =
+      run?.jobs.find((j) => j.group === "Build" && j.status !== "queued") ??
+      run?.jobs.find((j) => j.status === "running");
+    expect(build?.steps.length).toBeGreaterThan(1);
+    expect(build?.steps.some((st) => st.status === "queued" && st.startedAt === null)).toBe(true);
+  });
+
   test("breakOne makes a failure", () => {
     const { src, tick, inputs } = make(14);
     tick();

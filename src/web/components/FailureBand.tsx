@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { formatDuration } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
+import { uniqueKeys } from "../keys.ts";
 import type { LayoutPlan } from "../layout.ts";
 import { RunnerBadge } from "./RunnerBadge.tsx";
 
@@ -9,16 +10,6 @@ type Plan = NonNullable<LayoutPlan["failures"]>;
 const ERROR_LINE = /error|FAILED|failed|Error|timeout|not found/;
 const FRESH_MS = 10_000;
 const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
-
-/** Stable React keys for log lines, which can repeat: the text plus its occurrence number. */
-export function keyedLines(lines: string[]): { key: string; line: string }[] {
-  const seen = new Map<string, number>();
-  return lines.map((line) => {
-    const n = (seen.get(line) ?? 0) + 1;
-    seen.set(line, n);
-    return { key: `${n}:${line}`, line };
-  });
-}
 
 function broken(e: EntryView, now: number): string {
   return e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
@@ -46,7 +37,7 @@ function FailCard(props: {
 }) {
   const { e, now } = props;
   const commonProps = {
-    layoutId: e.key,
+    layoutId: `fail:${e.key}`,
     className: "fail",
     "data-entry": e.key,
     onClick: () => props.onOpen(e.key),
@@ -90,7 +81,11 @@ function FailCard(props: {
       <RunnerBadge runner={f?.runner} />
       {!props.small && f?.logExcerpt.length ? (
         <div className="log">
-          {keyedLines(f.logExcerpt.slice(-4)).map(({ key, line }) => (
+          {(() => {
+            const lines = f.logExcerpt.slice(-4);
+            const keys = uniqueKeys(lines);
+            return lines.map((line, i) => ({ key: keys[i] as string, line }));
+          })().map(({ key, line }) => (
             <span key={key} className={ERROR_LINE.test(line) ? "err" : undefined}>
               {line}
             </span>
@@ -119,7 +114,7 @@ function FailRow(props: { e: EntryView; now: number; onOpen: (key: string) => vo
         : "";
   return (
     <motion.div
-      layoutId={e.key}
+      layoutId={`fail:${e.key}`}
       className="failrow"
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}

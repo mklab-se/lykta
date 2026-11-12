@@ -388,15 +388,14 @@ export class DemoSource implements Source {
       else status = "running";
       const steps: StepRecord[] = j.blocked
         ? []
-        : j.steps
-            .filter((s) => s.start <= T)
-            .map((s) => ({
-              name: s.name,
-              status: T >= s.end ? (s.fails ? "failure" : "success") : "running",
-              startedAt: this.iso(s.start),
-              completedAt: T >= s.end ? this.iso(s.end) : null,
-              usualMs: s.usualMs,
-            }));
+        : j.steps.map((s) => ({
+            name: s.name,
+            status:
+              T < s.start ? "queued" : T >= s.end ? (s.fails ? "failure" : "success") : "running",
+            startedAt: T >= s.start ? this.iso(s.start) : null,
+            completedAt: T >= s.end ? this.iso(s.end) : null,
+            usualMs: s.usualMs,
+          }));
       return {
         id: j.tpl.id,
         name: j.tpl.name,

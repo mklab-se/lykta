@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useVirtualCanvas } from "./canvas.ts";
 import { FailureBand } from "./components/FailureBand.tsx";
 import { Header } from "./components/Header.tsx";
+import { RunningArea } from "./components/RunningArea.tsx";
 import { computeLayout, isFailingEntry } from "./layout.ts";
 import { isStale, useDashboard } from "./stream.ts";
 
@@ -39,6 +40,9 @@ export function App() {
                 now={now}
                 onOpen={open}
               />
+            ) : null}
+            {plan?.running ? (
+              <RunningArea entries={running} plan={plan.running} now={now} onOpen={open} />
             ) : null}
           </div>
         </div>
