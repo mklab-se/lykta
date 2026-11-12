@@ -5,6 +5,7 @@ import type { EntryView, RunRecord } from "../../core/types.ts";
 import { newFailingRun } from "../arrivals.ts";
 import type { LayoutPlan } from "../layout.ts";
 import { dwellSeconds, nextSelection, type Selection } from "../rotation.ts";
+import { FailureWhat } from "./FailureWhat.tsx";
 import { JobGraph } from "./JobGraph.tsx";
 import { JobLanes } from "./JobLanes.tsx";
 
@@ -19,26 +20,6 @@ const runOf = (e: EntryView) => (e.current ?? e.latestCompleted) as RunRecord;
 export function countdown(ms: number): string {
   const s = Math.max(0, Math.ceil(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
-
-/** Where it broke and the error message itself: the biggest text on a held failure. */
-export function FailureWhat(props: { e: EntryView; big?: boolean }) {
-  const f = props.e.failure;
-  if (!f) return null;
-  const lines = f.errors?.length ? f.errors : f.reason ? [f.reason] : f.logExcerpt.slice(-1);
-  return (
-    <div className={`what${props.big ? " big" : ""}`}>
-      <div className="where">
-        <span className="x">✕</span>
-        <span className="ellipsis">{f.step ? `${f.job} › ${f.step}` : f.job}</span>
-      </div>
-      {lines.map((l) => (
-        <div key={l} className="errline">
-          {l}
-        </div>
-      ))}
-    </div>
-  );
 }
 
 /** "QUEUED" / "WAITING" for runs that have not started, else "RUNNING". */

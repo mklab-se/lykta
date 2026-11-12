@@ -3,6 +3,8 @@ import { formatDuration } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
 import { uniqueKeys } from "../keys.ts";
 import type { LayoutPlan } from "../layout.ts";
+import { FailureWhat } from "./FailureWhat.tsx";
+import { ProgressStrip } from "./ProgressStrip.tsx";
 import { RunnerBadge } from "./RunnerBadge.tsx";
 
 type Plan = NonNullable<LayoutPlan["failures"]>;
@@ -83,19 +85,14 @@ function FailCard(props: {
         {e.repo} · {e.branch}
       </div>
       <div className="broken">Broken for {broken(e, now)}</div>
-      {f ? (
-        <div className="where">
-          <span className="x">✕</span>
-          <span className="ellipsis">
-            {f.job} › {f.step}
-          </span>
-        </div>
-      ) : null}
-      <RunnerBadge runner={f?.runner} />
+      {run?.jobs.length ? <ProgressStrip jobs={run.jobs} labels={!props.small} /> : null}
+      <FailureWhat e={e} />
+      {props.small ? null : <RunnerBadge runner={f?.runner} />}
       {!props.small && f?.logExcerpt.length ? (
         <div className="log">
           {(() => {
-            const lines = f.logExcerpt.slice(-4);
+            // the error lines are shown above; these are what led up to them
+            const lines = f.logExcerpt.filter((l) => !f.errors?.includes(l)).slice(-4);
             const keys = uniqueKeys(lines);
             return lines.map((line, i) => ({ key: keys[i] as string, line }));
           })().map(({ key, line }) => (
@@ -149,6 +146,9 @@ function FailRow(props: {
         </div>
         <div className="sub ellipsis">{sub}</div>
       </div>
+      {e.latestCompleted?.jobs.length && e.state !== "missing" ? (
+        <ProgressStrip jobs={e.latestCompleted.jobs} />
+      ) : null}
       <div className="dur">{e.state === "missing" ? "404" : broken(e, now)}</div>
     </motion.div>
   );

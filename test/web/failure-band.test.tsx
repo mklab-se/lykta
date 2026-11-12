@@ -90,4 +90,62 @@ describe("FailureBand", () => {
     const html = render([failed({ name: "N".repeat(200) })]);
     expect(html).toMatch(/class="name ellipsis"[^>]*>N{200}/);
   });
+
+  const pipeline = (): NonNullable<EntryView["latestCompleted"]> => {
+    const job = (id: string, status: "success" | "failure" | "skipped", needs: string[] = []) => ({
+      id,
+      name: id,
+      status,
+      needs,
+      steps: [],
+      startedAt: null,
+      completedAt: null,
+    });
+    return {
+      ...(failed().latestCompleted as NonNullable<EntryView["latestCompleted"]>),
+      jobs: [
+        job("Prepare", "success"),
+        job("Build", "failure", ["Prepare"]),
+        job("Checks", "skipped", ["Build"]),
+        job("Deploy", "skipped", ["Checks"]),
+      ],
+    };
+  };
+
+  test("card shows how far the run got: passed, failed and never-run stages", () => {
+    const html = render([failed({ latestCompleted: pipeline() })]);
+    expect(html).toContain('class="strip');
+    expect(html.match(/class="seg success/g)).toHaveLength(1);
+    expect(html.match(/class="seg failure/g)).toHaveLength(1);
+    expect(html.match(/class="seg skipped/g)).toHaveLength(2);
+  });
+
+  test("the error message is the card's biggest text", () => {
+    const e = failed({
+      latestCompleted: pipeline(),
+      failure: {
+        ...(failed().failure as NonNullable<EntryView["failure"]>),
+        errors: ["Battery.java:212: error: cannot find symbol"],
+      },
+    });
+    const html = render([e]);
+    expect(html).toContain('class="errline"');
+    expect(html).toContain("Battery.java:212: error: cannot find symbol");
+    expect(render([e], "small")).toContain("Battery.java:212: error: cannot find symbol");
+  });
+
+  test("no error line: the card says why the job ended", () => {
+    const e = failed({
+      failure: {
+        ...(failed().failure as NonNullable<EntryView["failure"]>),
+        errors: [],
+        reason: "The job timed out",
+      },
+    });
+    expect(render([e])).toContain("The job timed out");
+  });
+
+  test("rows show the strip too", () => {
+    expect(render([failed({ latestCompleted: pipeline() })], "row")).toContain('class="strip');
+  });
 });
