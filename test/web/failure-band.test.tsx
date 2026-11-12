@@ -155,7 +155,10 @@ describe("FailureBand", () => {
     const e = failed({
       failure: {
         ...(failed().failure as NonNullable<EntryView["failure"]>),
-        errors: ["UPGRADE FAILED: timed out waiting for the condition"],
+        errors: [
+          "UPGRADE FAILED: timed out waiting for the condition",
+          "Deploy failed on purpose (fail=true)",
+        ],
       },
     });
     const html = renderToString(
@@ -168,6 +171,8 @@ describe("FailureBand", () => {
     );
     expect(html).toContain("UPGRADE FAILED");
     expect(html).toContain('class="brokentag"');
+    // one error line: the first, which names the cause; a second would be cut in half
+    expect(html).not.toContain("Deploy failed on purpose");
     expect(html).not.toContain("mklab-se/android-platform · main");
     expect(html).not.toContain("K8S");
   });

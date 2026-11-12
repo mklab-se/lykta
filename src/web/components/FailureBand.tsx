@@ -94,7 +94,7 @@ function FailCard(props: {
         </>
       )}
       {run?.jobs.length ? <ProgressStrip jobs={run.jobs} labels={!props.small} /> : null}
-      <FailureWhat e={e} />
+      <FailureWhat e={e} max={tight ? 1 : undefined} />
       {tight ? null : <RunnerBadge runner={f?.runner} />}
       {/* with error lines, the log behind them is left to the detail view */}
       {!props.small && !f?.errors?.length && f?.logExcerpt.length ? (
