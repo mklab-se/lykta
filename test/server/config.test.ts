@@ -28,6 +28,8 @@ describe("config", () => {
       branch: "main",
       name: "ci",
       ignoreEvents: [],
+      labels: [],
+      color: undefined,
     });
     expect(c.server).toEqual({ port: 8080, host: "0.0.0.0" });
     expect(c.polling).toEqual({ activeSeconds: 15, idleSeconds: 60, budget: 0.2 });
@@ -128,5 +130,80 @@ monitor:
   test("example config parses", async () => {
     const c = await loadConfig({ path: "lykta.example.yaml", env: {} });
     expect(c.monitor.length).toBeGreaterThan(0);
+  });
+
+  test("labels and a color per workflow; none means exactly as before", () => {
+    const c = parseConfig(
+      `
+organizations:
+  mklab-se:
+    auth: token
+monitor:
+  - repo: mklab-se/lykta
+    workflow: a.yml
+    labels: [android, "#nightly"]
+    color: "#3b82f6"
+  - repo: mklab-se/lykta
+    workflow: b.yml
+    label: web
+    color: teal
+  - repo: mklab-se/lykta
+    workflow: c.yml
+`,
+      {},
+    );
+    expect(c.monitor[0]?.labels).toEqual(["android", "nightly"]);
+    expect(c.monitor[0]?.color).toBe("#3b82f6");
+    expect(c.monitor[1]?.labels).toEqual(["web"]);
+    expect(c.monitor[1]?.color).toBe("teal");
+    expect(c.monitor[2]?.labels).toEqual([]);
+    expect(c.monitor[2]?.color).toBeUndefined();
+  });
+
+  test("defaults give every workflow a team's label and color unless it says otherwise", () => {
+    const c = parseConfig(
+      `
+organizations:
+  mklab-se:
+    auth: token
+defaults:
+  labels: [platform]
+  color: "#f59e0b"
+monitor:
+  - repo: mklab-se/lykta
+    workflow: a.yml
+  - repo: mklab-se/lykta
+    workflow: b.yml
+    labels: [web]
+    color: "#22c55e"
+`,
+      {},
+    );
+    expect(c.monitor[0]?.labels).toEqual(["platform"]);
+    expect(c.monitor[0]?.color).toBe("#f59e0b");
+    expect(c.monitor[1]?.labels).toEqual(["web"]);
+    expect(c.monitor[1]?.color).toBe("#22c55e");
+  });
+
+  test("a label with spaces or a color that is not one is a clear problem", () => {
+    const bad = `
+organizations:
+  mklab-se:
+    auth: token
+monitor:
+  - repo: mklab-se/lykta
+    workflow: a.yml
+    labels: ["two words"]
+    color: "url(x)"
+`;
+    try {
+      parseConfig(bad, {});
+      throw new Error("expected ConfigError");
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConfigError);
+      const msg = (e as ConfigError).message;
+      expect(msg).toContain('monitor[0]: label "two words"');
+      expect(msg).toContain('monitor[0]: color "url(x)"');
+    }
   });
 });

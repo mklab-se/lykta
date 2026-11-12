@@ -508,6 +508,8 @@ export class GitHubSource implements Source {
           workflow: e.cfg.workflow,
           branch: e.cfg.branch,
           name: e.cfg.name,
+          labels: e.cfg.labels,
+          color: e.cfg.color,
         },
         runs,
         failure: e.failure,

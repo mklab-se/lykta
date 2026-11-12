@@ -38,6 +38,18 @@ function Progress(props: { e: EntryView; now: number; unit: TileUnit }) {
   );
 }
 
+/** A workflow's labels as #hashtags, in its color; nothing at all without labels. */
+export function Tags(props: { e: EntryView }) {
+  if (!props.e.labels?.length) return null;
+  return (
+    <div className="tags" style={props.e.color ? { color: props.e.color } : undefined}>
+      {props.e.labels.map((l) => (
+        <span key={l}>{`#${l}`}</span>
+      ))}
+    </div>
+  );
+}
+
 function Tile(props: { e: EntryView; unit: TileUnit; now: number; onOpen: (key: string) => void }) {
   const { e, unit, now } = props;
   const running = e.state === "running" && e.current;
@@ -48,6 +60,8 @@ function Tile(props: { e: EntryView; unit: TileUnit; now: number; onOpen: (key: 
       layoutId={e.key}
       layoutDependency={`${e.state}:${unit}`}
       className={`tile ${unit} ${e.state}`}
+      // a team's color is the tile's border; the state still shows in its fill and glow
+      style={e.color ? { borderColor: e.color } : undefined}
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}
     >
@@ -75,10 +89,11 @@ function Tile(props: { e: EntryView; unit: TileUnit; now: number; onOpen: (key: 
               : "Monitored, waiting for its first run"}
         </div>
       ) : null}
-      {unit === "tiny" ? null : running ? (
-        <Progress e={e} now={now} unit={unit} />
-      ) : (
-        <History history={e.history} />
+      {unit === "tiny" ? null : (
+        <div className="foot">
+          {running ? <Progress e={e} now={now} unit={unit} /> : <History history={e.history} />}
+          <Tags e={e} />
+        </div>
       )}
     </motion.div>
   );

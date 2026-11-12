@@ -1857,3 +1857,43 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* labels: #hashtags in a tile's lower right corner, in the workflow's color */
+.tile .foot {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+.tile .foot > .hist,
+.tile .foot > .prog {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 0;
+}
+.tags {
+  display: flex;
+  gap: 8px;
+  flex: none;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--muted);
+  white-space: nowrap;
+  line-height: 1;
+}
+.tile.xl .tags {
+  font-size: 20px;
+}
+.tile.small .tags {
+  font-size: 13px;
+}
+.car .tags {
+  margin-top: auto;
+  align-self: flex-end;
+  font-size: 14px;
+}
+/* a colored tile keeps its color as its border whatever its state */
+.tile[style*="border-color"] {
+  border-width: 2px;
+}

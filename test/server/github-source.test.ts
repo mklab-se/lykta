@@ -615,6 +615,24 @@ describe("GitHubSource", () => {
     expect(build?.needs.length).toBeGreaterThan(0);
   });
 
+  test("a workflow's labels and color reach the wall", async () => {
+    const cfg = config();
+    cfg.monitor[0] = {
+      ...(cfg.monitor[0] as NonNullable<(typeof cfg.monitor)[0]>),
+      labels: ["release"],
+      color: "#f59e0b",
+    };
+    const { gh } = await setup();
+    const src = new GitHubSource({ config: cfg, client: gh, now: () => NOW, schedule: () => 0 });
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.firstSync;
+    expect(byWorkflow(got, "release.yml").entry.labels).toEqual(["release"]);
+    expect(byWorkflow(got, "release.yml").entry.color).toBe("#f59e0b");
+  });
+
   test("details for a run", async () => {
     const { src, failed } = await setup();
     const d = await src.details("mklab-se/lykta:ci.yml:main", failed.id);

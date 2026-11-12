@@ -126,6 +126,44 @@ describe("track", () => {
   });
 });
 
+describe("labels and colors", () => {
+  test("a colored, labelled workflow: its border in its color, #labels in the lower right", () => {
+    const layout = trackLayout(2, 0, canvas);
+    const html = renderToString(
+      <Track
+        entries={[entry("a", { labels: ["android", "nightly"], color: "#a78bfa" }), entry("b")]}
+        pit={new Set()}
+        layout={layout}
+        now={NOW}
+        onOpen={() => {}}
+      />,
+    );
+    expect(html).toContain("border-color:#a78bfa");
+    expect(html).toContain('class="tags"');
+    expect(html).toContain("#android");
+    expect(html).toContain("#nightly");
+    // the plain one looks exactly as before: no tags, no border override
+    const plain = renderToString(
+      <Track entries={[entry("b")]} pit={new Set()} layout={layout} now={NOW} onOpen={() => {}} />,
+    );
+    expect(plain).not.toContain('class="tags"');
+    expect(plain).not.toContain("border-color");
+  });
+
+  test("a car in the pit keeps its labels", () => {
+    const layout = trackLayout(6, 1, canvas);
+    const html = renderToString(
+      <Pit
+        entries={[{ ...failedEntry("x"), labels: ["web"], color: "#38bdf8" }]}
+        layout={layout}
+        now={NOW}
+        onOpen={() => {}}
+      />,
+    );
+    expect(html).toContain("#web");
+  });
+});
+
 describe("history", () => {
   test("always 10 slots: dotted until there are runs, newest on the right", () => {
     const html = renderToString(<History history={["p", "f", "p"]} />);

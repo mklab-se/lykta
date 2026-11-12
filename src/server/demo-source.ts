@@ -93,6 +93,14 @@ function mulberry32(seed: number): () => number {
   };
 }
 
+/** Teams sharing the demo wall: a label and a border color each; some workflows have none. */
+const DEMO_TEAMS: Partial<MonitoredEntry>[] = [
+  { labels: ["android"], color: "#a78bfa" },
+  { labels: ["web"], color: "#38bdf8" },
+  { labels: ["platform"], color: "#f472b6" },
+  {},
+];
+
 export class DemoSource implements Source {
   private readonly rand: () => number;
   private readonly now: () => number;
@@ -205,6 +213,7 @@ export class DemoSource implements Source {
       workflow: t.workflow,
       branch: "main",
       name: t.name,
+      ...DEMO_TEAMS[t.pipeline === "android" ? 0 : (i % 3) + 1],
     };
     const e: SimEntry = { entry, pipeline: t.pipeline, runs: [], cooldownUntil: 0 };
     if (t.seed === "missing") {

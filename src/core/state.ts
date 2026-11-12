@@ -66,6 +66,8 @@ export function deriveEntry(input: EntryInput): EntryView {
       .reverse()
       .map((r) => (isFailureConclusion(r.conclusion) ? "f" : "p")),
     problem: input.problem,
+    ...(entry.labels?.length ? { labels: entry.labels } : {}),
+    ...(entry.color ? { color: entry.color } : {}),
     lastDurationMs: Number.isFinite(duration) ? duration : undefined,
   };
 }

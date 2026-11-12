@@ -82,6 +82,10 @@ export interface MonitoredEntry {
   workflow: string;
   branch: string;
   name: string;
+  /** Shown as #hashtags in the tile's corner; for filtering (which team or area). */
+  labels?: string[];
+  /** A CSS color for the tile's border. */
+  color?: string;
 }
 
 /** What a source knows about an entry: its runs, newest first. */
@@ -112,6 +116,8 @@ export interface EntryView {
   problem?: string;
   expectedMs?: number;
   lastDurationMs?: number;
+  labels?: string[];
+  color?: string;
 }
 
 export interface DashboardState {

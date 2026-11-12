@@ -10,6 +10,7 @@ import type { TrackLayout } from "../track.ts";
 import { FailureWhat, shortenPaths } from "./FailureWhat.tsx";
 import { ProgressStrip } from "./ProgressStrip.tsx";
 import { RunnerBadge } from "./RunnerBadge.tsx";
+import { Tags } from "./Track.tsx";
 
 const broken = (e: EntryView, now: number) =>
   e.brokenSince ? formatDuration(now - Date.parse(e.brokenSince)) : "";
@@ -99,6 +100,7 @@ function Car(props: {
           ) : null}
         </>
       )}
+      <Tags e={e} />
     </motion.div>
   );
 }

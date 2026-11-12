@@ -138,4 +138,13 @@ describe("DemoSource", () => {
       for (const f of failed) expect(f.failure?.job, `seed ${seed}: ${f.entry.name}`).toBeTruthy();
     }
   });
+
+  test("demo teams: some workflows have a label and a color, some have none", () => {
+    const { tick, inputs } = make(30);
+    tick();
+    const labelled = inputs().filter((x) => x.entry.labels?.length);
+    expect(labelled.length).toBeGreaterThan(5);
+    expect(labelled.every((x) => x.entry.color)).toBe(true);
+    expect(inputs().some((x) => !x.entry.labels?.length && !x.entry.color)).toBe(true);
+  });
 });

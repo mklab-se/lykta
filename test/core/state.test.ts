@@ -116,4 +116,13 @@ describe("deriveEntry", () => {
   test("last duration of latest completed", () => {
     expect(derive([run({ t: 0 })]).lastDurationMs).toBe(5 * 60_000);
   });
+
+  test("labels and color travel to the wall; none stays none", () => {
+    const v = deriveEntry({ entry: { ...entry, labels: ["android"], color: "#3b82f6" }, runs: [] });
+    expect(v.labels).toEqual(["android"]);
+    expect(v.color).toBe("#3b82f6");
+    const plain = derive([]);
+    expect(plain.labels).toBeUndefined();
+    expect(plain.color).toBeUndefined();
+  });
 });

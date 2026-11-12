@@ -10,6 +10,10 @@ export interface MonitorConfig {
   branch: string;
   name: string;
   ignoreEvents: string[];
+  /** Labels (shown as #hashtags, and for filtering): which team or area it belongs to. */
+  labels: string[];
+  /** A CSS color for the tile's border; none means the usual look. */
+  color?: string;
 }
 
 export interface RunnerRule {
@@ -64,6 +68,32 @@ const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : unde
 const strList = (v: unknown) =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 
+const LABEL = /^[\p{L}\p{N}_./-]+$/u;
+/** A hex color (#rgb, #rrggbb, #rrggbbaa) or a CSS color name; nothing that could be CSS code. */
+const COLOR = /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|[a-z]+)$/i;
+
+/** labels: [a, b] or label: a; a leading # is allowed and dropped. */
+function readLabels(m: Obj, where: string, problems: string[]): string[] | undefined {
+  const rawList = m.labels !== undefined ? m.labels : m.label;
+  if (rawList === undefined) return undefined;
+  const list = typeof rawList === "string" ? [rawList] : strList(rawList);
+  const labels: string[] = [];
+  for (const l of list) {
+    const label = l.trim().replace(/^#/, "");
+    if (LABEL.test(label)) labels.push(label);
+    else problems.push(`${where}: label "${l}" must be one word (letters, digits, - _ . /)`);
+  }
+  return labels;
+}
+
+function readColor(m: Obj, where: string, problems: string[]): string | undefined {
+  const color = str(m.color);
+  if (color === undefined) return undefined;
+  if (COLOR.test(color)) return color;
+  problems.push(`${where}: color "${color}" must be a hex color like "#3b82f6" or a color name`);
+  return undefined;
+}
+
 export function parseConfig(yamlText: string, env: Env = process.env): LyktaConfig {
   const problems: string[] = [];
   let raw: unknown;
@@ -77,6 +107,8 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
   const defaults = isObj(raw.defaults) ? raw.defaults : {};
   const defaultBranch = str(defaults.branch) ?? "main";
   const defaultIgnore = strList(defaults.ignoreEvents);
+  const defaultLabels = readLabels(defaults, "defaults", problems) ?? [];
+  const defaultColor = readColor(defaults, "defaults", problems);
 
   const organizations: Record<string, OrgConfig> = {};
   if (isObj(raw.organizations)) {
@@ -119,6 +151,8 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
       branch,
       name: str(m.name) ?? (branch === defaultBranch ? base : `${base} · ${branch}`),
       ignoreEvents: m.ignoreEvents === undefined ? defaultIgnore : strList(m.ignoreEvents),
+      labels: readLabels(m, where, problems) ?? defaultLabels,
+      color: m.color === undefined ? defaultColor : readColor(m, where, problems),
     };
     const key = entryKey(entry);
     if (seen.has(key)) problems.push(`${where}: ${repo} ${workflow} on ${branch} is listed twice`);
