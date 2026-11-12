@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-11-12
+
 ### Added
 
 - Initial release, reserving the `lykta` name on crates.io. Scaffolded from the MKLab Rust CLI
@@ -15,3 +17,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pipeline with auditable binaries, CycloneDX SBOMs, crates.io and Homebrew publishing.
   The GitHub workflow dashboard itself is not in this release.
 
+[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/mklab-se/lykta/releases/tag/v0.0.1
