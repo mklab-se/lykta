@@ -47,8 +47,15 @@ export function emptySpotlight(): SpotlightState {
   };
 }
 
-/** A run is its id and attempt; not its timestamps, which drift on the demo's fast clock. */
-const runKeyOf = (e: EntryView) => `${e.latestCompleted?.id}#${e.latestCompleted?.attempt ?? 1}`;
+/**
+ * A run is its workflow, id and attempt; not its timestamps, which drift on the demo's fast
+ * clock.
+ */
+const runKeyOf = (e: EntryView) =>
+  `${e.key}:${e.latestCompleted?.id}#${e.latestCompleted?.attempt ?? 1}`;
+
+/** A pass whose last turn would come this late (real time) is skipped: it is old news. */
+const PASS_STALE_MS = 60_000;
 
 function ageMs(e: EntryView, now: number, t: Timings): number {
   const at = e.latestCompleted?.completedAt;
@@ -57,6 +64,10 @@ function ageMs(e: EntryView, now: number, t: Timings): number {
 
 /** Runs that finished recently (pass or failure), oldest first. */
 export function finishedRuns(entries: EntryView[], now: number, t: Timings) {
+  return recent(entries, now, t).map((e) => ({ key: e.key, runKey: runKeyOf(e) }));
+}
+
+function recent(entries: EntryView[], now: number, t: Timings) {
   return entries
     .filter((e) => {
       const c = e.latestCompleted?.conclusion ?? null;
@@ -65,8 +76,7 @@ export function finishedRuns(entries: EntryView[], now: number, t: Timings) {
         e.state !== "running" && e.state !== "missing" && decided && ageMs(e, now, t) < RECENT_MS
       );
     })
-    .sort((a, b) => ageMs(b, now, t) - ageMs(a, now, t))
-    .map((e) => ({ key: e.key, runKey: runKeyOf(e) }));
+    .sort((a, b) => ageMs(b, now, t) - ageMs(a, now, t));
 }
 
 export function nextSpotlight(
@@ -75,22 +85,32 @@ export function nextSpotlight(
   now: number,
   t: Timings,
 ): SpotlightState {
-  const finished = finishedRuns(entries, now, t);
+  const finished = recent(entries, now, t);
   let s = prev;
   // runs that had already finished when this screen started get no last turn
-  if (!s.seeded) s = { ...s, seeded: true, done: new Set(finished.map((f) => f.runKey)) };
+  if (!s.seeded) s = { ...s, seeded: true, done: new Set(finished.map(runKeyOf)) };
   if (s.current) {
     if (now - s.shownAt < t.showMs) return s;
     const done = new Set(s.done);
     if (s.current.final) done.add(s.current.runKey);
-    s = { ...s, current: null, endedAt: now, done };
+    // it ended when its time was up, even if this tick comes later
+    s = { ...s, current: null, endedAt: s.shownAt + t.showMs, done };
   }
-  // a run that just finished gets its last turn at once
-  const pending = finished.find((f) => !s.done.has(f.runKey));
-  if (pending) return { ...s, current: { ...pending, final: true }, shownAt: now };
-  const running = entries.filter((e) => e.state === "running").map((e) => e.key);
+  // one spotlight per beat at most, so the track is in focus most of the time
   const rested = now - s.endedAt >= t.everyMs - t.showMs && now - s.turnAt >= t.everyMs;
-  if (!running.length || !rested) return s;
+  if (!rested) return s;
+  // a run that just finished takes the next turn: failures first; a pass that waited too
+  // long is old news and skipped
+  const waiting = finished.filter((e) => !s.done.has(runKeyOf(e)));
+  const stale = waiting.filter((e) => !e.failing && ageMs(e, now, t) > PASS_STALE_MS);
+  if (stale.length) s = { ...s, done: new Set([...s.done, ...stale.map(runKeyOf)]) };
+  const next = waiting.find((e) => e.failing) ?? waiting.find((e) => !stale.includes(e));
+  if (next) {
+    const spot = { key: next.key, runKey: runKeyOf(next), final: true };
+    return { ...s, current: spot, shownAt: now, turnAt: now };
+  }
+  const running = entries.filter((e) => e.state === "running").map((e) => e.key);
+  if (!running.length) return s;
   const at = s.cursor ? running.indexOf(s.cursor) : -1;
   const key = running[(at + 1) % running.length] as string;
   return {

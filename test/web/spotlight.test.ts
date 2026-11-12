@@ -81,14 +81,33 @@ describe("spotlight", () => {
     expect(at(40)).toBe("a");
   });
 
-  test("a run that just finished gets one last turn soon, before the round robin", () => {
+  test("a run that just finished gets the next turn, ahead of the round robin", () => {
     const entries = (now: number) =>
       now < T + 10 * S ? [running("a"), running("x")] : [running("a"), failed("x", T + 10 * S)];
     const { shown } = play(entries, T, 30);
     const keys = shown.map(([, k]) => k);
-    // a is shown first (0-7), x finishes at 10 and is shown at once, before the 20 s turn
-    expect(keys[10]).toBe("x");
-    expect(keys.slice(10, 18).every((k) => k === "x")).toBe(true);
+    // a is shown first (0-7); x finishes at 10 and takes the next turn at 20, not b
+    expect(keys.slice(8, 20).every((k) => k === null)).toBe(true);
+    expect(keys[20]).toBe("x");
+  });
+
+  test("the track is in focus most of the time, however many runs finish", () => {
+    // twenty workflows finishing one after another, 5 s apart
+    const entries = (now: number) =>
+      Array.from({ length: 20 }, (_, i) => {
+        const end = T + (i + 1) * 5 * S;
+        return now >= end ? passed(`p${i}`, end) : running(`p${i}`);
+      });
+    const { shown } = play(entries, T, 120);
+    const open = shown.filter(([, k]) => k !== null).length;
+    expect(open / shown.length).toBeLessThan(0.45);
+  });
+
+  test("failures take their last turn before passes", () => {
+    let s = nextSpotlight(emptySpotlight(), [running("r")], T, timings);
+    const later = [passed("p", T + 5 * S), failed("f", T + 6 * S)];
+    s = nextSpotlight(s, later, T + 20 * S, timings);
+    expect(s.current?.key).toBe("f");
   });
 
   test("failures already there when the wall starts go straight to the pit", () => {
@@ -101,14 +120,15 @@ describe("spotlight", () => {
   test("a new failure stays on the track for its last turn, then enters the pit", () => {
     const e = failed("x", T + 5 * S);
     let s = nextSpotlight(emptySpotlight(), [running("x")], T, timings);
-    s = nextSpotlight(s, [e], T + 6 * S, timings);
     s = nextSpotlight(s, [e], T + 9 * S, timings);
+    expect(s.current).toBeNull();
+    expect(inPit(e, s, T + 9 * S, timings)).toBe(false); // red on the track, waiting
+    s = nextSpotlight(s, [e], T + 20 * S, timings);
     expect(s.current?.key).toBe("x");
     expect(s.current?.final).toBe(true);
-    expect(inPit(e, s, T + 10 * S, timings)).toBe(false);
-    s = nextSpotlight(s, [e], T + 17 * S, timings);
+    s = nextSpotlight(s, [e], T + 28 * S, timings);
     expect(s.current).toBeNull();
-    expect(inPit(e, s, T + 17 * S, timings)).toBe(true);
+    expect(inPit(e, s, T + 28 * S, timings)).toBe(true);
   });
 
   test("a failure waits at most two minutes for its turn", () => {
