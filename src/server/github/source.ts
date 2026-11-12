@@ -42,12 +42,16 @@ interface EntryState {
   nextAt: number;
   syncing: boolean;
   syncedAt: number;
+  /** Set once the branch is known to exist (checked only while there are no runs). */
+  branchExists?: boolean;
+  branchMissingSince?: number;
 }
 
 const completed = (r: GhRun) => r.status === "completed";
 /** Caches are per attempt: a re-run keeps the run id but is a new attempt with new jobs. */
 const runKey = (r: GhRun) => `${r.id}#${r.run_attempt}`;
 const MAX_ATTEMPT_LOOKBACK = 3;
+const BRANCH_RECHECK_MS = 10 * 60_000;
 const counted = (r: GhRun) =>
   completed(r) && (r.conclusion === "success" || isFailureConclusion(r.conclusion as Conclusion));
 
@@ -62,6 +66,8 @@ export class GitHubSource implements Source {
   /** Earlier, completed attempts of runs being re-run (they never change). */
   private readonly prevAttempts = new Map<string, GhRun | null>();
   private readonly workflows = new Map<string, WorkflowDef | null>();
+  /** Which workflow files each run's graph used, so the cache keeps exactly those. */
+  private readonly graphFiles = new Map<string, string[]>();
   private readonly graphs = new Map<
     string,
     { caller: WorkflowDef | null; called: Record<string, WorkflowDef | null> }
@@ -194,7 +200,8 @@ export class GitHubSource implements Source {
         data.workflow_runs.filter((r) => !ignoreEvents.includes(r.event)),
       );
       this.forgetUnlisted();
-      e.problem = undefined;
+      e.problem = e.runs.length ? undefined : await this.branchProblem(e);
+      if (e.runs.length) e.branchExists = undefined;
       const newest = e.runs[0];
       if (newest) {
         await this.jobsFor(e, newest);
@@ -273,14 +280,12 @@ export class GitHubSource implements Source {
     const ids = new Set(this.entries.flatMap((x) => x.runs.map((r) => String(r.id))));
     for (const k of this.liveJobs.keys()) if (!listed.has(k)) this.liveJobs.delete(k);
     for (const k of this.graphs.keys()) if (!listed.has(k)) this.graphs.delete(k);
+    for (const k of this.graphFiles.keys()) if (!listed.has(k)) this.graphFiles.delete(k);
     for (const k of this.runJobs.keys()) if (!listed.has(k)) this.runJobs.delete(k);
     for (const k of this.prevAttempts.keys())
       if (!ids.has(k.slice(0, k.indexOf("#")))) this.prevAttempts.delete(k);
-    const shas = new Set(this.entries.flatMap((x) => x.runs.map((r) => r.head_sha)));
-    for (const key of this.workflows.keys()) {
-      const sha = key.slice(key.indexOf("@") + 1, key.indexOf(":"));
-      if (!shas.has(sha)) this.workflows.delete(key);
-    }
+    const used = new Set([...this.graphFiles.values()].flat());
+    for (const key of this.workflows.keys()) if (!used.has(key)) this.workflows.delete(key);
   }
 
   private async jobsFor(e: EntryState, run: GhRun): Promise<GhJob[]> {
@@ -304,24 +309,48 @@ export class GitHubSource implements Source {
     return jobs;
   }
 
+  /** An empty run list: is the branch missing (a problem) or just without runs yet? */
+  private async branchProblem(e: EntryState): Promise<string | undefined> {
+    const { repo, branch } = e.cfg;
+    const missing = `Branch ${branch} not found in ${repo}`;
+    if (e.branchExists) return undefined;
+    if (e.branchMissingSince && this.now() - e.branchMissingSince < BRANCH_RECHECK_MS)
+      return missing;
+    try {
+      await this.opts.client.json(e.org, `/repos/${repo}/branches/${encodeURIComponent(branch)}`);
+      e.branchExists = true;
+      e.branchMissingSince = undefined;
+      return undefined;
+    } catch (err) {
+      if (!(err instanceof GitHubError && err.status === 404)) throw err;
+      e.branchMissingSince = this.now();
+      return missing;
+    }
+  }
+
   private async fileAt(
     org: string,
     repo: string,
     path: string,
     sha: string,
+    used: string[],
   ): Promise<WorkflowDef | null> {
     const key = `${repo}@${sha}:${path}`;
+    used.push(key);
     if (this.workflows.has(key)) return this.workflows.get(key) ?? null;
-    let def: WorkflowDef | null = null;
     try {
       const { data } = await this.opts.client.json<{ content: string }>(
         org,
         `/repos/${repo}/contents/${path}?ref=${sha}`,
       );
-      def = parseWorkflow(Buffer.from(data.content, "base64").toString("utf8"));
-    } catch {}
-    this.workflows.set(key, def);
-    return def;
+      const def = parseWorkflow(Buffer.from(data.content, "base64").toString("utf8"));
+      this.workflows.set(key, def);
+      return def;
+    } catch (err) {
+      // only a file that is really not there is remembered as missing; anything else retries
+      if (err instanceof GitHubError && err.status === 404) this.workflows.set(key, null);
+      return null;
+    }
   }
 
   /** The caller's workflow file and the reusable workflows it calls, at the run's commits. */
@@ -329,7 +358,8 @@ export class GitHubSource implements Source {
     e: EntryState,
     run: GhRun,
   ): Promise<{ caller: WorkflowDef | null; called: Record<string, WorkflowDef | null> }> {
-    const caller = await this.fileAt(e.org, e.cfg.repo, run.path, run.head_sha);
+    const used: string[] = [];
+    const caller = await this.fileAt(e.org, e.cfg.repo, run.path, run.head_sha, used);
     const called: Record<string, WorkflowDef | null> = {};
     for (const def of caller?.jobs ?? []) {
       if (!def.uses) continue;
@@ -340,8 +370,9 @@ export class GitHubSource implements Source {
       if (!ref || !wanted) continue;
       const [owner, name, ...rest] = wanted.split("/");
       const org = owner && this.opts.config.organizations[owner] ? owner : e.org;
-      called[def.uses] = await this.fileAt(org, `${owner}/${name}`, rest.join("/"), ref.sha);
+      called[def.uses] = await this.fileAt(org, `${owner}/${name}`, rest.join("/"), ref.sha, used);
     }
+    this.graphFiles.set(runKey(run), used);
     this.graphs.set(runKey(run), { caller, called });
     return { caller, called };
   }

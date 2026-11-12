@@ -5,7 +5,7 @@ import { GitHubClient, GitHubError, RateLimitError } from "../../src/server/gith
 const tokens: TokenProvider = { token: async (org) => `tok-${org}`, kind: () => "token" };
 
 type Handler = (url: string, init: RequestInit) => Response | Promise<Response>;
-function client(handler: Handler, sleeps: number[] = [], timeoutMs?: number) {
+function client(handler: Handler, sleeps: number[] = [], timeoutMs?: number, maxEtags?: number) {
   const warnings: string[] = [];
   const c = new GitHubClient({
     tokens,
@@ -17,6 +17,7 @@ function client(handler: Handler, sleeps: number[] = [], timeoutMs?: number) {
     },
     userAgent: "lykta/test",
     timeoutMs,
+    maxEtags,
   });
   c.onWarning((w) => warnings.push(w));
   return { c, warnings };
@@ -175,5 +176,21 @@ describe("GitHubClient", () => {
     const err = await c.json("acme", "/x").catch((e) => e);
     expect(err).toBeInstanceOf(AuthError);
     expect((err as AuthError).org).toBe("acme");
+  });
+
+  test("the ETag cache stays bounded", async () => {
+    const conditional: string[] = [];
+    const { c } = client(
+      (url, init) => {
+        if ((init.headers as Record<string, string>)["If-None-Match"]) conditional.push(url);
+        return Response.json({}, { headers: { etag: '"e"', ...rateHeaders() } });
+      },
+      [],
+      undefined,
+      2,
+    );
+    for (const p of ["/a", "/b", "/c", "/a", "/c"]) await c.json("o", p);
+    // /a was evicted by /c, so its second request is unconditional; /c is still cached
+    expect(conditional.map((u) => u.slice(u.lastIndexOf("/")))).toEqual(["/c"]);
   });
 });

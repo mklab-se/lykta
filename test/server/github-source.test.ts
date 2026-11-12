@@ -464,6 +464,99 @@ describe("GitHubSource", () => {
     expect(ticks.length).toBeGreaterThan(before);
   });
 
+  test("a reusable workflow from another commit is fetched once, not every sync", async () => {
+    const { gh, release } = await setup();
+    const other = "0123456789abcdef0123456789abcdef01234567";
+    const running: GhRun = {
+      ...release,
+      id: 888,
+      status: "in_progress",
+      conclusion: null,
+      referenced_workflows: [
+        {
+          path: `mklab-se/lykta/.github/workflows/ci.yml@${other}`,
+          sha: other,
+          ref: "refs/heads/main",
+        },
+      ],
+    };
+    gh.routes.unshift([/workflows\/live\.yml\/runs/, () => ({ workflow_runs: [running] })]);
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => NOW,
+      schedule: () => 0,
+    });
+    src.start(() => {});
+    await src.firstSync;
+    await src.syncAll();
+    await src.syncAll();
+    expect(gh.count(new RegExp(`contents/\\.github/workflows/ci\\.yml\\?ref=${other}`))).toBe(1);
+  });
+
+  test("a workflow file that failed to load is tried again", async () => {
+    const { gh } = await setup();
+    let fail = true;
+    gh.routes.unshift([
+      /contents\/\.github\/workflows\/live\.yml/,
+      () => (fail ? new GitHubError("GitHub API 502", 502) : undefined),
+    ]);
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => NOW,
+      schedule: () => 0,
+    });
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.firstSync;
+    expect(byWorkflow(got, "live.yml").runs[0]?.jobs.some((j) => j.group === "Build")).toBe(false);
+    fail = false;
+    gh.routes.shift();
+    await src.syncAll();
+    expect(byWorkflow(got, "live.yml").runs[0]?.jobs.some((j) => j.group === "Build")).toBe(true);
+  });
+
+  test("a branch that does not exist is a problem", async () => {
+    const { gh } = await setup();
+    gh.routes.unshift([/workflows\/ci\.yml\/runs/, () => ({ workflow_runs: [] })]);
+    gh.routes.unshift([/branches\/main$/, () => new GitHubError("GitHub API 404", 404)]);
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => NOW,
+      schedule: () => 0,
+    });
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.firstSync;
+    expect(byWorkflow(got, "ci.yml").problem).toContain("Branch main not found in mklab-se/lykta");
+  });
+
+  test("an existing branch without runs is simply waiting", async () => {
+    const { gh } = await setup();
+    gh.routes.unshift([/workflows\/ci\.yml\/runs/, () => ({ workflow_runs: [] })]);
+    gh.routes.unshift([/branches\/main$/, () => ({ name: "main" })]);
+    const src = new GitHubSource({
+      config: config(),
+      client: gh,
+      now: () => NOW,
+      schedule: () => 0,
+    });
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.firstSync;
+    await src.syncAll();
+    expect(deriveEntry(byWorkflow(got, "ci.yml")).state).toBe("never");
+    expect(gh.count(/branches\/main$/)).toBe(1);
+  });
+
   test("details for a run", async () => {
     const { src, failed } = await setup();
     const d = await src.details("mklab-se/lykta:ci.yml:main", failed.id);

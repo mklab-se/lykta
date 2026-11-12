@@ -38,6 +38,7 @@ export interface RateState {
 const MIN_RATE_WAIT_MS = 60_000;
 const SERVER_RETRY_MS = 2_000;
 const HOUR_MS = 3_600_000;
+const MAX_ETAGS = 2_000;
 
 export class GitHubClient {
   private readonly doFetch: typeof fetch;
@@ -59,6 +60,7 @@ export class GitHubClient {
       sleep?: (ms: number) => Promise<void>;
       userAgent: string;
       timeoutMs?: number;
+      maxEtags?: number;
     },
   ) {
     this.doFetch = opts.fetch ?? fetch;
@@ -87,10 +89,13 @@ export class GitHubClient {
     return this.enqueue(org, async () => {
       const cached = this.etags.get(`${org}:${path}`);
       const res = await this.request(org, path, cached ? { "If-None-Match": cached.etag } : {});
-      if (res.status === 304 && cached) return { data: cached.body as T, notModified: true };
+      if (res.status === 304 && cached) {
+        this.remember(`${org}:${path}`, cached);
+        return { data: cached.body as T, notModified: true };
+      }
       const data = (await res.json()) as T;
       const etag = res.headers.get("etag");
-      if (etag) this.etags.set(`${org}:${path}`, { etag, body: data });
+      if (etag) this.remember(`${org}:${path}`, { etag, body: data });
       return { data, notModified: false };
     });
   }
@@ -108,6 +113,18 @@ export class GitHubClient {
       }
       return res.text();
     });
+  }
+
+  /** Least recently used ETag cache, so weeks of new run ids never grow it without bound. */
+  private remember(key: string, entry: { etag: string; body: unknown }): void {
+    this.etags.delete(key);
+    this.etags.set(key, entry);
+    const max = this.opts.maxEtags ?? MAX_ETAGS;
+    while (this.etags.size > max) {
+      const oldest = this.etags.keys().next().value;
+      if (oldest === undefined) break;
+      this.etags.delete(oldest);
+    }
   }
 
   private enqueue<T>(org: string, task: () => Promise<T>): Promise<T> {
