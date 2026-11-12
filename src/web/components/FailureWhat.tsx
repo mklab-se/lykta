@@ -11,7 +11,7 @@ export function shortenPaths(line: string): string {
 }
 
 /** GitHub's closing line for a failed step: says nothing, never shown as the error. */
-const GENERIC = /^(##\[error\]|Error: )?Process completed with exit code \d+\.?$/;
+export const GENERIC = /^(##\[error\]|Error: )?Process completed with exit code \d+\.?$/;
 
 /** Where it broke and the error message itself: the biggest text on a failure. */
 export function FailureWhat(props: {

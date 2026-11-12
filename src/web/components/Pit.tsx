@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { formatDuration } from "../../core/timing.ts";
 import type { EntryView } from "../../core/types.ts";
 import type { TrackLayout } from "../track.ts";
-import { FailureWhat, shortenPaths } from "./FailureWhat.tsx";
+import { FailureWhat, GENERIC, shortenPaths } from "./FailureWhat.tsx";
 import { ProgressStrip } from "./ProgressStrip.tsx";
 import { RunnerBadge } from "./RunnerBadge.tsx";
 import { Tags } from "./Track.tsx";
@@ -91,7 +91,7 @@ function Car(props: {
             // what led up to it, as many lines as the car has room for (newest at the bottom)
             <div className="carlog">
               {f.logExcerpt
-                .filter((l) => !f.errors?.includes(l))
+                .filter((l) => !f.errors?.includes(l) && !GENERIC.test(l))
                 .map((l, i) => (
                   // biome-ignore lint/suspicious/noArrayIndexKey: log lines are positional
                   <div key={i}>{shortenPaths(l)}</div>

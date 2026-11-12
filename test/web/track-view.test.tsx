@@ -66,7 +66,7 @@ const failedEntry = (key: string) =>
     failure: {
       job: "Build",
       step: "Compile",
-      logExcerpt: ["compiling"],
+      logExcerpt: ["compiling", "Error: Process completed with exit code 1."],
       errors: ["src/a/b/c/Main.java:12: error: cannot find symbol"],
     },
   });
@@ -195,6 +195,7 @@ describe("pit", () => {
     expect(html).toContain("abcdef1 · anna");
     expect(html).toContain('class="carlog"');
     expect(html).toContain("compiling");
+    expect(html).not.toContain("Process completed");
   });
 
   test("a missing workflow is in the pit with its problem", () => {
