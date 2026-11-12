@@ -1,0 +1,57 @@
+# Live sample for Lykta: four parallel jobs, then a summary. Manual only, echo/sleep only.
+name: Security scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail:
+        description: Make the dependency scan find a vulnerability
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  deps:
+    name: Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Audit
+        run: |
+          sleep 30
+          if [ "${{ inputs.fail }}" = "true" ]; then
+            echo "error: critical vulnerability in left-pad 1.3.0 (CVE-2026-0001)"
+            echo "::error::Dependency scan failed on purpose (fail=true)"
+            exit 1
+          fi
+          echo "no known vulnerabilities"
+
+  secrets:
+    name: Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan history
+        run: sleep 20 && echo "no secrets found"
+
+  containers:
+    name: Containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan image
+        run: sleep 40 && echo "image clean"
+
+  licenses:
+    name: Licenses
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check licenses
+        run: sleep 15 && echo "all licenses allowed"
+
+  summary:
+    name: Summary
+    needs: [deps, secrets, containers, licenses]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        run: echo "security scan passed"

@@ -1,0 +1,45 @@
+# Live sample for Lykta: parallel suites where one fails now and then (about one run in
+# three), like a flaky environment. Manual only, echo/sleep only.
+name: Integration checks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: Start services
+    runs-on: ubuntu-latest
+    steps:
+      - name: docker compose up
+        run: sleep 20 && echo "services up"
+
+  suite:
+    name: Suite ${{ matrix.suite }}
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [api, sync, billing]
+    steps:
+      - name: Run suite
+        run: |
+          sleep 30
+          if [ "${{ matrix.suite }}" = "sync" ] && [ $((RANDOM % 3)) -eq 0 ]; then
+            echo "POST /v2/sync/batches"
+            echo "error: expected status 200, got 503 Service Unavailable"
+            echo "::error::Suite sync failed (flaky upstream)"
+            exit 1
+          fi
+          echo "suite ${{ matrix.suite }} passed"
+
+  teardown:
+    name: Collect logs
+    needs: suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archive
+        run: sleep 5 && echo "logs archived"

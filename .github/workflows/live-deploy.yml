@@ -1,0 +1,52 @@
+# Live sample for Lykta: a deploy chain. Manual only, echo/sleep only.
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail:
+        description: Make the deploy step fail
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+    steps:
+      - name: docker build
+        run: sleep 25 && echo "image built"
+
+  migrate:
+    name: Migrate database
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run migrations
+        run: sleep 15 && echo "3 migrations applied"
+
+  deploy:
+    name: Deploy
+    needs: migrate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Helm upgrade
+        run: |
+          sleep 30
+          if [ "${{ inputs.fail }}" = "true" ]; then
+            echo "Error: UPGRADE FAILED: timed out waiting for the condition"
+            echo "::error::Deploy failed on purpose (fail=true)"
+            exit 1
+          fi
+          echo "release staging upgraded"
+
+  smoke:
+    name: Smoke check
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe endpoints
+        run: sleep 15 && echo "all endpoints answer 200"

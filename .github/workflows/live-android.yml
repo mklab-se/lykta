@@ -1,0 +1,66 @@
+# Live sample for Lykta: an Android-style nightly. Sync, a build matrix, device flashing on a
+# matrix, then publish. Manual only, echo/sleep only: costs a few runner minutes.
+name: Android nightly
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail:
+        description: Make a device fail to boot
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync sources
+    runs-on: ubuntu-latest
+    steps:
+      - name: repo sync -j16
+        run: sleep 35 && echo "synced 812 projects"
+
+  build:
+    name: Build ${{ matrix.variant }}
+    needs: sync
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [aosp-user, lynx-userdebug, tangor-user]
+    steps:
+      - name: lunch
+        run: sleep 5 && echo "lunch ${{ matrix.variant }}"
+      - name: m -j64
+        run: sleep 60 && echo "build of ${{ matrix.variant }} completed"
+
+  flash:
+    name: Flash & boot ${{ matrix.device }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        device: [pixel-9, pixel-8a]
+    steps:
+      - name: Flash
+        run: sleep 20 && echo "flashed ${{ matrix.device }}"
+      - name: Boot check
+        run: |
+          sleep 15
+          if [ "${{ inputs.fail }}" = "true" ] && [ "${{ matrix.device }}" = "pixel-9" ]; then
+            echo "waiting for device pixel-9 to boot"
+            echo "adb: error: device 'pixel-9' offline (boot did not complete in 120 s)"
+            echo "::error::Boot check failed on purpose (fail=true)"
+            exit 1
+          fi
+          echo "${{ matrix.device }} booted"
+
+  publish:
+    name: Publish OTA
+    needs: flash
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload
+        run: sleep 10 && echo "ota published"

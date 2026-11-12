@@ -1,0 +1,51 @@
+# Live sample for Lykta: a longer chain with a packaging matrix. Manual only, echo/sleep only.
+name: Release dry run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compute version
+        run: sleep 10 && echo "version 2.4.0"
+
+  changelog:
+    name: Changelog
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect changes
+        run: sleep 15 && echo "23 changes"
+
+  package:
+    name: Package ${{ matrix.os }}
+    needs: changelog
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, macos, windows]
+    steps:
+      - name: Package
+        run: sleep 35 && echo "packaged for ${{ matrix.os }}"
+
+  sign:
+    name: Sign
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sign artifacts
+        run: sleep 15 && echo "signed"
+
+  publish:
+    name: Publish (dry run)
+    needs: sign
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish
+        run: sleep 10 && echo "would publish 2.4.0"

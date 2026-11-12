@@ -40,12 +40,16 @@ used on weak screens.
 
 ## Try it against GitHub
 
-This repository has live test workflows (`live-pipeline.yml`, `live-quick.yml`) and an example
-configuration that monitors them. With the [GitHub CLI](https://cli.github.com) signed in:
+This repository has live sample workflows (`.github/workflows/live-*.yml`: a pipeline with a
+matrix and a reusable workflow, an Android-style nightly, a deploy chain, a security scan with
+parallel jobs, a release dry run, flaky integration checks, docs and a quick one) and an example
+configuration that monitors them. They are manual only and just `echo` and `sleep`; most take a
+`fail` input. With the [GitHub CLI](https://cli.github.com) signed in:
 
 ```sh
 LYKTA_TOKEN_MKLAB_SE=$(gh auth token) lykta serve --config lykta.example.yaml
 gh workflow run live-pipeline.yml -R mklab-se/lykta -f fail_at=build -f minutes=4
+gh workflow run live-deploy.yml -R mklab-se/lykta -f fail=true
 ```
 
 For your own workflows: `lykta init` writes a starter `lykta.yaml`, and `lykta check` verifies it

@@ -1,0 +1,24 @@
+# Live sample for Lykta: a short two-job workflow. Manual only, echo/sleep only.
+name: Docs site
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Render pages
+        run: sleep 20 && echo "142 pages rendered"
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload
+        run: sleep 10 && echo "site published"

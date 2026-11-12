@@ -25,6 +25,24 @@ monitor:
   - repo: mklab-se/lykta
     workflow: ci.yml
     name: Lykta CI
+  - repo: mklab-se/lykta
+    workflow: live-android.yml
+    name: Android nightly
+  - repo: mklab-se/lykta
+    workflow: live-deploy.yml
+    name: Deploy staging
+  - repo: mklab-se/lykta
+    workflow: live-security.yml
+    name: Security scan
+  - repo: mklab-se/lykta
+    workflow: live-release.yml
+    name: Release dry run
+  - repo: mklab-se/lykta
+    workflow: live-integration.yml
+    name: Integration checks
+  - repo: mklab-se/lykta
+    workflow: live-docs.yml
+    name: Docs site
 
 # Optional: describe where jobs run. The first matching rule wins.
 runners:
