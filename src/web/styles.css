@@ -1836,7 +1836,8 @@ body {
   font-size: 12px;
 }
 .car .carlog {
-  flex: 1 1 auto;
+  /* as tall as its lines, shrinking (oldest lines first) when the car is short */
+  flex: 0 1 auto;
   min-height: 0;
   overflow: hidden;
   display: flex;
