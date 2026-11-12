@@ -12,7 +12,7 @@ import { ProgressStrip } from "./ProgressStrip.tsx";
 import { RunnerBadge } from "./RunnerBadge.tsx";
 import { Tags } from "./Track.tsx";
 
-const CARD_CHROME = 300;
+const CARD_CHROME = 345;
 const LOG_LINE = 19;
 
 const broken = (e: EntryView, now: number) =>
