@@ -412,6 +412,10 @@ Consequences for the design:
 - AI explanation of failures: [issue #1](https://github.com/mklab-se/lykta/issues/1).
 - Kubernetes node lookup for ARC jobs: [issue #2](https://github.com/mklab-se/lykta/issues/2).
 - Authentication for dashboard viewers: [issue #3](https://github.com/mklab-se/lykta/issues/3).
+- Check-run annotations on failure cards, and "slower than usual" per step (the run-level warning
+  is in v1). Decided during the plan 2 review: the log excerpt already names the failing step.
+- Workflows triggered by tags (an entry is a branch today; a release workflow on tags shows its
+  runs only when it also runs on the branch).
 
 ## 10. Calls I made (for review)
 
