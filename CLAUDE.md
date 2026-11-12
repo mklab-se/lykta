@@ -4,105 +4,98 @@ Guidance for Claude Code (and other agents) working in this repository.
 
 ## What this is
 
-`lykta` (Swedish for "lantern") is a highly visible, easy-to-read dashboard for GitHub Actions
-workflows: it should make it obvious at a glance which workflow runs are in progress, which have
-failed and which are green. It is an MKLab Rust CLI tool, scaffolded from the `rusty-tmpl` template.
+`lykta` (Swedish for "lantern") is a highly visible dashboard for GitHub Actions workflows, meant
+for wall-mounted monitors and TVs: failures must be impossible to ignore, and it gives an overview
+of what the monitored workflows are doing. It is built on Bun and TypeScript from the `bun-templ`
+template.
 
-Status: `0.0.1` reserved the crates.io name and ships only the template plumbing. The dashboard
-itself is not designed or built yet; requirements will come from Kristofer.
+Status: `0.0.2` is the template plumbing only (the no-command action prints the banner and a
+"coming soon" note). The dashboard is being designed from Kristofer's requirements; do not assume
+a design before it is agreed.
+
+History: Lykta started as a Rust tool. `v0.0.1` (Rust) is published on crates.io as `lykta` and is
+kept there on purpose to reserve the name; nothing Rust remains in this repo. On npm the package is
+`@mklab-se/lykta` because the unscoped `lykta` belongs to someone else.
 
 ## Template lineage
 
-> The references below intentionally point at the upstream template, not at this tool.
+<!-- lineage:start -->
+> The references in this section intentionally point at the upstream template, not at this tool.
 
-- **Upstream template:** https://github.com/mklab-se/rusty-tmpl
-- **Likely local clone:** `../rusty-tmpl/` (sibling directory under the same parent)
+- **Upstream template:** https://github.com/mklab-se/bun-templ
+- **Likely local clone:** `../bun-templ/` (sibling directory under the same parent)
 
-This repository was scaffolded from that template, which carries the shared MKLab CLI conventions
-(workspace layout, clap CLI, Ailloy `ai` command, update checker, CI/release pipeline, `/release`
-skill). Use the lineage in both directions:
+Tools built from bun-templ share its conventions (layout, commander CLI, update checker, paths,
+CI/release pipeline, `/release` skill). Use the lineage in both directions:
 
 - **Pulling improvements in:** when the template gains a fix or new convention, compare against
-  `../rusty-tmpl/` and port the relevant change here, adapting the `rusty-tmpl` name to this tool.
-- **Pushing improvements back:** if you discover a fix or better pattern here that is *generic*
-  (not specific to this tool's domain), consider contributing it upstream to `mklab-se/rusty-tmpl`
-  so every future tool benefits. Generalize it (strip tool-specific names/logic) before doing so.
-
-When working from the local clone, prefer reading `../rusty-tmpl/` directly to diff conventions; fall
-back to the GitHub URL if the sibling directory isn't present.
+  `../bun-templ/` and port the relevant change here, adapting the name to this tool.
+- **Pushing improvements back:** if you find a fix or better pattern here that is _generic_ (not
+  specific to this tool's domain), contribute it upstream to `mklab-se/bun-templ` so every future
+  tool benefits. Strip tool-specific names and logic first.
+<!-- lineage:end -->
 
 ## Architecture
 
-A two-crate Cargo workspace:
+TypeScript run directly by Bun (no build step for development); `bun build --compile` produces the
+single-file release binaries.
 
-- `crates/lykta/`: the CLI binary.
-  - `main.rs`: `#[tokio::main]`; sets up logging, dynamic-completion env, the `--no-color` override,
-    and spawns the background update check, then calls `Cli::run`.
-  - `cli.rs`: clap-derive `Cli`, `Commands`, `AiCommands`, `Shell`; `Cli::run` dispatches. The
-    no-subcommand (`None`) arm prints the banner and a "coming soon" note; it is where the
-    dashboard will launch. `--help`/`-h` still work via clap.
-  - `commands/`: one module per command (`ai`, `completion`). Add new commands here.
-  - `banner.rs`: ASCII block-letter banner + version line.
-  - `update.rs`: polls crates.io, caches the result for 24h in `paths::cache_dir()`, notifies on a
-    newer version.
-- `crates/lykta-core/`: framework-agnostic library (no clap/tokio).
-  - `config.rs`: YAML `Config` in `paths::config_dir()`, a reusable starting point (unused so far).
-  - `paths.rs`: where the tool keeps files. Linux and macOS share the XDG layout, same as Ailloy:
-    `$XDG_CONFIG_HOME/<tool>` or `~/.config/<tool>`, `$XDG_CACHE_HOME/<tool>` or
-    `~/.cache/<tool>`. Windows uses its native `%APPDATA%` / `%LOCALAPPDATA%`. Every MKLab tool
-    follows this; never call `dirs::config_dir()`/`dirs::cache_dir()` directly (on macOS those
-    are `~/Library/...`).
-  - `error.rs`: `thiserror` `Error` enum + `Result` alias.
+- `src/cli.ts`: entry point (`#!/usr/bin/env bun`). `buildProgram()` defines the commander CLI;
+  `main()` parses, applies global flags, and awaits the background update check for at most 1.5 s.
+  The no-command action prints the banner and a "coming soon" note; it is where the
+  dashboard will start. `--help`/`-h` and `--version`/`-V` come from commander.
+- `src/commands/`: one module per command (`completion.ts` today). Add new commands here.
+- `src/meta.ts`: tool name, package name, version and description (version and description are
+  read from `package.json`, the single source of truth).
+- `src/banner.ts`: block-letter banner rendered at runtime from the tool name via a built-in 5-row
+  font, so a rename needs no ASCII art.
+- `src/color.ts`: tiny ANSI helpers; colour only on a TTY, off with `NO_COLOR` or `--no-color`.
+- `src/paths.ts`: where the tool keeps files. Linux and macOS share the XDG layout (same as the
+  Rust tools and Ailloy): `$XDG_CONFIG_HOME/<tool>` or `~/.config/<tool>`, `$XDG_CACHE_HOME/<tool>`
+  or `~/.cache/<tool>`. Windows uses `%APPDATA%` / `%LOCALAPPDATA%`. Never `~/Library/...`.
+- `src/config.ts`: YAML config in `configDir()/config.yaml` via the built-in `Bun.YAML`.
+- `src/update.ts`: checks the npm registry for a newer version, caches the answer for 24 h in
+  `cacheDir()`, never throws. Disabled by `-q` or the `<TOOL>_NO_UPDATE_CHECK` env var.
+- `scripts/sbom.ts`: CycloneDX 1.5 SBOM per release target (Bun runtime + production deps from
+  `bun.lock`).
+- `test/`: `bun test` suites. Keep logic in pure functions with injectable inputs (env, clock,
+  fetch) so it is testable without the network.
 
 ## Adding a command
 
-1. Add a variant to `Commands` in `cli.rs` (with a doc comment; it becomes the help text).
-2. Add a `pub mod <name>;` in `commands/mod.rs` and implement `pub async fn run(...) -> anyhow::Result<()>`.
-3. Add the dispatch arm in `Cli::run`.
-
-## AI integration
-
-`commands/ai.rs` wraps [Ailloy](https://crates.io/crates/ailloy) via its `config_tui` helpers and the
-shared global config (`~/.config/ailloy/config.yaml`). To call a model from a command, use
-`ailloy::Client`. The capability list is the `CAPABILITIES` const in `ai.rs` (`["chat"]`).
+1. Create `src/commands/<name>.ts` exporting the logic (pure where possible).
+2. Register it in `buildProgram()` in `src/cli.ts` with `.command()`, `.description()` (becomes the
+   help text) and `.action()`.
+3. Add tests in `test/`. Completions pick the command up automatically.
 
 ## Conventions
 
-- Edition 2024, MSRV 1.88 (`[workspace.package]`; set by Ailloy, 1.88 since 2.x and still in 3.0).
-- All deps are declared in the root `[workspace.dependencies]` and inherited with `.workspace = true`.
-  Current majors: clap 4.6, tokio 1.53, colored 3, dirs 7, thiserror 2, ailloy 3.0, reqwest 0.13.
-  YAML is `serde_norway` 0.9, the maintained drop-in fork of the deprecated `serde_yaml`
-  (chosen fleet-wide 2026-10-07).
-- Building from source on Windows needs NASM and CMake on `PATH`, because `aws-lc-rs`
-  (reqwest's TLS crypto backend) compiles optimized assembly routines at build time. macOS and Linux need nothing extra.
-  The release workflow's Windows leg installs NASM via `ilammy/setup-nasm@v1`; CMake and MSVC are
-  already on the `windows-latest` image.
-- CI gates: `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`,
-  `cargo test --workspace`. CI runs the latest stable toolchain, so run the gates on an up-to-date
-  local toolchain (new clippy lints otherwise surface only in CI).
+- Bun **latest** (CI installs `bun-version: latest`; `engines.bun` is the floor), TypeScript strict
+  (`tsc --noEmit`, TypeScript 7), Biome for lint and format (2 spaces, width 100, double quotes).
+- Prefer Bun built-ins over dependencies (`Bun.YAML`, `Bun.JSONC`, `Bun.semver`, `Bun.file`,
+  `Bun.spawn`, `fetch`). Runtime dependencies today: `commander` only.
+- Distribution: npm as `@mklab-se/<tool>` (the `bin` is the short name), single-file binaries for
+  4 targets on GitHub Releases with CycloneDX SBOMs, and the Homebrew tap `mklab-se/homebrew-tap`.
+- CI gates (run them locally before pushing): `bun run lint`, `bun run typecheck`, `bun test`,
+  `bun run build` (all at once: `bun run check && bun run build`).
 - `README.md` opens with the logo, the badges and then a centred "What's new" callout
   (`<strong>tool X.Y</strong> is here: ...` plus a `What's new` link to `CHANGELOG.md`). Refresh the
-  callout on every minor/major release; generated tools inherit it.
-- Releases go through the `/release` skill (`.claude/skills/release/`) → tag push → `release.yml`. The
-  skill updates the toolchain and dependencies first, then watches the workflow. `release.yml` builds
-  binaries with `cargo auditable` and attaches a per-target CycloneDX SBOM (`.cdx.json`) to the
-  GitHub Release alongside the archives.
+  callout on every minor/major release.
+- Releases go through the `/release` skill (`.claude/skills/release/`) → tag push → `release.yml`.
+  The tag must equal `package.json`'s version (the workflow checks).
 
 ## Writing style
 
-- **No em-dashes (U+2014), anywhere:** docs, CHANGELOG, code comments, doc comments, CLI help text,
-  error messages, test strings, commit messages and PR descriptions. Use a comma where it works;
-  otherwise a colon, parentheses, or a new sentence. If Rust code genuinely needs the character at
-  runtime, write the escape `\u{2014}`, never the literal. CI enforces this (the "No em-dashes"
-  step in `ci.yml`); check locally with `git grep -nIP '\x{2014}'`.
+- **No em-dashes (U+2014), anywhere:** docs, CHANGELOG, code comments, help text, error messages,
+  test strings, commit messages and PR descriptions. Use a comma where it works; otherwise a colon,
+  parentheses, or a new sentence. If code genuinely needs the character at runtime, write the
+  escape `\u2014`. CI enforces this; check locally with
+  `grep -rn --exclude-dir=node_modules --exclude-dir=.git $'\xe2\x80\x94' .`
 
 ## Dependency Policy
 
-We keep this tool's dependencies at their latest compatible versions, not just the versions that
-happen to still compile. Staying current is the default, not something we get to eventually:
-letting dependencies drift is how technical debt accumulates unnoticed until a security advisory or
-a forced breaking upgrade makes it urgent. When a newer major is available and there's no concrete,
-documented reason not to take it (see any `# Stays on ...` comments in `Cargo.toml` for the current
-exceptions and why), take it during the next maintenance round rather than deferring it. This
-applies to every tool scaffolded from this template too; the cross-repo `maintaining-rust-tools`
-skill drives it for the whole fleet (ailloy + cosq + deemer + mdeck + pidge + rigg + rusty-tmpl).
+Bun and every dependency run on their **latest** versions, not just versions that still work.
+Letting them drift is how technical debt accumulates unnoticed until a security advisory or a
+forced breaking upgrade makes it urgent. Every maintenance round and every release starts with
+`bun upgrade` and `bun update --latest` (majors included), then the CI gates. A version may only be
+held back with a concrete, documented reason next to it.

@@ -1,0 +1,54 @@
+{
+  "name": "@mklab-se/lykta",
+  "version": "0.0.2",
+  "description": "A highly visible dashboard for monitoring GitHub Actions workflows",
+  "keywords": [
+    "github",
+    "actions",
+    "workflows",
+    "dashboard",
+    "ci",
+    "bun"
+  ],
+  "license": "MIT",
+  "author": "Kristofer Liljeblad <kristofer@mklab.se>",
+  "homepage": "https://github.com/mklab-se/lykta",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mklab-se/lykta.git"
+  },
+  "bugs": "https://github.com/mklab-se/lykta/issues",
+  "type": "module",
+  "bin": {
+    "lykta": "src/cli.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "bun": ">=1.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "bun src/cli.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome ci .",
+    "format": "biome check --write .",
+    "check": "bun run typecheck && bun run lint && bun test",
+    "build": "bun build src/cli.ts --compile --minify --sourcemap --outfile dist/lykta",
+    "sbom": "bun scripts/sbom.ts"
+  },
+  "dependencies": {
+    "commander": "^15.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.7",
+    "@types/bun": "^1.4.4",
+    "typescript": "^7.0.2"
+  }
+}

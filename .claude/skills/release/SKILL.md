@@ -1,6 +1,6 @@
 ---
 name: release
-description: "Release a new version: bump version, update docs, commit, push, tag, and verify the release workflow"
+description: "Release a new version: upgrade Bun and dependencies, bump version, update docs, commit, push, tag, and verify the release workflow"
 argument-hint: "<major|minor|patch>"
 ---
 
@@ -14,71 +14,57 @@ $ARGUMENTS must be one of: `major`, `minor`, `patch`. If empty or invalid, stop 
 
 ### 1. Determine the new version
 
-- Read the current version from the `version` field in the workspace `Cargo.toml` (`[workspace.package]`)
-- Apply the semver bump based on $ARGUMENTS:
-  - `patch`: 0.1.0 -> 0.1.1
-  - `minor`: 0.1.0 -> 0.2.0
-  - `major`: 0.1.0 -> 1.0.0
+- Read the current `version` from `package.json`
+- Apply the semver bump: `patch` 0.1.0 -> 0.1.1, `minor` 0.1.0 -> 0.2.0, `major` 0.1.0 -> 1.0.0
 - Show the user: "Releasing lykta v{OLD} -> v{NEW}"
 
-### 2. Update toolchain and dependencies
+### 2. Upgrade Bun and every dependency to the latest version
 
-- Run `rustup update stable`: CI runs the LATEST stable Rust, and newer clippy versions ship new
-  lints. Running the pre-flight checks on an older local toolchain lets warnings through that then
-  fail the release workflow. After updating, confirm with `rustc --version`
-- Run `cargo update` to update all dependencies to their latest compatible versions
+- `bun upgrade`, then confirm with `bun --version`. CI installs the latest Bun, so testing locally on
+  an older one lets breakage through to the release workflow
+- `bun update --latest` (majors included; this rewrites the ranges in `package.json`). Then
+  `bun outdated` must list nothing. Hold a package back only with a concrete reason written next to
+  it in `CLAUDE.md`'s Dependency Policy
+- If a major changed, read its release notes and fix any fallout before continuing
 
 ### 3. Pre-flight checks
 
-- Run `cargo fmt --all -- --check`, and abort if there are formatting issues. If you fix formatting with
-  `cargo fmt --all`, re-run clippy afterwards: reformatting can change what clippy flags
-- Run `cargo clippy --workspace --all-targets -- -D warnings`, and abort on warnings
-  (`--all-targets` matches CI: it also lints tests and benches)
-- Run `cargo test --workspace`, and abort if any test fails
-- Run `git status`, and abort if there are uncommitted changes that are NOT documentation, version,
-  or dependency files
+- `bun run format`, then `bun run check` (typecheck + lint + test): abort on any failure
+- `bun run build && ./dist/lykta --version`: the compiled binary must run
+- `grep -rn --exclude-dir=node_modules --exclude-dir=.git $'\xe2\x80\x94' .` must print nothing
+- `git status`: abort if there are uncommitted changes that are NOT docs, version, or dependency files
 
-### 4. Bump version numbers
+### 4. Bump the version
 
-- Update `version` in the root `Cargo.toml` `[workspace.package]` section
-- Update internal crate dependency versions (`lykta-core`) in the root `Cargo.toml`
-  `[workspace.dependencies]` section; they use `version = "X.Y.Z"` format
+- Set `version` in `package.json` (the CLI, the update checker and the SBOM all read it from there)
 
 ### 5. Update documentation
 
-- **CHANGELOG.md**: Rename the `[Unreleased]` section to `[{NEW_VERSION}] - {TODAY}` (YYYY-MM-DD format). If there is no `[Unreleased]` section, create a new dated entry summarizing changes since the last release
-- **README.md**: Review for accuracy and update any version references if present
-- **README.md "What's new" callout** (right after the badges): on every minor or major release, update the version in `<strong>...</strong>` and the one-line summary of headline changes; keep the `What's new` link to `CHANGELOG.md`
-- **CLAUDE.md**: Review for accuracy (typically no version references to update)
-- **INSTALL.md**: Review for accuracy (typically no version references to update)
+- **CHANGELOG.md**: rename `[Unreleased]` to `[{NEW}] - {TODAY}` (YYYY-MM-DD), add a fresh empty
+  `## [Unreleased]` above it, and update the compare links at the bottom
+- **README.md "What's new" callout**: on every minor or major release, update the version in
+  `<strong>...</strong>` and the one-line summary; keep the `What's new` link
+- **README.md, CLAUDE.md, INSTALL.md**: review for accuracy
 
-### 6. Verify the build
+### 6. Commit, push, and tag
 
-- Run `cargo build --workspace` to ensure everything compiles with the new version
-- Run `cargo test --workspace` once more after version bump
+- Stage `package.json`, `bun.lock`, `CHANGELOG.md` and any updated docs
+- Commit `Release v{NEW}`, `git push`, then `git tag v{NEW} && git push origin v{NEW}`
 
-### 7. Commit, push, and tag
+### 7. Watch and verify
 
-- Stage all changed files: `Cargo.toml`, `Cargo.lock`, `CHANGELOG.md`, and any updated docs
-- Commit with message: `Release v{NEW_VERSION}`
-- Push to main: `git push`
-- Create and push tag: `git tag v{NEW_VERSION} && git push origin v{NEW_VERSION}`
-
-### 8. Watch and verify
-
-- The tag push triggers the Release workflow. Do NOT declare success yet; watch it:
+- The tag push triggers the Release workflow. Do NOT declare success yet: find it with
   `gh run list --repo mklab-se/lykta --workflow release.yml --limit 1`, then
-  `gh run watch <id> --repo mklab-se/lykta --exit-status` until it completes
-- If it fails, inspect with `gh run view <id> --log-failed`, fix the cause, and re-release as a patch
-- When it is green, confirm the outputs:
-  - `gh release view v{NEW_VERSION} --repo mklab-se/lykta` lists 4 archives
-    (3 × `.tar.gz`, 1 × `.zip`) plus 4 matching `.cdx.json` SBOMs
-  - `cargo search lykta --limit 1` shows the new version on crates.io
-  - `Formula/lykta.rb` in `mklab-se/homebrew-tap` carries the new version
+  `gh run watch <id> --repo mklab-se/lykta --exit-status`
+- On failure: `gh run view <id> --log-failed`, fix the cause, and re-release as a patch
+- When green, confirm:
+  - `gh release view v{NEW} --repo mklab-se/lykta --json assets -q '.assets[].name'` lists
+    3 `.tar.gz`, 1 `.zip` and 4 `.cdx.json`
+  - `npm view @mklab-se/lykta version` shows {NEW} (unless the npm step warned that `NPM_TOKEN`
+    is missing)
+  - `Formula/lykta.rb` in `mklab-se/homebrew-tap` carries {NEW}
 
-### 9. Confirm
+### 8. Confirm
 
-- Tell the user the release is tagged, pushed, and the workflow is green: auditable binaries and
-  SBOMs are attached to the GitHub Release, crates.io is published, and the Homebrew tap is updated
-- The publish jobs require the `CARGO_REGISTRY_TOKEN` (in the `crates-io` environment) and
-  `HOMEBREW_TAP_TOKEN` (repo secret) to be configured (see README.md)
+- Tell the user the release is tagged and the workflow is green: binaries and SBOMs on the GitHub
+  Release, npm published, Homebrew tap updated. Mention any step that only warned

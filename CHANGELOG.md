@@ -7,15 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-11-12
+
+### Changed
+
+- Lykta is now built on Bun and TypeScript, scaffolded from the MKLab `bun-templ` template: a
+  commander CLI with `version` and `completion` commands, an npm update checker, single-file
+  binaries for 4 platforms with CycloneDX SBOMs, npm (`@mklab-se/lykta`) and Homebrew publishing.
+  The Rust implementation is gone; the `lykta` 0.0.1 crate stays on crates.io to reserve the name.
+
 ## [0.0.1] - 2026-11-12
 
 ### Added
 
-- Initial release, reserving the `lykta` name on crates.io. Scaffolded from the MKLab Rust CLI
-  template: a Cargo workspace (`lykta` + `lykta-core`), clap CLI with global flags, `ai`
-  (Ailloy), `completion` and `version` commands, a background update checker, and a release
-  pipeline with auditable binaries, CycloneDX SBOMs, crates.io and Homebrew publishing.
-  The GitHub workflow dashboard itself is not in this release.
+- Initial Rust release, reserving the `lykta` name on crates.io.
 
-[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/mklab-se/lykta/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/mklab-se/lykta/releases/tag/v0.0.1

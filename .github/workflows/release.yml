@@ -5,9 +5,6 @@ on:
     tags:
       - "v*"
 
-env:
-  CARGO_TERM_COLOR: always
-
 permissions:
   contents: write
 
@@ -15,104 +12,90 @@ jobs:
   # Run the full CI suite before building release artifacts
   ci:
     name: CI
+    uses: ./.github/workflows/ci.yml
+
+  # The tag must match package.json, or the binaries would report the wrong version
+  version:
+    name: Check version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo fmt --all -- --check
-      - run: cargo clippy --workspace --all-targets -- -D warnings
-      - run: cargo test --workspace
+      - name: Tag matches package.json
+        run: |
+          PKG="v$(jq -r .version package.json)"
+          if [ "$PKG" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG"
+            exit 1
+          fi
 
-  # Build release binaries for each platform
+  # Single-file executables (bun build --compile) for each platform
   build:
     name: Build ${{ matrix.target }}
-    needs: ci
+    needs: [ci, version]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
+            bun-target: bun-linux-x64
             os: ubuntu-latest
             archive: tar.gz
+            smoke: true
           - target: x86_64-apple-darwin
+            bun-target: bun-darwin-x64
             os: macos-latest
             archive: tar.gz
+            smoke: false
           - target: aarch64-apple-darwin
+            bun-target: bun-darwin-arm64
             os: macos-latest
             archive: tar.gz
+            smoke: true
           - target: x86_64-pc-windows-msvc
+            bun-target: bun-windows-x64
             os: windows-latest
             archive: zip
+            smoke: true
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: oven-sh/setup-bun@v2
         with:
-          targets: ${{ matrix.target }}
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.target }}
+          bun-version: latest
+      - run: bun install --frozen-lockfile
 
-      # aws-lc-sys (reqwest's default TLS crypto provider) needs NASM to
-      # assemble its optimized routines on Windows; CMake and MSVC are
-      # already on the windows-latest image.
-      - name: Install NASM (Windows)
-        if: runner.os == 'Windows'
-        uses: ilammy/setup-nasm@v1
-
-      # cargo-auditable embeds the dependency list into the binary itself
-      # (readable with `cargo audit bin` or syft); cargo-cyclonedx emits a
-      # standalone CycloneDX SBOM that ships next to the binary as a release asset.
-      - name: Install SBOM tooling
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-auditable,cargo-cyclonedx
-
-      - name: Build release binary (auditable)
-        shell: bash
-        run: cargo auditable build --release --target "$TARGET"
-        env:
-          TARGET: ${{ matrix.target }}
-
-      # One SBOM per target: the dependency graph differs per platform
-      # (e.g. windows-sys only on Windows). cargo-cyclonedx writes one file
-      # next to every workspace Cargo.toml; keep the binary crate's, drop the rest.
-      - name: Generate CycloneDX SBOM
+      - name: Compile
         shell: bash
         run: |
-          cargo cyclonedx \
-            --manifest-path crates/lykta/Cargo.toml \
-            --format json \
-            --spec-version 1.5 \
-            --target "$TARGET" \
-            --override-filename "$SBOM"
-          mv "crates/lykta/${SBOM}.json" "${SBOM}.cdx.json"
-          rm -f crates/*/"${SBOM}.json"
-        env:
-          TARGET: ${{ matrix.target }}
-          SBOM: lykta-${{ github.ref_name }}-${{ matrix.target }}
+          EXT=""
+          [ "${{ matrix.archive }}" = "zip" ] && EXT=".exe"
+          bun build src/cli.ts --compile --minify --sourcemap \
+            --target=${{ matrix.bun-target }} --outfile "dist/lykta${EXT}"
 
-      - name: Package (unix)
+      # macOS refuses to run unsigned arm64 binaries; an ad-hoc signature is enough
+      - name: Ad-hoc sign (macOS)
+        if: runner.os == 'macOS'
+        run: codesign --force --sign - dist/lykta
+
+      - name: Smoke test
+        if: matrix.smoke
+        shell: bash
+        run: |
+          EXT=""
+          [ "${{ matrix.archive }}" = "zip" ] && EXT=".exe"
+          "./dist/lykta${EXT}" --version
+
+      - name: Package (Unix)
         if: matrix.archive == 'tar.gz'
-        shell: bash
-        run: |
-          cd "target/${TARGET}/release"
-          tar czf "../../../lykta-${RELEASE_TAG}-${TARGET}.tar.gz" lykta
-          cd ../../..
-        env:
-          TARGET: ${{ matrix.target }}
-          RELEASE_TAG: ${{ github.ref_name }}
+        run: tar -czf "lykta-${{ github.ref_name }}-${{ matrix.target }}.tar.gz" -C dist lykta
 
-      - name: Package (windows)
+      - name: Package (Windows)
         if: matrix.archive == 'zip'
         shell: pwsh
-        run: |
-          Compress-Archive -Path "target/$env:TARGET/release/lykta.exe" -DestinationPath "lykta-$env:RELEASE_TAG-$env:TARGET.zip"
-        env:
-          TARGET: ${{ matrix.target }}
-          RELEASE_TAG: ${{ github.ref_name }}
+        run: Compress-Archive -Path dist/lykta.exe -DestinationPath "lykta-${{ github.ref_name }}-${{ matrix.target }}.zip"
+
+      - name: SBOM (CycloneDX)
+        shell: bash
+        run: bun scripts/sbom.ts --target ${{ matrix.target }} > "lykta-${{ github.ref_name }}-${{ matrix.target }}.cdx.json"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
@@ -120,7 +103,7 @@ jobs:
           name: lykta-${{ matrix.target }}
           path: lykta-${{ github.ref_name }}-${{ matrix.target }}.*
 
-  # Create GitHub Release with all binaries
+  # Create GitHub Release with all binaries and SBOMs
   github-release:
     name: GitHub Release
     needs: build
@@ -139,6 +122,35 @@ jobs:
         with:
           generate_release_notes: true
           files: artifacts/*
+
+  # Publish to npm (scoped package, with provenance)
+  npm:
+    name: Publish to npm
+    needs: [ci, version]
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v7
+        with:
+          node-version: node
+          registry-url: https://registry.npmjs.org
+      - run: bun install --frozen-lockfile
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN is not set in the 'npm' environment; skipping npm publish."
+            exit 0
+          fi
+          npm publish --provenance --access public
 
   # Update Homebrew tap with new version and SHA256 hashes
   homebrew:
@@ -210,7 +222,6 @@ jobs:
               && echo "Homebrew formula updated to ${VERSION}" \
               || echo "::warning::Failed to update Homebrew tap. Add HOMEBREW_TAP_TOKEN secret with repo scope for mklab-se/homebrew-tap."
           else
-            # Create file for the first time
             gh api repos/mklab-se/homebrew-tap/contents/Formula/lykta.rb \
               -X PUT \
               -f message="Add lykta ${VERSION}" \
@@ -218,27 +229,3 @@ jobs:
               && echo "Homebrew formula created for ${VERSION}" \
               || echo "::warning::Failed to create Homebrew formula. Add HOMEBREW_TAP_TOKEN secret with repo scope for mklab-se/homebrew-tap."
           fi
-
-  # Publish to crates.io
-  crates-io:
-    name: Publish to crates.io
-    needs: ci
-    runs-on: ubuntu-latest
-    environment: crates-io
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-
-      - name: Publish lykta-core
-        run: cargo publish -p lykta-core
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-      - name: Wait for crates.io index
-        run: sleep 30
-
-      - name: Publish lykta
-        run: cargo publish -p lykta
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
