@@ -28,11 +28,11 @@ export interface LyktaConfig {
   monitor: MonitorConfig[];
   runners: RunnerRule[];
   server: { port: number; host: string };
-  /** hold*Seconds: how long a run that just finished stays big before it shrinks (0: never). */
+  /** spotlight*: how long a running workflow's diagram shows, and how often one opens. */
   display: {
     lowPower: "auto" | "on" | "off";
-    holdFailedSeconds: number;
-    holdPassedSeconds: number;
+    spotlightSeconds: number;
+    spotlightEverySeconds: number;
   };
   /** budget: the share of each org's hourly rate limit Lykta may use (others share it). */
   polling: { activeSeconds: number; idleSeconds: number; budget: number };
@@ -148,7 +148,6 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
   const display = isObj(raw.display) ? raw.display : {};
   const polling = isObj(raw.polling) ? raw.polling : {};
   const num = (v: unknown, d: number) => (typeof v === "number" && v > 0 ? v : d);
-  const seconds = (v: unknown, d: number) => (typeof v === "number" && v >= 0 ? v : d);
   const port = env.LYKTA_PORT ? Number.parseInt(env.LYKTA_PORT, 10) : num(server.port, 8080);
   if (!Number.isInteger(port) || port <= 0 || port > 65535)
     problems.push(`server.port: ${port} is not a valid port`);
@@ -165,8 +164,8 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
     server: { port, host: env.LYKTA_HOST ?? str(server.host) ?? "0.0.0.0" },
     display: {
       lowPower: lowPower as LyktaConfig["display"]["lowPower"],
-      holdFailedSeconds: seconds(display.holdFailedSeconds, 180),
-      holdPassedSeconds: seconds(display.holdPassedSeconds, 45),
+      spotlightSeconds: num(display.spotlightSeconds, 8),
+      spotlightEverySeconds: num(display.spotlightEverySeconds, 20),
     },
     polling: {
       activeSeconds: num(polling.activeSeconds, 15),

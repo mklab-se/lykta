@@ -5,16 +5,16 @@ import { emptyArrivals, isFresh, trackArrivals } from "./arrivals.ts";
 import { useVirtualCanvas } from "./canvas.ts";
 import { DemoControls } from "./components/DemoControls.tsx";
 import { DetailOverlay, type OverlayView, viewFor } from "./components/DetailOverlay.tsx";
-import { FailureBand } from "./components/FailureBand.tsx";
 import { Header } from "./components/Header.tsx";
-import { MonitoredBand } from "./components/MonitoredBand.tsx";
-import { RunningArea } from "./components/RunningArea.tsx";
+import { Pit } from "./components/Pit.tsx";
+import { Spotlight } from "./components/Spotlight.tsx";
+import { Track } from "./components/Track.tsx";
 import { moveFocus } from "./focus.ts";
-import { heldUntil, holdsFrom, partition } from "./holds.ts";
 import { useAutoClose } from "./idle.ts";
-import { computeLayout, singleRepo } from "./layout.ts";
 import { usePowerMode } from "./power.ts";
+import { emptySpotlight, inPit, nextSpotlight, type Timings } from "./spotlight.ts";
 import { isStale, useDashboard } from "./stream.ts";
+import { GAP, singleRepo, trackLayout } from "./track.ts";
 
 /** A clock that ticks once per second (live values never update faster). */
 export function useNow(): number {
@@ -26,8 +26,6 @@ export function useNow(): number {
   return now;
 }
 
-const PAGE_MS = 12_000;
-
 export function App() {
   const stream = useDashboard();
   const canvas = useVirtualCanvas();
@@ -35,30 +33,40 @@ export function App() {
   const data = stream.data;
   const stale = isStale(stream, now) ? Math.floor((now - stream.lastMessageAt) / 60_000) : null;
   const entries = data?.entries ?? [];
-  const holds = holdsFrom(data?.display);
-  // running runs plus finished ones still held big (see holds.ts)
-  const bands = partition(entries, now, holds);
-  const running = bands.active;
-  const held: Record<string, number> = {};
-  for (const e of running) {
-    const until = heldUntil(e, now, holds);
-    if (until !== null) held[e.key] = until;
-  }
-  const plan = data ? computeLayout(data, canvas, running.length, bands.held) : null;
-  const failingKeys = bands.failing.map((e) => e.key);
-  const [arrivals, setArrivals] = useState(emptyArrivals);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: track when the set of failures changes
+  const display = data?.display;
+  const timings: Timings = {
+    showMs: (display?.spotlightSeconds ?? 8) * 1000,
+    everyMs: (display?.spotlightEverySeconds ?? 20) * 1000,
+    clockScale: display?.clockScale ?? 1,
+  };
+
+  // the spotlight advances once per clock tick; a workflow enters the pit after its last turn
+  const [spot, setSpot] = useState(emptySpotlight);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: advance once per clock tick
   useEffect(() => {
-    if (data) setArrivals((a) => trackArrivals(a, failingKeys, Date.now()));
-  }, [data !== null, failingKeys.join("|")]);
+    if (data) setSpot((s) => nextSpotlight(s, entries, now, timings));
+  }, [now, data !== null]);
+  const pitEntries = entries.filter((e) => inPit(e, spot, now, timings));
+  const pitKeys = new Set(pitEntries.map((e) => e.key));
+  const layout = trackLayout(entries.length, pitEntries.length, canvas);
+  const spotEntry = spot.current ? entries.find((e) => e.key === spot.current?.key) : undefined;
+
+  const [arrivals, setArrivals] = useState(emptyArrivals);
+  const pitKey = pitEntries.map((e) => e.key).join("|");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: track when the pit's members change
+  useEffect(() => {
+    if (data) setArrivals((a) => trackArrivals(a, [...pitKeys], Date.now()));
+  }, [data !== null, pitKey]);
+
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [details, setDetails] = useState<RunDetails | null>(null);
   const [focusKey, setFocusKey] = useState<string | null>(null);
   const [view, setView] = useState<OverlayView>("passed");
   const request = useRef(0);
-  const open = (key: string, from: "failures" | "running" | "monitored") => {
+  const open = (key: string) => {
     const e = entries.find((x) => x.key === key);
     if (!e) return;
+    const from = pitKeys.has(key) ? "failures" : e.state === "running" ? "running" : "monitored";
     const v = viewFor(e, from);
     const run = v === "running" ? e.current : (e.latestCompleted ?? e.current);
     const id = ++request.current;
@@ -72,21 +80,14 @@ export function App() {
       .then((d) => id === request.current && setDetails(d))
       .catch(() => id === request.current && setDetails(null));
   };
-  const bandOf = (key: string): "failures" | "running" | "monitored" => {
-    if (bands.failing.some((x) => x.key === key)) return "failures";
-    return running.some((x) => x.key === key) ? "running" : "monitored";
-  };
   const close = () => {
     setOpenKey(null);
     setFocusKey(null);
   };
   const countdown = useAutoClose(openKey !== null || focusKey !== null, close);
   const openEntry = entries.find((e) => e.key === openKey);
-  const order = [
-    ...bands.failing,
-    ...running.filter((e) => !bands.failing.includes(e)),
-    ...bands.monitored,
-  ].map((e) => e.key);
+  // keyboard focus walks the pit, then the track in slot order
+  const order = [...pitEntries, ...entries.filter((e) => !pitKeys.has(e.key))].map((e) => e.key);
   const orderKey = order.join("|");
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: order changes are tracked through orderKey
@@ -96,7 +97,7 @@ export function App() {
         ev.key
       ] as "up" | "down" | "left" | "right" | undefined;
       if (dir) setFocusKey((k) => moveFocus(order, k, dir));
-      else if (ev.key === "Enter" && focusKey) open(focusKey, bandOf(focusKey));
+      else if (ev.key === "Enter" && focusKey) open(focusKey);
       else if (ev.key === "Escape") close();
     };
     window.addEventListener("keydown", onKey);
@@ -109,8 +110,8 @@ export function App() {
     if (focusKey)
       document.querySelector(`[data-entry="${CSS.escape(focusKey)}"]`)?.classList.add("focused");
   });
-  const page = Math.floor(now / PAGE_MS);
-  const lowPower = usePowerMode(data?.display?.lowPower ?? "auto");
+  const lowPower = usePowerMode(display?.lowPower ?? "auto");
+  const trackLeft = layout.pit.width ? layout.pit.width + GAP : 0;
 
   return (
     <div
@@ -129,37 +130,43 @@ export function App() {
             warnings={data?.warnings}
           />
           <LayoutGroup>
-            <div className="body">
-              {plan?.failures ? (
-                <FailureBand
-                  entries={bands.failing}
-                  plan={plan.failures}
+            <div className="stage" style={{ height: layout.height }}>
+              <AnimatePresence>
+                {pitEntries.length ? (
+                  <Pit
+                    key="pit"
+                    entries={pitEntries}
+                    layout={layout}
+                    now={now}
+                    onOpen={open}
+                    isFresh={(k) => isFresh(arrivals, k, now)}
+                  />
+                ) : null}
+              </AnimatePresence>
+              <div className="trackwrap" style={{ left: trackLeft }}>
+                <Track
+                  entries={entries}
+                  pit={pitKeys}
+                  layout={layout}
                   now={now}
-                  onOpen={(k) => open(k, "failures")}
-                  isFresh={(k) => isFresh(arrivals, k, now)}
-                />
-              ) : null}
-              {plan?.running ? (
-                <RunningArea
-                  entries={running}
-                  plan={plan.running}
-                  now={now}
-                  onOpen={(k) => open(k, "running")}
-                  pinnedKey={openEntry && view === "running" ? openEntry.key : undefined}
-                  heldUntil={held}
-                />
-              ) : null}
-              {plan && (plan.empty || plan.monitored.height >= 64) ? (
-                <MonitoredBand
-                  entries={bands.monitored}
-                  plan={plan.monitored}
-                  page={page}
-                  now={now}
-                  onOpen={(k) => open(k, "monitored")}
-                  allEmpty={plan.empty}
+                  onOpen={open}
+                  dimmed={spotEntry !== undefined}
                   connecting={data?.synced === false}
                 />
-              ) : null}
+                <AnimatePresence>
+                  {spotEntry && spot.current ? (
+                    <Spotlight
+                      key={`${spot.current.key}:${spot.shownAt}`}
+                      e={spotEntry}
+                      final={spot.current.final}
+                      width={layout.gridWidth - 80}
+                      height={layout.height - 60}
+                      now={now}
+                      onOpen={open}
+                    />
+                  ) : null}
+                </AnimatePresence>
+              </div>
             </div>
           </LayoutGroup>
         </div>
@@ -177,7 +184,7 @@ export function App() {
           />
         ) : null}
       </AnimatePresence>
-      {data?.display?.demo ? <DemoControls /> : null}
+      {display?.demo ? <DemoControls /> : null}
     </div>
   );
 }

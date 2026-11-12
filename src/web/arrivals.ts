@@ -28,21 +28,3 @@ export function isFresh(a: Arrivals, key: string, now: number): boolean {
   const t = a.arrived.get(key);
   return t !== undefined && now - t < PULSE_MS;
 }
-
-/** Runs that just got a failed job: jump there once per run; forget runs that ended. */
-export function newFailingRun(
-  seen: Set<string>,
-  runs: { key: string; runId: number; failed: boolean }[],
-): { jumpTo?: string; seen: Set<string> } {
-  const live = new Set(runs.map((r) => `${r.key}:${r.runId}`));
-  const next = new Set([...seen].filter((k) => live.has(k)));
-  let jumpTo: string | undefined;
-  for (const r of runs) {
-    const id = `${r.key}:${r.runId}`;
-    if (r.failed && !next.has(id)) {
-      next.add(id);
-      jumpTo ??= r.key;
-    }
-  }
-  return { jumpTo, seen: next };
-}

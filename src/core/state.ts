@@ -4,7 +4,7 @@
 import type { Conclusion, EntryInput, EntryView, RunRecord } from "./types.ts";
 
 const FAILURES = new Set<Conclusion>(["failure", "timed_out", "startup_failure"]);
-const HISTORY = 14;
+const HISTORY = 10;
 
 export function isFailureConclusion(c: Conclusion): boolean {
   return FAILURES.has(c);

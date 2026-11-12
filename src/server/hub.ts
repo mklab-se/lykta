@@ -9,9 +9,9 @@ import type { DashboardState, EntryInput } from "../core/types.ts";
 export interface DisplaySettings {
   lowPower: "auto" | "on" | "off";
   demo: boolean;
-  /** How long a run that just finished stays big on the wall (seconds). */
-  holdFailedSeconds?: number;
-  holdPassedSeconds?: number;
+  /** The spotlight: seconds a diagram shows, and how often one opens. */
+  spotlightSeconds?: number;
+  spotlightEverySeconds?: number;
   /** How much faster run timestamps age than real time (the demo's fast clock), default 1. */
   clockScale?: number;
 }
@@ -44,9 +44,9 @@ export class Hub {
   }
 
   update(inputs: EntryInput[]): void {
-    // a pass is held big for a while (see web/holds.ts); a little extra covers clock skew
-    const d = this.state.display;
-    const heldMs = ((d.holdPassedSeconds ?? 45) + 15) * 1000 * (d.clockScale ?? 1);
+    // a finished run waits up to 2 minutes for its last spotlight turn (web/spotlight.ts);
+    // a little extra covers clock skew
+    const heldMs = 135_000 * (this.state.display.clockScale ?? 1);
     const entries = inputs.map((input) => {
       const view = deriveEntry(input);
       const last = view.latestCompleted;

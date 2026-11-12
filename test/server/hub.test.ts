@@ -50,7 +50,7 @@ describe("Hub", () => {
     expect(calls).toBe(0);
   });
 
-  test("finished runs keep their jobs while failing or held, and drop them later", () => {
+  test("finished runs keep their jobs while failing or recent, and drop them later", () => {
     const NOW = Date.UTC(2026, 10, 12, 12, 0);
     const run = (
       id: number,
@@ -87,15 +87,10 @@ describe("Hub", () => {
       entry: { key, repo: "o/r", workflow: `${key}.yml`, branch: "main", name: key },
       runs,
     });
-    const hub = new Hub(
-      "1",
-      { lowPower: "auto", demo: false, holdPassedSeconds: 45 },
-      undefined,
-      () => NOW,
-    );
+    const hub = new Hub("1", { lowPower: "auto", demo: false }, undefined, () => NOW);
     hub.update([
       entry("failing", [run(1, "failure", 3600)]),
-      entry("just-passed", [run(2, "success", 20)]),
+      entry("just-passed", [run(2, "success", 100)]),
       entry("old-pass", [run(3, "success", 3600)]),
     ]);
     const jobs = (key: string) =>

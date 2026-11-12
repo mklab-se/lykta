@@ -102,8 +102,8 @@ describe("deriveEntry", () => {
       run({ conclusion: i === 0 ? "failure" : "success", t: 100 - i }),
     );
     const v = derive(runs);
-    expect(v.history).toHaveLength(14);
-    expect(v.history[13]).toBe("f");
+    expect(v.history).toHaveLength(10); // the wall shows the last 10 results
+    expect(v.history[9]).toBe("f");
     expect(v.history[0]).toBe("p");
   });
 

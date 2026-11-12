@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { emptyArrivals, isFresh, newFailingRun, trackArrivals } from "../../src/web/arrivals.ts";
+import { emptyArrivals, isFresh, trackArrivals } from "../../src/web/arrivals.ts";
 
 describe("arrivals", () => {
   test("failures already on screen at start do not pulse", () => {
@@ -20,23 +20,5 @@ describe("arrivals", () => {
     a = trackArrivals(a, [], 10_000);
     a = trackArrivals(a, ["x"], 20_000);
     expect(isFresh(a, "x", 20_000)).toBe(true);
-  });
-});
-
-describe("newFailingRun", () => {
-  const run = (key: string, id: number, failed: boolean) => ({ key, runId: id, failed });
-
-  test("jumps once per run with a failed job, also for later runs of the same entry", () => {
-    let r = newFailingRun(new Set(), [run("a", 1, true)]);
-    expect(r.jumpTo).toBe("a");
-    r = newFailingRun(r.seen, [run("a", 1, true)]);
-    expect(r.jumpTo).toBeUndefined();
-    r = newFailingRun(r.seen, [run("a", 2, true)]);
-    expect(r.jumpTo).toBe("a");
-  });
-
-  test("remembers only runs that are still running", () => {
-    const r = newFailingRun(new Set(["a:1", "b:7"]), [run("a", 1, true)]);
-    expect([...r.seen]).toEqual(["a:1"]);
   });
 });

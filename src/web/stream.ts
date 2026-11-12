@@ -8,8 +8,8 @@ import type { DashboardState } from "../core/types.ts";
 export type DisplaySettings = {
   lowPower: "auto" | "on" | "off";
   demo: boolean;
-  holdFailedSeconds?: number;
-  holdPassedSeconds?: number;
+  spotlightSeconds?: number;
+  spotlightEverySeconds?: number;
   clockScale?: number;
 };
 export type ClientState = DashboardState & { display?: DisplaySettings; synced?: boolean };

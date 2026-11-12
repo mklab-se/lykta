@@ -1398,3 +1398,325 @@ body {
 .rrow.held.passed.sel::after {
   background: var(--green);
 }
+
+/* ================= the track and the pit (spec section 3.2) ================= */
+.stage {
+  position: relative;
+  margin: 0 40px;
+  flex: none;
+}
+.stage > .empty {
+  height: 100%;
+}
+.trackwrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  transition: left 0.8s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.trackwrap > .empty {
+  position: absolute;
+  inset: 0;
+}
+.track {
+  display: grid;
+  gap: 14px;
+  transition:
+    filter 0.6s ease,
+    opacity 0.6s ease;
+}
+/* the spotlight is open: the track goes out of focus (dimmed only in low-power mode) */
+.track.dimmed {
+  filter: blur(7px) brightness(0.45);
+}
+[data-power="low"] .track.dimmed {
+  filter: none;
+  opacity: 0.3;
+}
+.slot {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+}
+/* a workflow in the pit: its slot stays, empty, so its people notice */
+.slot.gap {
+  border: 2px dashed #1a1f26;
+  border-radius: 16px;
+}
+
+/* tiles */
+.tile {
+  position: relative;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.tile .top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.tile .when {
+  margin-left: auto;
+  letter-spacing: 0;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tile .nm {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+.tile .sub {
+  font-size: 16px;
+  color: var(--muted);
+}
+.tile .hist {
+  margin-top: auto;
+}
+.tile.passed {
+  background: linear-gradient(160deg, #07160e, #050b08);
+  border-color: #163a26;
+}
+.tile.passed .lbl {
+  color: var(--green);
+}
+.tile.never .lbl {
+  color: var(--muted);
+}
+.tile.failed {
+  background: linear-gradient(160deg, #2a070c, #140306);
+  border-color: var(--red);
+}
+.tile.failed .lbl {
+  color: var(--red);
+}
+/* running: a steady yellow glow with one slow breath shared by every running tile */
+.tile.running {
+  background: linear-gradient(160deg, #241a04, #120d03);
+  border-color: var(--amber);
+}
+.tile.running::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 40px rgba(255, 178, 36, 0.35),
+    0 0 30px rgba(255, 178, 36, 0.25);
+  animation: breath 4s ease-in-out infinite;
+  pointer-events: none;
+}
+[data-power="low"] .tile.running::after {
+  animation: none;
+}
+@keyframes breath {
+  50% {
+    opacity: 0.35;
+  }
+}
+.tile.running .lbl {
+  color: var(--amber);
+}
+/* re-running after a failure: a small red mark until the run decides */
+.tile .rerun {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+  flex: none;
+}
+.tile .prog {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tile .ptext {
+  display: flex;
+  gap: 12px;
+  font-size: 16px;
+  color: #ffd690;
+  min-width: 0;
+}
+.tile .ptext .el {
+  margin-left: auto;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.tile .tbar {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: #2d250f;
+  overflow: hidden;
+}
+.tile .tbar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ffb224, #ffe08a);
+  transform-origin: 0 50%;
+  transition: transform 0.8s ease;
+}
+.tile.mid .nm {
+  font-size: 24px;
+}
+.tile.small {
+  padding: 10px 14px;
+  gap: 8px;
+}
+.tile.small .top {
+  letter-spacing: 0;
+}
+.tile.small .nm,
+.tile.tiny .nm {
+  font-size: 19px;
+  font-weight: 700;
+}
+.tile.small .hist i {
+  height: 8px;
+}
+.tile.small .hist i.latest {
+  height: 12px;
+}
+.tile.tiny {
+  padding: 6px 12px;
+  justify-content: center;
+}
+
+/* history: always 10 slots; dotted until there is a run */
+.hist i.e {
+  background: transparent;
+  border: 2px dashed #2c333d;
+  opacity: 1;
+}
+
+/* the pit */
+.pit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 18px 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #160306, #0a0102);
+  border: 1px solid rgba(255, 61, 77, 0.35);
+  box-shadow: 0 0 60px rgba(255, 61, 77, 0.12);
+}
+.pit .section-label {
+  height: 40px;
+  color: #ff7a86;
+}
+.pit .cars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+.car {
+  flex: none;
+}
+.car.compact {
+  gap: 7px;
+  padding: 14px 20px;
+}
+.car.compact .name {
+  font-size: 28px;
+}
+.car .brokentag {
+  margin-left: auto;
+  letter-spacing: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffb3ba;
+}
+.pitrow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #26070b, #120406);
+  border: 1px solid rgba(255, 61, 77, 0.45);
+  padding: 8px 16px 8px 0;
+  min-width: 0;
+  overflow: hidden;
+  cursor: pointer;
+  flex: none;
+}
+.pitrow .bar {
+  align-self: stretch;
+  background: var(--red);
+  border-radius: 0 6px 6px 0;
+}
+.pitrow .nm {
+  font-size: 20px;
+  font-weight: 800;
+}
+.pitrow .sub {
+  font-size: 15px;
+  color: #ffc2c8;
+}
+.pitrow .dur {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffb3ba;
+}
+.pitrow.more {
+  display: grid;
+  place-items: center;
+  grid-template-columns: 1fr;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffb3ba;
+}
+
+/* the spotlight: a large diagram over the track, never over the pit */
+.spotlight {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  display: grid;
+  z-index: 5;
+  cursor: pointer;
+}
+.run.spot {
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.8),
+    0 0 80px rgba(255, 178, 36, 0.18);
+}
+.run.spot.held.failed {
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.8),
+    0 0 90px rgba(255, 61, 77, 0.35);
+}
+.run.spot.held.passed {
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.8),
+    0 0 90px rgba(47, 224, 127, 0.3);
+}
+.run.spot .name {
+  font-size: 40px;
+}

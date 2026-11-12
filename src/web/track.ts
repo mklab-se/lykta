@@ -10,6 +10,7 @@ export const SIDE = 40;
 export const BOTTOM = 30;
 export const GAP = 14;
 const ASPECT = 2.2;
+const PIT_LABEL = 40;
 
 export type TileUnit = "big" | "mid" | "small" | "tiny";
 export type PitMode = "card" | "compact" | "row";
@@ -64,7 +65,8 @@ export function trackLayout(
   const width = canvas.width - 2 * SIDE;
   const height = Math.max(0, canvas.height - HEADER - BOTTOM);
   const { columns, rows } = gridShape(workflows, width, height);
-  const pit = { width: pitWidth(failures, width), ...pitMode(failures, height) };
+  // the pit's own label takes a line above its cars
+  const pit = { width: pitWidth(failures, width), ...pitMode(failures, height - PIT_LABEL) };
   const gridWidth = width - (pit.width ? pit.width + GAP : 0);
   const tileWidth = Math.floor((gridWidth - (columns - 1) * GAP) / columns);
   const tileHeight = Math.floor((height - (rows - 1) * GAP) / rows);
@@ -81,3 +83,7 @@ export function trackLayout(
 }
 
 export type TrackLayout = ReturnType<typeof trackLayout>;
+
+/** Every entry is in the same repository, so its name need not be repeated on each one. */
+export const singleRepo = (entries: { repo: string }[]) =>
+  entries.length > 0 && entries.every((e) => e.repo === entries[0]?.repo);

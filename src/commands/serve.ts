@@ -39,8 +39,8 @@ export async function runServe(opts: ServeOptions): Promise<void> {
     {
       lowPower: config.display.lowPower,
       demo: false,
-      holdFailedSeconds: config.display.holdFailedSeconds,
-      holdPassedSeconds: config.display.holdPassedSeconds,
+      spotlightSeconds: config.display.spotlightSeconds,
+      spotlightEverySeconds: config.display.spotlightEverySeconds,
     },
     config.title,
   );

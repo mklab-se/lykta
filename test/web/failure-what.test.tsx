@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import type { EntryView, JobRecord } from "../../src/core/types.ts";
 import { FailureWhat, shortenPaths } from "../../src/web/components/FailureWhat.tsx";
 import { ProgressStrip } from "../../src/web/components/ProgressStrip.tsx";
-import { singleRepo } from "../../src/web/layout.ts";
+import { singleRepo } from "../../src/web/track.ts";
 
 describe("error lines", () => {
   test("long file paths keep only the file, so the error itself fits", () => {
