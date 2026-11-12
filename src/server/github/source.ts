@@ -18,7 +18,7 @@ import { attachGraph, parseWorkflow, type WorkflowDef } from "./workflow-file.ts
 /** What the source needs from the REST client (GitHubClient implements it). */
 export interface GitHubApi {
   json<T>(org: string, path: string): Promise<{ data: T; notModified: boolean }>;
-  text(org: string, path: string): Promise<string>;
+  text(org: string, path: string, maxBytes?: number): Promise<string>;
   rate(org: string): RateState | undefined;
   /** Requests Lykta made against the org's rate limit in the last hour. */
   spent(org: string): number;
@@ -29,6 +29,7 @@ const LOOP_MS = 5_000;
 const RUNS_PER_ENTRY = 15;
 const WARNING_TTL_MS = 10 * 60_000;
 const DETAIL_LINES = 12;
+const LOG_CACHE = 50;
 
 interface EntryState {
   cfg: MonitorConfig;
@@ -73,6 +74,8 @@ export class GitHubSource implements Source {
     { caller: WorkflowDef | null; called: Record<string, WorkflowDef | null> }
   >();
   private readonly warnings = new Map<string, number>();
+  /** Cleaned logs of completed jobs (they never change), most recent last. */
+  private readonly logs = new Map<number, string[]>();
   /** Sign-in problems per org: they affect every entry of that org at once. */
   private readonly authProblems = new Map<string, string>();
   private readonly warningListeners = new Set<(w: string[]) => void>();
@@ -143,9 +146,7 @@ export class GitHubSource implements Source {
       const last = [...jobs].reverse().find((j) => j.status === "completed");
       if (last) {
         try {
-          const lines = cleanLog(
-            await this.opts.client.text(e.org, `/repos/${e.cfg.repo}/actions/jobs/${last.id}/logs`),
-          );
+          const lines = await this.logOf(e, last.id);
           logExcerpt = lines.filter((l) => !l.startsWith("##[")).slice(-DETAIL_LINES);
         } catch {}
       }
@@ -392,12 +393,7 @@ export class GitHubSource implements Source {
     let logExcerpt: string[] = [];
     if (job) {
       try {
-        logExcerpt = failureExcerpt(
-          cleanLog(
-            await this.opts.client.text(e.org, `/repos/${e.cfg.repo}/actions/jobs/${job.id}/logs`),
-          ),
-          step,
-        );
+        logExcerpt = failureExcerpt(await this.logOf(e, job.id), step);
       } catch {}
     }
     e.failure = {
@@ -407,6 +403,20 @@ export class GitHubSource implements Source {
       logExcerpt,
     };
     e.failureRunId = runKey(decisive);
+  }
+
+  private async logOf(e: EntryState, jobId: number): Promise<string[]> {
+    const cached = this.logs.get(jobId);
+    if (cached) return cached;
+    const lines = cleanLog(
+      await this.opts.client.text(e.org, `/repos/${e.cfg.repo}/actions/jobs/${jobId}/logs`),
+    );
+    this.logs.set(jobId, lines);
+    for (const k of this.logs.keys()) {
+      if (this.logs.size <= LOG_CACHE) break;
+      this.logs.delete(k);
+    }
+    return lines;
   }
 
   private async handleError(e: EntryState, err: unknown): Promise<void> {

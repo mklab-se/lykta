@@ -562,6 +562,15 @@ describe("GitHubSource", () => {
     expect(gh.count(/branches\/main$/)).toBe(1);
   });
 
+  test("a job's log is downloaded once for details", async () => {
+    const { gh, src, release } = await setup();
+    gh.texts.push([/actions\/jobs\/\d+\/logs/, "line 1\nline 2"]);
+    const before = gh.count(/\/logs$/); // the failure excerpt from the first sync
+    await src.details("mklab-se/lykta:release.yml:main", release.id);
+    await src.details("mklab-se/lykta:release.yml:main", release.id);
+    expect(gh.count(/\/logs$/) - before).toBe(1);
+  });
+
   test("details for a run", async () => {
     const { src, failed } = await setup();
     const d = await src.details("mklab-se/lykta:ci.yml:main", failed.id);

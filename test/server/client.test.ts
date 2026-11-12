@@ -193,4 +193,12 @@ describe("GitHubClient", () => {
     // /a was evicted by /c, so its second request is unconditional; /c is still cached
     expect(conditional.map((u) => u.slice(u.lastIndexOf("/")))).toEqual(["/c"]);
   });
+
+  test("text keeps only the tail of a huge log", async () => {
+    const big = `${"x".repeat(9_000)}\nlast line`;
+    const { c } = client(() => new Response(big, { status: 200 }));
+    const out = await c.text("o", "/repos/o/r/actions/jobs/1/logs", 1_000);
+    expect(out.length).toBeLessThanOrEqual(1_000);
+    expect(out.endsWith("last line")).toBe(true);
+  });
 });

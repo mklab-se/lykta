@@ -29,6 +29,30 @@ export class RateLimitError extends GitHubError {
   }
 }
 
+/** The last `max` bytes of a response body, read as a stream and cut at a line start. */
+async function tail(res: Response, max: number): Promise<string> {
+  if (!res.body) return "";
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  let cut = false;
+  for await (const chunk of res.body) {
+    chunks.push(chunk);
+    size += chunk.byteLength;
+    while (size - (chunks[0]?.byteLength ?? 0) >= max && chunks.length > 1) {
+      size -= (chunks.shift() as Uint8Array).byteLength;
+      cut = true;
+    }
+  }
+  let bytes = Buffer.concat(chunks);
+  if (bytes.byteLength > max) {
+    bytes = bytes.subarray(bytes.byteLength - max);
+    cut = true;
+  }
+  let text = bytes.toString("utf8");
+  if (cut) text = text.slice(text.indexOf("\n") + 1);
+  return text;
+}
+
 export interface RateState {
   remaining: number;
   limit: number;
@@ -39,6 +63,8 @@ const MIN_RATE_WAIT_MS = 60_000;
 const SERVER_RETRY_MS = 2_000;
 const HOUR_MS = 3_600_000;
 const MAX_ETAGS = 2_000;
+/** A 6-hour Android build log can be hundreds of MB; the failure is near the end. */
+export const MAX_LOG_BYTES = 4 * 1024 * 1024;
 
 export class GitHubClient {
   private readonly doFetch: typeof fetch;
@@ -100,8 +126,11 @@ export class GitHubClient {
     });
   }
 
-  /** Plain text, following GitHub's redirect to the log storage (without our token). */
-  text(org: string, path: string): Promise<string> {
+  /**
+   * Plain text, following GitHub's redirect to the log storage (without our token). Keeps
+   * only the last `maxBytes`, starting at a whole line, so a huge log never fills memory.
+   */
+  text(org: string, path: string, maxBytes = MAX_LOG_BYTES): Promise<string> {
     return this.enqueue(org, async () => {
       const res = await this.request(org, path, {}, "manual");
       const location = res.headers.get("location");
@@ -109,9 +138,9 @@ export class GitHubClient {
         const out = await this.fetchWithTimeout(path, location, {});
         if (!out.ok)
           throw new GitHubError(`Could not download ${path} (HTTP ${out.status})`, out.status);
-        return out.text();
+        return tail(out, maxBytes);
       }
-      return res.text();
+      return tail(res, maxBytes);
     });
   }
 
