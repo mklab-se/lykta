@@ -133,4 +133,25 @@ describe("spotlight", () => {
     const fast = finishedRuns([passed("p", T - 600 * S)], T, { ...timings, clockScale: 60 });
     expect(fast.map((x) => x.key)).toEqual(["p"]);
   });
+
+  test("a run stays the same run when its timestamps drift (the demo's fast clock)", () => {
+    const at = (endedAt: number) => failed("x", endedAt);
+    let s = nextSpotlight(emptySpotlight(), [at(T - 10 * S)], T, timings);
+    // already finished at start: straight to the pit, and it stays there as timestamps move
+    s = nextSpotlight(s, [at(T - 30 * S)], T + S, timings);
+    expect(s.current).toBeNull();
+    expect(inPit(at(T - 30 * S), s, T + S, timings)).toBe(true);
+  });
+
+  test("a re-run attempt of the same run id is a new run", () => {
+    const e = failed("x", T - 10 * S);
+    let s = nextSpotlight(emptySpotlight(), [e], T, timings);
+    const again: EntryView = {
+      ...e,
+      latestCompleted: { ...(e.latestCompleted as RunRecord), attempt: 2 },
+    };
+    s = nextSpotlight(s, [again], T + S, timings);
+    expect(s.current?.final).toBe(true);
+    expect(inPit(again, s, T + S, timings)).toBe(false);
+  });
 });

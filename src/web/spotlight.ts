@@ -47,7 +47,8 @@ export function emptySpotlight(): SpotlightState {
   };
 }
 
-const runKeyOf = (e: EntryView) => `${e.latestCompleted?.id}@${e.latestCompleted?.completedAt}`;
+/** A run is its id and attempt; not its timestamps, which drift on the demo's fast clock. */
+const runKeyOf = (e: EntryView) => `${e.latestCompleted?.id}#${e.latestCompleted?.attempt ?? 1}`;
 
 function ageMs(e: EntryView, now: number, t: Timings): number {
   const at = e.latestCompleted?.completedAt;

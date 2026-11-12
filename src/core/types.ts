@@ -49,6 +49,8 @@ export interface JobRecord {
 
 export interface RunRecord {
   id: number;
+  /** GitHub re-runs keep the id; each attempt is a run of its own (default 1). */
+  attempt?: number;
   url: string;
   branch: string;
   sha: string;

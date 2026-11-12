@@ -123,6 +123,7 @@ export function mapRun(run: GhRun, jobs: GhJob[], rules: RunnerRule[]): RunRecor
   const status = runStatus(run.status);
   return {
     id: run.id,
+    attempt: run.run_attempt,
     url: run.html_url,
     branch: run.head_branch,
     sha: run.head_sha,
