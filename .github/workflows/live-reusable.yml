@@ -1,0 +1,42 @@
+# Reusable workflow called by live-pipeline.yml (jobs show as "Checks / Lint" etc. in Lykta).
+name: Live reusable checks
+
+on:
+  workflow_call:
+    inputs:
+      fail:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lint
+        run: sleep 15 && echo "lint ok"
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Typecheck
+        run: |
+          sleep 20
+          if [ "${{ inputs.fail }}" = "true" ]; then
+            echo "src/sync.ts(88,17): error TS2304: Cannot find name 'retryPolicy'."
+            echo "::error::Typecheck failed on purpose (fail_at=test)"
+            exit 1
+          fi
+          echo "types ok"
+
+  report:
+    name: Report
+    needs: [lint, typecheck]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        run: echo "all checks passed"

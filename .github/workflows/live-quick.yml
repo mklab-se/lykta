@@ -1,0 +1,18 @@
+# A quick live workflow for Lykta: one short job, a green tile on demand.
+name: Live quick
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quick:
+    name: Quick check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say hello
+        run: echo "hello from Lykta's live test"
+      - name: Wait a moment
+        run: sleep 10

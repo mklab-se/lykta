@@ -38,6 +38,19 @@ Move the mouse to show the demo bar (how many workflows run at once, or "Break o
 `lykta demo --count 100 --running 12` shows a busy day; `--low-power` forces the reduced-motion mode
 used on weak screens.
 
+## Try it against GitHub
+
+This repository has live test workflows (`live-pipeline.yml`, `live-quick.yml`) and an example
+configuration that monitors them. With the [GitHub CLI](https://cli.github.com) signed in:
+
+```sh
+LYKTA_TOKEN_MKLAB_SE=$(gh auth token) lykta serve --config lykta.example.yaml
+gh workflow run live-pipeline.yml -R mklab-se/lykta -f fail_at=build -f minutes=4
+```
+
+For your own workflows: `lykta init` writes a starter `lykta.yaml`, and `lykta check` verifies it
+against GitHub before it goes on a wall.
+
 ## What it shows
 
 - 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long

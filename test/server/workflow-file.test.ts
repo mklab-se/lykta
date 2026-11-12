@@ -103,4 +103,26 @@ jobs:
     const one: JobRecord[] = [{ ...(jobs[0] as JobRecord), name: "a" }];
     expect(() => attachGraph(one, ghost, {})).not.toThrow();
   });
+
+  test("live workflows parse into the expected graph", async () => {
+    const pipeline = parseWorkflow(await Bun.file(".github/workflows/live-pipeline.yml").text());
+    const reusable = parseWorkflow(await Bun.file(".github/workflows/live-reusable.yml").text());
+    const quick = parseWorkflow(await Bun.file(".github/workflows/live-quick.yml").text());
+    const job = (id: string) => pipeline?.jobs.find((j) => j.id === id);
+    expect(job("checks")?.uses).toBe("./.github/workflows/live-reusable.yml");
+    expect(job("deploy")?.needs.sort()).toEqual(["checks", "long"]);
+    expect(job("build")?.matrix).toBe(true);
+    expect(job("build")?.name).toBe("Build ${{ matrix.target }}");
+    const raw = Bun.YAML.parse(await Bun.file(".github/workflows/live-pipeline.yml").text()) as {
+      jobs: { build: { strategy: { matrix: { target: string[] } } } };
+      on: Record<string, unknown>;
+    };
+    expect(raw.jobs.build.strategy.matrix.target).toHaveLength(4);
+    expect(Object.keys(raw.on)).toEqual(["workflow_dispatch"]);
+    expect(reusable?.jobs.find((j) => j.id === "report")?.needs.sort()).toEqual([
+      "lint",
+      "typecheck",
+    ]);
+    expect(quick?.jobs).toHaveLength(1);
+  });
 });
