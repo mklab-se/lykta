@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "demo",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "--hot",
+        "src/cli.ts",
+        "demo",
+        "--port",
+        "8080",
+        "--running",
+        "5",
+        "--count",
+        "30"
+      ],
+      "port": 8080
+    }
+  ]
+}
