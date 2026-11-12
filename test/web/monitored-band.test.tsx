@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToString } from "react-dom/server";
 import type { EntryView } from "../../src/core/types.ts";
-import { MonitoredBand } from "../../src/web/components/MonitoredBand.tsx";
+import { historyOpacity, MonitoredBand } from "../../src/web/components/MonitoredBand.tsx";
 import type { MonitoredUnit } from "../../src/web/layout.ts";
 
 const NOW = Date.UTC(2026, 10, 12, 12, 0);
@@ -48,8 +48,8 @@ const render = (entries: EntryView[], unit: MonitoredUnit = "big", pages = 1, pa
 describe("MonitoredBand", () => {
   test("big tile shows history strip", () => {
     const html = render([passed(1)]);
-    expect(html.match(/<i class="(p|f)"/g)).toHaveLength(14);
-    expect(html.match(/<i class="f"/g)).toHaveLength(1);
+    expect(html.match(/<i class="(p|f)/g)).toHaveLength(14);
+    expect(html.match(/<i class="f/g)).toHaveLength(1);
     expect(html).toContain("PASSED");
     expect(html).toContain("18 min ago");
     expect(html).toContain("took 12m 00s");
@@ -78,5 +78,15 @@ describe("MonitoredBand", () => {
   test("renders empty message", () => {
     const html = render([]);
     expect(html).toContain("Nothing is monitored yet");
+  });
+
+  test("history reads as a timeline: older results fade, the newest stands out", () => {
+    expect(historyOpacity(13, 14)).toBe(1);
+    expect(historyOpacity(0, 14)).toBeCloseTo(0.2);
+    expect(historyOpacity(6, 14)).toBeGreaterThan(historyOpacity(5, 14));
+    expect(historyOpacity(0, 1)).toBe(1);
+    const html = render([passed(1)]);
+    expect(html.match(/class="p latest"/g)).toHaveLength(1);
+    expect(html).toContain("opacity:0.2");
   });
 });

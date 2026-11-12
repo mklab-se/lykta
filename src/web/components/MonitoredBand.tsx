@@ -9,12 +9,23 @@ const repoName = (e: EntryView) => e.repo.split("/")[1] ?? e.repo;
 const when = (e: EntryView, now: number) =>
   e.latestCompleted?.completedAt ? formatAgo(now - Date.parse(e.latestCompleted.completedAt)) : "";
 
+/** Older results fade (oldest 0.2), so the strip reads as a timeline ending in the newest. */
+export function historyOpacity(i: number, n: number): number {
+  if (n <= 1 || i >= n - 1) return 1;
+  return Math.round((0.2 + (0.8 * i) / (n - 1)) * 100) / 100;
+}
+
 function History(props: { e: EntryView }) {
+  const n = props.e.history.length;
   return (
     <div className="hist">
       {props.e.history.map((h, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: the strip is positional (oldest to newest)
-        <i key={i} className={h} />
+        <i
+          // biome-ignore lint/suspicious/noArrayIndexKey: the strip is positional (oldest to newest)
+          key={i}
+          className={i === n - 1 ? `${h} latest` : h}
+          style={{ opacity: historyOpacity(i, n) }}
+        />
       ))}
     </div>
   );

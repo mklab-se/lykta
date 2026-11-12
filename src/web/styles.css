@@ -926,6 +926,18 @@ body {
 .hist i.f {
   background: var(--red);
 }
+/* the newest result: wider and taller, the end of the timeline */
+.hist {
+  align-items: flex-end;
+}
+.hist i.latest {
+  flex: 2.2;
+  height: 20px;
+  background: var(--green);
+}
+.hist i.latest.f {
+  background: var(--red);
+}
 .chip {
   display: flex;
   align-items: center;
