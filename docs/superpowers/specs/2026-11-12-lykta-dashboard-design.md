@@ -99,7 +99,36 @@ Rules (my calls, see section 10):
   failure clears with a visible transition.
 - "Broken for" counts from the end of the first failed run in the current failing streak.
 
-### 3.2 Layout: Command Center
+### 3.2 Layout: the track and the pit (replaces the Command Center below, 2026-11-12)
+
+Kristofer's redesign: with many runs and failures the Command Center's bands made it hard to see
+what is monitored and what fails, because a workflow could be in four places. Now every workflow
+has one place, and failures go to the pit.
+
+- **The track: a fixed grid of every monitored workflow**, in config order. Its shape (columns ×
+  rows) is decided from the number of workflows and the full screen width, and never changes
+  when the pit opens: the tiles get narrower, but top right stays top right. A tile shows the
+  name, its latest status and the history strip (older results fade). Tiles grow and shrink in
+  detail with their size.
+- **Running**: the tile turns yellow with a steady glow and one slow breath shared by all running
+  tiles (my call: not each pulsing on its own), and a thin progress bar against the expected
+  duration with "2h 14m of ~5h 50m". A workflow re-running after a failure keeps a small red
+  mark until the run decides (my call).
+- **The spotlight**: about every 20 seconds (`display.spotlightEverySeconds`), one running
+  workflow opens as a large diagram over the track for about 8 seconds
+  (`display.spotlightSeconds`): the job graph and where the run is. The track behind it blurs
+  (dims in low-power mode); the pit is never covered. Running workflows take turns. When a run
+  finishes it gets one last turn (my call): a pass in green, a failure with the failed job and
+  step in red and its error, and only then does a failure move to the pit. This replaces holds.
+- **The pit**: a pane that slides in from the left (about 30% of the width) when the first
+  workflow fails and disappears when the last one is fixed. A failed workflow moves there and
+  leaves a gap in its slot (my call: a very faint dashed outline). Each car in the pit is a red
+  card: name, broken for, the strip of how far it got, failed job › step and the error message.
+  Cards get more compact as the pit fills. A not-found workflow is in the pit too. When a
+  workflow in the pit is restarted, it drives back out to its slot (yellow); if it fails again,
+  it returns.
+
+### 3.2.1 Layout: Command Center (superseded by 3.2)
 
 One full-screen page on a black background. Header: Lykta mark, counts (failing, running, passing,
 monitored) and a clock. Below it, three bands whose sizes follow what is happening:
