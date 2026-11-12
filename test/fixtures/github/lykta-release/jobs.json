@@ -1,0 +1,1229 @@
+{
+  "total_count": 12,
+  "jobs": [
+    {
+      "id": 131268052792,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekC-HOA",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268052792",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268052792",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:39Z",
+      "started_at": "2026-11-12T14:59:41Z",
+      "completed_at": "2026-11-12T14:59:46Z",
+      "name": "Check version",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:42Z",
+          "completed_at": "2026-11-12T14:59:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:42Z",
+          "completed_at": "2026-11-12T14:59:43Z"
+        },
+        {
+          "name": "Tag matches package.json",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:43Z",
+          "completed_at": "2026-11-12T14:59:44Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T14:59:44Z",
+          "completed_at": "2026-11-12T14:59:44Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T14:59:44Z",
+          "completed_at": "2026-11-12T14:59:44Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268052792",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006272,
+      "runner_name": "GitHub Actions 1000006272",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268053277,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekC-JHQ",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268053277",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268053277",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:39Z",
+      "started_at": "2026-11-12T14:59:41Z",
+      "completed_at": "2026-11-12T14:59:47Z",
+      "name": "CI / Typecheck",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:41Z",
+          "completed_at": "2026-11-12T14:59:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:42Z",
+          "completed_at": "2026-11-12T14:59:43Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:43Z",
+          "completed_at": "2026-11-12T14:59:44Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T14:59:44Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Run bun run typecheck",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268053277",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006275,
+      "runner_name": "GitHub Actions 1000006275",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268053339,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekC-JWw",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268053339",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268053339",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:39Z",
+      "started_at": "2026-11-12T14:59:41Z",
+      "completed_at": "2026-11-12T14:59:49Z",
+      "name": "CI / Build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:41Z",
+          "completed_at": "2026-11-12T14:59:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:42Z",
+          "completed_at": "2026-11-12T14:59:43Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:43Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Run bun run build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Smoke test the compiled binary",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:47Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T14:59:47Z",
+          "completed_at": "2026-11-12T14:59:47Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-12T14:59:47Z",
+          "completed_at": "2026-11-12T14:59:48Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-12T14:59:48Z",
+          "completed_at": "2026-11-12T14:59:48Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268053339",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006274,
+      "runner_name": "GitHub Actions 1000006274",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268053475,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekC-J4w",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268053475",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268053475",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:39Z",
+      "started_at": "2026-11-12T14:59:41Z",
+      "completed_at": "2026-11-12T14:59:50Z",
+      "name": "CI / Test",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:41Z",
+          "completed_at": "2026-11-12T14:59:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:42Z",
+          "completed_at": "2026-11-12T14:59:43Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:43Z",
+          "completed_at": "2026-11-12T14:59:44Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T14:59:44Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Run bun test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:48Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T14:59:48Z",
+          "completed_at": "2026-11-12T14:59:48Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T14:59:48Z",
+          "completed_at": "2026-11-12T14:59:48Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T14:59:48Z",
+          "completed_at": "2026-11-12T14:59:48Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268053475",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006276,
+      "runner_name": "GitHub Actions 1000006276",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268053551,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekC-KLw",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268053551",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268053551",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:39Z",
+      "started_at": "2026-11-12T14:59:41Z",
+      "completed_at": "2026-11-12T14:59:47Z",
+      "name": "CI / Lint",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:41Z",
+          "completed_at": "2026-11-12T14:59:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:42Z",
+          "completed_at": "2026-11-12T14:59:43Z"
+        },
+        {
+          "name": "No em-dashes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:43Z",
+          "completed_at": "2026-11-12T14:59:43Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T14:59:43Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Run bun run lint",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-12T14:59:45Z",
+          "completed_at": "2026-11-12T14:59:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-12T14:59:46Z",
+          "completed_at": "2026-11-12T14:59:46Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268053551",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006273,
+      "runner_name": "GitHub Actions 1000006273",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268169835,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDFQaw",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268169835",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268169835",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:51Z",
+      "started_at": "2026-11-12T14:59:53Z",
+      "completed_at": "2026-11-12T15:00:13Z",
+      "name": "Publish to npm",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:54Z",
+          "completed_at": "2026-11-12T14:59:55Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:55Z",
+          "completed_at": "2026-11-12T14:59:55Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:55Z",
+          "completed_at": "2026-11-12T14:59:57Z"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T14:59:57Z",
+          "completed_at": "2026-11-12T15:00:01Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T15:00:01Z",
+          "completed_at": "2026-11-12T15:00:02Z"
+        },
+        {
+          "name": "Publish",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T15:00:02Z",
+          "completed_at": "2026-11-12T15:00:11Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T15:00:11Z",
+          "completed_at": "2026-11-12T15:00:11Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T15:00:11Z",
+          "completed_at": "2026-11-12T15:00:12Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-12T15:00:12Z",
+          "completed_at": "2026-11-12T15:00:12Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-12T15:00:12Z",
+          "completed_at": "2026-11-12T15:00:12Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268169835",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006281,
+      "runner_name": "GitHub Actions 1000006281",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268170014,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDFRHg",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268170014",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268170014",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:51Z",
+      "started_at": "2026-11-12T14:59:53Z",
+      "completed_at": "2026-11-12T15:00:19Z",
+      "name": "Build aarch64-apple-darwin",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:54Z",
+          "completed_at": "2026-11-12T14:59:56Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:56Z",
+          "completed_at": "2026-11-12T15:00:00Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T15:00:00Z",
+          "completed_at": "2026-11-12T15:00:03Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T15:00:03Z",
+          "completed_at": "2026-11-12T15:00:03Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T15:00:03Z",
+          "completed_at": "2026-11-12T15:00:04Z"
+        },
+        {
+          "name": "Ad-hoc sign (macOS)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T15:00:04Z",
+          "completed_at": "2026-11-12T15:00:05Z"
+        },
+        {
+          "name": "Smoke test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T15:00:05Z",
+          "completed_at": "2026-11-12T15:00:05Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T15:00:05Z",
+          "completed_at": "2026-11-12T15:00:10Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-11-12T15:00:10Z",
+          "completed_at": "2026-11-12T15:00:10Z"
+        },
+        {
+          "name": "SBOM (CycloneDX)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T15:00:10Z",
+          "completed_at": "2026-11-12T15:00:10Z"
+        },
+        {
+          "name": "Upload artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T15:00:10Z",
+          "completed_at": "2026-11-12T15:00:14Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-12T15:00:14Z",
+          "completed_at": "2026-11-12T15:00:14Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-12T15:00:14Z",
+          "completed_at": "2026-11-12T15:00:15Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-12T15:00:15Z",
+          "completed_at": "2026-11-12T15:00:15Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268170014",
+      "labels": ["macos-latest"],
+      "runner_id": 1000006277,
+      "runner_name": "GitHub Actions 1000006277",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268170020,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDFRJA",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268170020",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268170020",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:51Z",
+      "started_at": "2026-11-12T14:59:53Z",
+      "completed_at": "2026-11-12T15:00:11Z",
+      "name": "Build x86_64-unknown-linux-gnu",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:54Z",
+          "completed_at": "2026-11-12T14:59:55Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:55Z",
+          "completed_at": "2026-11-12T14:59:57Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:57Z",
+          "completed_at": "2026-11-12T14:59:59Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T14:59:59Z",
+          "completed_at": "2026-11-12T14:59:59Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T14:59:59Z",
+          "completed_at": "2026-11-12T14:59:59Z"
+        },
+        {
+          "name": "Ad-hoc sign (macOS)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-11-12T14:59:59Z",
+          "completed_at": "2026-11-12T14:59:59Z"
+        },
+        {
+          "name": "Smoke test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T14:59:59Z",
+          "completed_at": "2026-11-12T14:59:59Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T14:59:59Z",
+          "completed_at": "2026-11-12T15:00:04Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-11-12T15:00:04Z",
+          "completed_at": "2026-11-12T15:00:04Z"
+        },
+        {
+          "name": "SBOM (CycloneDX)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T15:00:04Z",
+          "completed_at": "2026-11-12T15:00:04Z"
+        },
+        {
+          "name": "Upload artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T15:00:04Z",
+          "completed_at": "2026-11-12T15:00:08Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-12T15:00:08Z",
+          "completed_at": "2026-11-12T15:00:08Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-12T15:00:08Z",
+          "completed_at": "2026-11-12T15:00:08Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-12T15:00:08Z",
+          "completed_at": "2026-11-12T15:00:08Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268170020",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006279,
+      "runner_name": "GitHub Actions 1000006279",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268170047,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDFRPw",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268170047",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268170047",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:51Z",
+      "started_at": "2026-11-12T14:59:53Z",
+      "completed_at": "2026-11-12T15:00:18Z",
+      "name": "Build x86_64-apple-darwin",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:54Z",
+          "completed_at": "2026-11-12T14:59:55Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:55Z",
+          "completed_at": "2026-11-12T14:59:57Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T14:59:57Z",
+          "completed_at": "2026-11-12T15:00:00Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T15:00:00Z",
+          "completed_at": "2026-11-12T15:00:01Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T15:00:01Z",
+          "completed_at": "2026-11-12T15:00:02Z"
+        },
+        {
+          "name": "Ad-hoc sign (macOS)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T15:00:02Z",
+          "completed_at": "2026-11-12T15:00:03Z"
+        },
+        {
+          "name": "Smoke test",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-11-12T15:00:03Z",
+          "completed_at": "2026-11-12T15:00:03Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T15:00:03Z",
+          "completed_at": "2026-11-12T15:00:09Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-11-12T15:00:09Z",
+          "completed_at": "2026-11-12T15:00:09Z"
+        },
+        {
+          "name": "SBOM (CycloneDX)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T15:00:09Z",
+          "completed_at": "2026-11-12T15:00:09Z"
+        },
+        {
+          "name": "Upload artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T15:00:09Z",
+          "completed_at": "2026-11-12T15:00:13Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-12T15:00:13Z",
+          "completed_at": "2026-11-12T15:00:14Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-12T15:00:14Z",
+          "completed_at": "2026-11-12T15:00:15Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-12T15:00:15Z",
+          "completed_at": "2026-11-12T15:00:15Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268170047",
+      "labels": ["macos-latest"],
+      "runner_id": 1000006278,
+      "runner_name": "GitHub Actions 1000006278",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268170227,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDFR8w",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268170227",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268170227",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T14:59:51Z",
+      "started_at": "2026-11-12T14:59:53Z",
+      "completed_at": "2026-11-12T15:00:22Z",
+      "name": "Build x86_64-pc-windows-msvc",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T14:59:55Z",
+          "completed_at": "2026-11-12T14:59:56Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T14:59:57Z",
+          "completed_at": "2026-11-12T15:00:04Z"
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T15:00:04Z",
+          "completed_at": "2026-11-12T15:00:07Z"
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T15:00:07Z",
+          "completed_at": "2026-11-12T15:00:11Z"
+        },
+        {
+          "name": "Compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T15:00:11Z",
+          "completed_at": "2026-11-12T15:00:11Z"
+        },
+        {
+          "name": "Ad-hoc sign (macOS)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-11-12T15:00:11Z",
+          "completed_at": "2026-11-12T15:00:11Z"
+        },
+        {
+          "name": "Smoke test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T15:00:11Z",
+          "completed_at": "2026-11-12T15:00:12Z"
+        },
+        {
+          "name": "Package (Unix)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-11-12T15:00:12Z",
+          "completed_at": "2026-11-12T15:00:12Z"
+        },
+        {
+          "name": "Package (Windows)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T15:00:12Z",
+          "completed_at": "2026-11-12T15:00:16Z"
+        },
+        {
+          "name": "SBOM (CycloneDX)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T15:00:16Z",
+          "completed_at": "2026-11-12T15:00:16Z"
+        },
+        {
+          "name": "Upload artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-12T15:00:16Z",
+          "completed_at": "2026-11-12T15:00:19Z"
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-12T15:00:19Z",
+          "completed_at": "2026-11-12T15:00:19Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-11-12T15:00:19Z",
+          "completed_at": "2026-11-12T15:00:21Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-11-12T15:00:21Z",
+          "completed_at": "2026-11-12T15:00:21Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268170227",
+      "labels": ["windows-latest"],
+      "runner_id": 1000006280,
+      "runner_name": "GitHub Actions 1000006280",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268494821,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDZF5Q",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268494821",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268494821",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T15:00:23Z",
+      "started_at": "2026-11-12T15:00:25Z",
+      "completed_at": "2026-11-12T15:00:43Z",
+      "name": "GitHub Release",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T15:00:25Z",
+          "completed_at": "2026-11-12T15:00:26Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T15:00:26Z",
+          "completed_at": "2026-11-12T15:00:28Z"
+        },
+        {
+          "name": "Download all artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T15:00:28Z",
+          "completed_at": "2026-11-12T15:00:30Z"
+        },
+        {
+          "name": "Create release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T15:00:30Z",
+          "completed_at": "2026-11-12T15:00:40Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T15:00:40Z",
+          "completed_at": "2026-11-12T15:00:40Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T15:00:40Z",
+          "completed_at": "2026-11-12T15:00:40Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268494821",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006282,
+      "runner_name": "GitHub Actions 1000006282",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 131268705642,
+      "run_id": 43242960581,
+      "workflow_name": "Release",
+      "head_branch": "v0.0.3",
+      "run_url": "https://api.github.com/repos/mklab-se/lykta/actions/runs/43242960581",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVrv4gc8AAAAekDl9ag",
+      "head_sha": "62494c70ee74590dbe7685b53fd71b4cb6fae278",
+      "url": "https://api.github.com/repos/mklab-se/lykta/actions/jobs/131268705642",
+      "html_url": "https://github.com/mklab-se/lykta/actions/runs/43242960581/job/131268705642",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T15:00:43Z",
+      "started_at": "2026-11-12T15:00:46Z",
+      "completed_at": "2026-11-12T15:00:58Z",
+      "name": "Update Homebrew Tap",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T15:00:46Z",
+          "completed_at": "2026-11-12T15:00:47Z"
+        },
+        {
+          "name": "Update formula",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T15:00:47Z",
+          "completed_at": "2026-11-12T15:00:56Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T15:00:56Z",
+          "completed_at": "2026-11-12T15:00:56Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/mklab-se/lykta/check-runs/131268705642",
+      "labels": ["ubuntu-latest"],
+      "runner_id": 1000006283,
+      "runner_name": "GitHub Actions 1000006283",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

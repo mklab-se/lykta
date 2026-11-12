@@ -1,0 +1,1163 @@
+﻿2026-11-12T19:21:41.0389721Z Current runner version: '2.338.2'
+2026-11-12T19:21:41.0416037Z ##[group]Runner Image Provisioner
+2026-11-12T19:21:41.0416936Z Hosted Compute Agent
+2026-11-12T19:21:41.0417545Z Version: 20261028.624
+2026-11-12T19:21:41.0418318Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T19:21:41.0419119Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T19:21:41.0419940Z Worker ID: {cccee97b-25b1-4475-823d-565c21cce392}
+2026-11-12T19:21:41.0420702Z Region: northcentralus
+2026-11-12T19:21:41.0421297Z Cloud: Azure
+2026-11-12T19:21:41.0421934Z ##[endgroup]
+2026-11-12T19:21:41.0423726Z ##[group]Operating System
+2026-11-12T19:21:41.0424429Z Ubuntu
+2026-11-12T19:21:41.0424997Z 26.04.1
+2026-11-12T19:21:41.0425704Z LTS
+2026-11-12T19:21:41.0426345Z ##[endgroup]
+2026-11-12T19:21:41.0426977Z ##[group]Runner Image
+2026-11-12T19:21:41.0427694Z Image: ubuntu-26.04
+2026-11-12T19:21:41.0428306Z Version: 20261101.186.1
+2026-11-12T19:21:41.0429656Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-12T19:21:41.0431342Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-12T19:21:41.0432392Z ##[endgroup]
+2026-11-12T19:21:41.0435705Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T19:21:41.0438695Z Actions: write
+2026-11-12T19:21:41.0439396Z ArtifactMetadata: write
+2026-11-12T19:21:41.0440130Z Attestations: write
+2026-11-12T19:21:41.0440804Z Checks: write
+2026-11-12T19:21:41.0441377Z CodeQuality: write
+2026-11-12T19:21:41.0442076Z Contents: write
+2026-11-12T19:21:41.0442682Z CopilotRequests: write
+2026-11-12T19:21:41.0443337Z Deployments: write
+2026-11-12T19:21:41.0443935Z Discussions: write
+2026-11-12T19:21:41.0444521Z Drives: write
+2026-11-12T19:21:41.0445178Z Issues: write
+2026-11-12T19:21:41.0446233Z Metadata: read
+2026-11-12T19:21:41.0446903Z Models: read
+2026-11-12T19:21:41.0447486Z Packages: write
+2026-11-12T19:21:41.0448085Z Pages: write
+2026-11-12T19:21:41.0448775Z PullRequests: write
+2026-11-12T19:21:41.0449409Z RepositoryProjects: write
+2026-11-12T19:21:41.0450046Z SecurityEvents: write
+2026-11-12T19:21:41.0450719Z Statuses: write
+2026-11-12T19:21:41.0451323Z VulnerabilityAlerts: read
+2026-11-12T19:21:41.0451980Z ##[endgroup]
+2026-11-12T19:21:41.0454132Z Secret source: Actions
+2026-11-12T19:21:41.0455244Z Cache mode: write
+2026-11-12T19:21:41.0456308Z Prepare workflow directory
+2026-11-12T19:21:41.0795287Z Prepare all required actions
+2026-11-12T19:21:41.0843518Z Getting action download info
+2026-11-12T19:21:41.3271014Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-11-12T19:21:41.4373850Z Download action repository 'oven-sh/setup-bun@v2' (SHA:0c5077e51419868618aeaa5fe8019c62421857d6)
+2026-11-12T19:21:41.8104763Z Complete job name: Lint
+2026-11-12T19:21:41.8953458Z ##[group]Run actions/checkout@v7
+2026-11-12T19:21:41.8954311Z with:
+2026-11-12T19:21:41.8954778Z   repository: mklab-se/lykta
+2026-11-12T19:21:41.8958986Z   token: ***
+2026-11-12T19:21:41.8959466Z   ssh-strict: true
+2026-11-12T19:21:41.8959922Z   ssh-user: git
+2026-11-12T19:21:41.8960379Z   persist-credentials: true
+2026-11-12T19:21:41.8960881Z   clean: true
+2026-11-12T19:21:41.8961334Z   sparse-checkout-cone-mode: true
+2026-11-12T19:21:41.8961874Z   fetch-depth: 1
+2026-11-12T19:21:41.8962310Z   fetch-tags: false
+2026-11-12T19:21:41.8962758Z   show-progress: true
+2026-11-12T19:21:41.8963212Z   lfs: false
+2026-11-12T19:21:41.8963633Z   submodules: false
+2026-11-12T19:21:41.8964090Z   set-safe-directory: true
+2026-11-12T19:21:41.8964598Z   allow-unsafe-pr-checkout: false
+2026-11-12T19:21:41.8965503Z ##[endgroup]
+2026-11-12T19:21:42.1077272Z Syncing repository: mklab-se/lykta
+2026-11-12T19:21:42.1080895Z ##[group]Getting Git version info
+2026-11-12T19:21:42.1082124Z Working directory is '/home/runner/work/lykta/lykta'
+2026-11-12T19:21:42.1083337Z [command]/usr/bin/git version
+2026-11-12T19:21:42.1146838Z git version 2.56.0
+2026-11-12T19:21:42.1170213Z ##[endgroup]
+2026-11-12T19:21:42.1182281Z Temporarily overriding HOME='/home/runner/work/_temp/ac0fefb7-5417-4533-81a3-3641a1bfb46c' before making global git config changes
+2026-11-12T19:21:42.1188485Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T19:21:42.1189929Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lykta/lykta
+2026-11-12T19:21:42.1247841Z Deleting the contents of '/home/runner/work/lykta/lykta'
+2026-11-12T19:21:42.1251122Z ##[group]Determining repository object format
+2026-11-12T19:21:42.1252529Z ##[endgroup]
+2026-11-12T19:21:42.1253611Z ##[group]Initializing the repository
+2026-11-12T19:21:42.1257221Z [command]/usr/bin/git init /home/runner/work/lykta/lykta
+2026-11-12T19:21:42.1343311Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T19:21:42.1345994Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T19:21:42.1347907Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T19:21:42.1349314Z hint: call:
+2026-11-12T19:21:42.1350126Z hint:
+2026-11-12T19:21:42.1350961Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T19:21:42.1351895Z hint:
+2026-11-12T19:21:42.1352781Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T19:21:42.1354195Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T19:21:42.1355495Z hint:
+2026-11-12T19:21:42.1356149Z hint: 	git branch -m <name>
+2026-11-12T19:21:42.1356877Z hint:
+2026-11-12T19:21:42.1357832Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T19:21:42.1359195Z Initialized empty Git repository in /home/runner/work/lykta/lykta/.git/
+2026-11-12T19:21:42.1368182Z [command]/usr/bin/git remote add origin https://github.com/mklab-se/lykta
+2026-11-12T19:21:42.1418063Z ##[endgroup]
+2026-11-12T19:21:42.1418983Z ##[group]Disabling automatic garbage collection
+2026-11-12T19:21:42.1422007Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T19:21:42.1459907Z ##[endgroup]
+2026-11-12T19:21:42.1460924Z ##[group]Setting up auth
+2026-11-12T19:21:42.1461619Z Removing SSH command configuration
+2026-11-12T19:21:42.1467190Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T19:21:42.1504912Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T19:21:42.1940855Z Removing HTTP extra header
+2026-11-12T19:21:42.1948333Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T19:21:42.1996458Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T19:21:42.2299469Z Removing includeIf entries pointing to credentials config files
+2026-11-12T19:21:42.2301065Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T19:21:42.2337784Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T19:21:42.2631776Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T19:21:42.2670641Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/lykta/lykta/.git.path /home/runner/work/_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:42.2703957Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/lykta/lykta/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:42.2740334Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:42.2774947Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:42.2806609Z ##[endgroup]
+2026-11-12T19:21:42.2807385Z ##[group]Fetching the repository
+2026-11-12T19:21:42.2812922Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +1aaadb7742ff1c0f544748acd3843fff456c555f:refs/remotes/origin/main
+2026-11-12T19:21:42.7898039Z From https://github.com/mklab-se/lykta
+2026-11-12T19:21:42.7899820Z  * [new ref]         1aaadb7742ff1c0f544748acd3843fff456c555f -> origin/main
+2026-11-12T19:21:42.7907984Z [command]/usr/bin/git branch --list --remote origin/main
+2026-11-12T19:21:42.7937269Z   origin/main
+2026-11-12T19:21:42.7946676Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-11-12T19:21:42.7974219Z 1aaadb7742ff1c0f544748acd3843fff456c555f
+2026-11-12T19:21:42.7984094Z ##[endgroup]
+2026-11-12T19:21:42.7984907Z ##[group]Determining the checkout info
+2026-11-12T19:21:42.7986287Z ##[endgroup]
+2026-11-12T19:21:42.7996602Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T19:21:42.8040164Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T19:21:42.8075995Z ##[group]Checking out the ref
+2026-11-12T19:21:42.8080588Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-11-12T19:21:42.8205615Z Switched to a new branch 'main'
+2026-11-12T19:21:42.8210363Z branch 'main' set up to track 'origin/main'.
+2026-11-12T19:21:42.8216601Z ##[endgroup]
+2026-11-12T19:21:42.8261048Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T19:21:42.8289962Z 1aaadb7742ff1c0f544748acd3843fff456c555f
+2026-11-12T19:21:42.8547834Z ##[group]Run if git grep -nIP '\x{2014}'; then
+2026-11-12T19:21:42.8548717Z [36;1mif git grep -nIP '\x{2014}'; then[0m
+2026-11-12T19:21:42.8550255Z [36;1m  echo "::error::Em-dash (U+2014) found. Use a comma, colon, parentheses or a new sentence; in code that needs the character, write \\u2014."[0m
+2026-11-12T19:21:42.8551688Z [36;1m  exit 1[0m
+2026-11-12T19:21:42.8552160Z [36;1mfi[0m
+2026-11-12T19:21:42.8610641Z shell: /usr/bin/bash -e {0}
+2026-11-12T19:21:42.8611251Z ##[endgroup]
+2026-11-12T19:21:42.8888475Z ##[group]Run oven-sh/setup-bun@v2
+2026-11-12T19:21:42.8889113Z with:
+2026-11-12T19:21:42.8969332Z   bun-version: latest
+2026-11-12T19:21:42.8970047Z   no-cache: false
+2026-11-12T19:21:42.8975789Z   token: ***
+2026-11-12T19:21:42.8976296Z ##[endgroup]
+2026-11-12T19:21:43.3555236Z Downloading a new version of Bun: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64.zip
+2026-11-12T19:21:43.6818145Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/c7ba0e07-39f8-45bb-b646-708d501035d0.zip
+2026-11-12T19:21:44.6506816Z [command]/home/runner/.bun/bin/bun --revision
+2026-11-12T19:21:44.6574661Z 1.4.4+38afee6c8
+2026-11-12T19:21:44.6770928Z ##[group]Run bun install --frozen-lockfile
+2026-11-12T19:21:44.6771372Z [36;1mbun install --frozen-lockfile[0m
+2026-11-12T19:21:44.6830919Z shell: /usr/bin/bash -e {0}
+2026-11-12T19:21:44.6831245Z ##[endgroup]
+2026-11-12T19:21:44.6931908Z bun install v1.4.4 (38afee6c8)
+2026-11-12T19:21:45.1243383Z 
+2026-11-12T19:21:45.1276768Z + @biomejs/biome@2.6.7
+2026-11-12T19:21:45.1286290Z + @types/bun@1.4.4
+2026-11-12T19:21:45.1286942Z + typescript@7.0.2
+2026-11-12T19:21:45.1287659Z + commander@15.1.0
+2026-11-12T19:21:45.1287882Z 
+2026-11-12T19:21:45.1288068Z 9 packages installed [432.00ms]
+2026-11-12T19:21:45.1346109Z ##[group]Run bun run lint
+2026-11-12T19:21:45.1346414Z [36;1mbun run lint[0m
+2026-11-12T19:21:45.1404747Z shell: /usr/bin/bash -e {0}
+2026-11-12T19:21:45.1405092Z ##[endgroup]
+2026-11-12T19:21:45.1505808Z $ biome ci .
+2026-11-12T19:21:45.4108174Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4118900Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4121697Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4123817Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4126159Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4128364Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4130472Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4132872Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4134362Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4136017Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4137451Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4138804Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4140132Z ##[notice]Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4142445Z ##[warning]Descending specificity selector found. This selector specificity is (0, 3, 0)
+2026-11-12T19:21:45.4144128Z ##[warning]Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4145975Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4147593Z ##[warning]Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4149160Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4150763Z ##[warning]Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4152387Z ##[warning]Descending specificity selector found. This selector specificity is (0, 3, 0)
+2026-11-12T19:21:45.4154119Z ##[warning]Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4156300Z ##[warning]Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4158896Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4161337Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4163009Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4164866Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4167417Z ##[warning]Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4169734Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4171899Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4173480Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4175632Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4177747Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4179732Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4182167Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4184211Z ##[error]Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4185969Z ##[error]The assignment should not be in an expression.
+2026-11-12T19:21:45.4188234Z ##[error]The assignment should not be in an expression.
+2026-11-12T19:21:45.4190855Z ##[error]This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4193079Z ##[error]This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4194768Z ##[error]This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4197313Z ##[error]This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4200285Z ##[error]This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4202818Z docs/superpowers/specs/assets/command-center-mockup.html:800:21 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4203526Z 
+2026-11-12T19:21:45.4203835Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4204368Z   
+2026-11-12T19:21:45.4205770Z     798 │       paths += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round" ${st === "running" ? 'stroke-dasharray="8 8" class="flow"' : ""}/>`;
+2026-11-12T19:21:45.4207023Z     799 │     }
+2026-11-12T19:21:45.4207989Z   > 800 │     svg.innerHTML = `<style>.flow{animation:flow 1s linear infinite}@keyframes flow{to{stroke-dashoffset:-16}}</style>` + paths;
+2026-11-12T19:21:45.4209251Z         │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4209909Z     801 │   });
+2026-11-12T19:21:45.4210238Z     802 │ }
+2026-11-12T19:21:45.4210540Z   
+2026-11-12T19:21:45.4211361Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4212245Z   
+2026-11-12T19:21:45.4212575Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4213010Z   
+2026-11-12T19:21:45.4214396Z     560 560 │         paths += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round" ${st === "running" ? 'stroke-dasharray="8 8" class="flow"' : ""}/>`;
+2026-11-12T19:21:45.4215775Z     561 561 │       }
+2026-11-12T19:21:45.4217117Z     562     │ - ····svg.innerHTML·=·`<style>.flow{animation:flow·1s·linear·infinite}@keyframes·flow{to{stroke-dashoffset:-16}}</style>`·+·paths;
+2026-11-12T19:21:45.4218776Z         562 │ + ····svg.innerHTML·=·`<style>.flow{animation:flow·1s·linear·infinite}@keyframes·flow{to{stroke-dashoffset:-16}}</style>${paths}`;
+2026-11-12T19:21:45.4219683Z     563 563 │     });
+2026-11-12T19:21:45.4219920Z     564 564 │   }
+2026-11-12T19:21:45.4220124Z   
+2026-11-12T19:21:45.4220225Z 
+2026-11-12T19:21:45.4220693Z docs/superpowers/specs/assets/command-center-mockup.html:303:111 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4221136Z 
+2026-11-12T19:21:45.4221334Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4221709Z   
+2026-11-12T19:21:45.4222006Z     301 │ let workflows = [];
+2026-11-12T19:21:45.4222311Z     302 │ function makeWf(i, o = {}) {
+2026-11-12T19:21:45.4223034Z   > 303 │   const repo = o.repo ?? `${i < 14 ? "mklab-se" : pick(ORGS)}/${REPOS[i % REPOS.length]}${i >= REPOS.length ? "-" + Math.floor(i / REPOS.length + 1) : ""}`;
+2026-11-12T19:21:45.4223870Z         │                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4224411Z     304 │   const name = o.name ?? NAMES[(i * 7) % NAMES.length];
+2026-11-12T19:21:45.4224931Z     305 │   const pipe = o.pipe ?? pick([PIPE_SMALL, PIPE_SMALL, PIPE_MED, PIPE_BIG]);
+2026-11-12T19:21:45.4225522Z   
+2026-11-12T19:21:45.4226352Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4227255Z   
+2026-11-12T19:21:45.4227576Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4228263Z   
+2026-11-12T19:21:45.4228635Z      63  63 │   let workflows = [];
+2026-11-12T19:21:45.4229122Z      64  64 │   function makeWf(i, o = {}) {
+2026-11-12T19:21:45.4230397Z      65     │ - ··const·repo·=·o.repo·??·`${i·<·14·?·"mklab-se"·:·pick(ORGS)}/${REPOS[i·%·REPOS.length]}${i·>=·REPOS.length·?·"-"·+·Math.floor(i·/·REPOS.length·+·1)·:·""}`;
+2026-11-12T19:21:45.4232216Z          65 │ + ··const·repo·=·o.repo·??·`${i·<·14·?·"mklab-se"·:·pick(ORGS)}/${REPOS[i·%·REPOS.length]}${i·>=·REPOS.length·?·`-${Math.floor(i·/·REPOS.length·+·1)}`·:·""}`;
+2026-11-12T19:21:45.4233578Z      66  66 │     const name = o.name ?? NAMES[(i * 7) % NAMES.length];
+2026-11-12T19:21:45.4234432Z      67  67 │     const pipe = o.pipe ?? pick([PIPE_SMALL, PIPE_SMALL, PIPE_MED, PIPE_BIG]);
+2026-11-12T19:21:45.4235043Z   
+2026-11-12T19:21:45.4235203Z 
+2026-11-12T19:21:45.4236077Z docs/superpowers/specs/assets/command-center-mockup.html:306:19 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4236775Z 
+2026-11-12T19:21:45.4237097Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4237618Z   
+2026-11-12T19:21:45.4238074Z     304 │   const name = o.name ?? NAMES[(i * 7) % NAMES.length];
+2026-11-12T19:21:45.4238875Z     305 │   const pipe = o.pipe ?? pick([PIPE_SMALL, PIPE_SMALL, PIPE_MED, PIPE_BIG]);
+2026-11-12T19:21:45.4240885Z   > 306 │   const w = { id: "w" + i, repo, name, pipe, state: o.state ?? "passed", last: Date.now() - (o.ago ?? Math.random() * 30 * hour), since: null, fresh: false, branch: pick(["main", "main", "main", "release/2.4"]), actor: pick(["kristofer", "anna", "jonas", "dependabot"]), sha: hex() };
+2026-11-12T19:21:45.4242458Z         │                   ^^^^^^^
+2026-11-12T19:21:45.4242928Z     307 │   w.jobs = assign(pipe());
+2026-11-12T19:21:45.4243715Z     308 │   w.expected = pipe === PIPE_BIG ? 5 * hour + 50 * min : pipe === PIPE_MED ? 14 * min : 4 * min;
+2026-11-12T19:21:45.4244376Z   
+2026-11-12T19:21:45.4245208Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4246226Z   
+2026-11-12T19:21:45.4246548Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4246940Z   
+2026-11-12T19:21:45.4247425Z      66  66 │     const name = o.name ?? NAMES[(i * 7) % NAMES.length];
+2026-11-12T19:21:45.4248263Z      67  67 │     const pipe = o.pipe ?? pick([PIPE_SMALL, PIPE_SMALL, PIPE_MED, PIPE_BIG]);
+2026-11-12T19:21:45.4250486Z      68     │ - ··const·w·=·{·id:·"w"·+·i,·repo,·name,·pipe,·state:·o.state·??·"passed",·last:·Date.now()·-·(o.ago·??·Math.random()·*·30·*·hour),·since:·null,·fresh:·false,·branch:·pick(["main",·"main",·"main",·"release/2.4"]),·actor:·pick(["kristofer",·"anna",·"jonas",·"dependabot"]),·sha:·hex()·};
+2026-11-12T19:21:45.4253640Z          68 │ + ··const·w·=·{·id:·`w${i}`,·repo,·name,·pipe,·state:·o.state·??·"passed",·last:·Date.now()·-·(o.ago·??·Math.random()·*·30·*·hour),·since:·null,·fresh:·false,·branch:·pick(["main",·"main",·"main",·"release/2.4"]),·actor:·pick(["kristofer",·"anna",·"jonas",·"dependabot"]),·sha:·hex()·};
+2026-11-12T19:21:45.4255437Z      69  69 │     w.jobs = assign(pipe());
+2026-11-12T19:21:45.4256292Z      70  70 │     w.expected = pipe === PIPE_BIG ? 5 * hour + 50 * min : pipe === PIPE_MED ? 14 * min : 4 * min;
+2026-11-12T19:21:45.4256965Z   
+2026-11-12T19:21:45.4257120Z 
+2026-11-12T19:21:45.4257829Z docs/superpowers/specs/assets/command-center-mockup.html:430:63 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4258548Z 
+2026-11-12T19:21:45.4258849Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4259373Z   
+2026-11-12T19:21:45.4259708Z     428 │ function fit() {
+2026-11-12T19:21:45.4260315Z     429 │   scale = innerWidth / 1920; VH = Math.round(innerHeight / scale);
+2026-11-12T19:21:45.4261413Z   > 430 │   const tv = document.getElementById("tv"); tv.style.height = VH + "px"; tv.style.transform = `scale(${scale})`;
+2026-11-12T19:21:45.4262648Z         │                                                               ^^^^^^^^^
+2026-11-12T19:21:45.4263198Z     431 │   render();
+2026-11-12T19:21:45.4263546Z     432 │ }
+2026-11-12T19:21:45.4263820Z   
+2026-11-12T19:21:45.4264641Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4265647Z   
+2026-11-12T19:21:45.4265960Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4266525Z   
+2026-11-12T19:21:45.4266866Z     190 190 │   function fit() {
+2026-11-12T19:21:45.4267519Z     191 191 │     scale = innerWidth / 1920; VH = Math.round(innerHeight / scale);
+2026-11-12T19:21:45.4268742Z     192     │ - ··const·tv·=·document.getElementById("tv");·tv.style.height·=·VH·+·"px";·tv.style.transform·=·`scale(${scale})`;
+2026-11-12T19:21:45.4270183Z         192 │ + ··const·tv·=·document.getElementById("tv");·tv.style.height·=·`${VH}px`;·tv.style.transform·=·`scale(${scale})`;
+2026-11-12T19:21:45.4271080Z     193 193 │     render();
+2026-11-12T19:21:45.4271488Z     194 194 │   }
+2026-11-12T19:21:45.4271792Z   
+2026-11-12T19:21:45.4271954Z 
+2026-11-12T19:21:45.4272666Z docs/superpowers/specs/assets/command-center-mockup.html:438:159 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4273376Z 
+2026-11-12T19:21:45.4273662Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4274189Z   
+2026-11-12T19:21:45.4274875Z     436 │ const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+2026-11-12T19:21:45.4275800Z     437 │ const short = (w) => w.repo.split("/")[1];
+2026-11-12T19:21:45.4277075Z   > 438 │ function ago(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); if (s < 60) return "just now"; const m = Math.round(s / 60); if (m < 60) return m + " min ago"; const h = Math.floor(m / 60); return h < 24 ? h + " h ago" : Math.floor(h / 24) + " d ago"; }
+2026-11-12T19:21:45.4278600Z         │                                                                                                                                                               ^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4280116Z ##[error]This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4282919Z     439 │ function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+2026-11-12T19:21:45.4284627Z     440 │ const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+2026-11-12T19:21:45.4285196Z   
+2026-11-12T19:21:45.4286159Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4287055Z   
+2026-11-12T19:21:45.4287375Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4287778Z   
+2026-11-12T19:21:45.4288481Z     198 198 │   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+2026-11-12T19:21:45.4289241Z     199 199 │   const short = (w) => w.repo.split("/")[1];
+2026-11-12T19:21:45.4290494Z     200     │ - function·ago(t)·{·const·s·=·Math.max(0,·Math.round((Date.now()·-·t)·/·1000));·if·(s·<·60)·return·"just·now";·const·m·=·Math.round(s·/·60);·if·(m·<·60)·return·m·+·"·min·ago";·const·h·=·Math.floor(m·/·60);·return·h·<·24·?·h·+·"·h·ago"·:·Math.floor(h·/·24)·+·"·d·ago";·}
+2026-11-12T19:21:45.4292539Z         200 │ + function·ago(t)·{·const·s·=·Math.max(0,·Math.round((Date.now()·-·t)·/·1000));·if·(s·<·60)·return·"just·now";·const·m·=·Math.round(s·/·60);·if·(m·<·60)·return·`${m}·min·ago`;·const·h·=·Math.floor(m·/·60);·return·h·<·24·?·h·+·"·h·ago"·:·Math.floor(h·/·24)·+·"·d·ago";·}
+2026-11-12T19:21:45.4295149Z     201 201 │   function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+2026-11-12T19:21:45.4296872Z     202 202 │   const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+2026-11-12T19:21:45.4297357Z   
+2026-11-12T19:21:45.4297464Z 
+2026-11-12T19:21:45.4297929Z docs/superpowers/specs/assets/command-center-mockup.html:438:221 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4298363Z 
+2026-11-12T19:21:45.4298884Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4299414Z   
+2026-11-12T19:21:45.4299960Z     436 │ const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+2026-11-12T19:21:45.4300732Z     437 │ const short = (w) => w.repo.split("/")[1];
+2026-11-12T19:21:45.4302462Z   > 438 │ function ago(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); if (s < 60) return "just now"; const m = Math.round(s / 60); if (m < 60) return m + " min ago"; const h = Math.floor(m / 60); return h < 24 ? h + " h ago" : Math.floor(h / 24) + " d ago"; }
+2026-11-12T19:21:45.4304505Z         │                                                                                                                                                                                                                             ^^^^^^^^^^^^
+2026-11-12T19:21:45.4306594Z     439 │ function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+2026-11-12T19:21:45.4308016Z     440 │ const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+2026-11-12T19:21:45.4308573Z   
+2026-11-12T19:21:45.4309427Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4310318Z   
+2026-11-12T19:21:45.4310652Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4311297Z   
+2026-11-12T19:21:45.4311988Z     198 198 │   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+2026-11-12T19:21:45.4312838Z     199 199 │   const short = (w) => w.repo.split("/")[1];
+2026-11-12T19:21:45.4314871Z     200     │ - function·ago(t)·{·const·s·=·Math.max(0,·Math.round((Date.now()·-·t)·/·1000));·if·(s·<·60)·return·"just·now";·const·m·=·Math.round(s·/·60);·if·(m·<·60)·return·m·+·"·min·ago";·const·h·=·Math.floor(m·/·60);·return·h·<·24·?·h·+·"·h·ago"·:·Math.floor(h·/·24)·+·"·d·ago";·}
+2026-11-12T19:21:45.4317978Z         200 │ + function·ago(t)·{·const·s·=·Math.max(0,·Math.round((Date.now()·-·t)·/·1000));·if·(s·<·60)·return·"just·now";·const·m·=·Math.round(s·/·60);·if·(m·<·60)·return·m·+·"·min·ago";·const·h·=·Math.floor(m·/·60);·return·h·<·24·?·`${h}·h·ago`·:·Math.floor(h·/·24)·+·"·d·ago";·}
+2026-11-12T19:21:45.4320713Z     201 201 │   function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+2026-11-12T19:21:45.4322295Z     202 202 │   const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+2026-11-12T19:21:45.4322875Z   
+2026-11-12T19:21:45.4323027Z 
+2026-11-12T19:21:45.4323746Z docs/superpowers/specs/assets/command-center-mockup.html:438:236 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4324480Z 
+2026-11-12T19:21:45.4324770Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4325293Z   
+2026-11-12T19:21:45.4326058Z     436 │ const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+2026-11-12T19:21:45.4326864Z     437 │ const short = (w) => w.repo.split("/")[1];
+2026-11-12T19:21:45.4329172Z   > 438 │ function ago(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); if (s < 60) return "just now"; const m = Math.round(s / 60); if (m < 60) return m + " min ago"; const h = Math.floor(m / 60); return h < 24 ? h + " h ago" : Math.floor(h / 24) + " d ago"; }
+2026-11-12T19:21:45.4331335Z         │                                                                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4333579Z     439 │ function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+2026-11-12T19:21:45.4335115Z     440 │ const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+2026-11-12T19:21:45.4335852Z   
+2026-11-12T19:21:45.4336689Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4337583Z   
+2026-11-12T19:21:45.4337901Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4338303Z   
+2026-11-12T19:21:45.4338986Z     198 198 │   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+2026-11-12T19:21:45.4339822Z     199 199 │   const short = (w) => w.repo.split("/")[1];
+2026-11-12T19:21:45.4341807Z     200     │ - function·ago(t)·{·const·s·=·Math.max(0,·Math.round((Date.now()·-·t)·/·1000));·if·(s·<·60)·return·"just·now";·const·m·=·Math.round(s·/·60);·if·(m·<·60)·return·m·+·"·min·ago";·const·h·=·Math.floor(m·/·60);·return·h·<·24·?·h·+·"·h·ago"·:·Math.floor(h·/·24)·+·"·d·ago";·}
+2026-11-12T19:21:45.4344838Z         200 │ + function·ago(t)·{·const·s·=·Math.max(0,·Math.round((Date.now()·-·t)·/·1000));·if·(s·<·60)·return·"just·now";·const·m·=·Math.round(s·/·60);·if·(m·<·60)·return·m·+·"·min·ago";·const·h·=·Math.floor(m·/·60);·return·h·<·24·?·h·+·"·h·ago"·:·`${Math.floor(h·/·24)}·d·ago`;·}
+2026-11-12T19:21:45.4347658Z     201 201 │   function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+2026-11-12T19:21:45.4349145Z     202 202 │   const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+2026-11-12T19:21:45.4349545Z   
+2026-11-12T19:21:45.4349656Z 
+2026-11-12T19:21:45.4350291Z docs/superpowers/specs/assets/command-center-mockup.html:495:83 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4350983Z 
+2026-11-12T19:21:45.4351284Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4351805Z   
+2026-11-12T19:21:45.4352211Z     493 │     const groups = {}; const nodes = [];
+2026-11-12T19:21:45.4353492Z     494 │     for (const j of c) { if (j.group && c.filter((x) => x.group === j.group).length > 3) (groups[j.group] ??= []).push(j); else nodes.push({ kind: "job", id: j.id, jobs: [j] }); }
+2026-11-12T19:21:45.4354999Z   > 495 │     for (const [g, js] of Object.entries(groups)) nodes.push({ kind: "group", id: "g-" + g, name: g, jobs: js });
+2026-11-12T19:21:45.4356140Z         │                                                                                   ^^^^^^^^
+2026-11-12T19:21:45.4356726Z     496 │     return nodes;
+2026-11-12T19:21:45.4357111Z     497 │   });
+2026-11-12T19:21:45.4357416Z   
+2026-11-12T19:21:45.4358238Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4358996Z   
+2026-11-12T19:21:45.4359223Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4359501Z   
+2026-11-12T19:21:45.4359793Z     255 255 │       const groups = {}; const nodes = [];
+2026-11-12T19:21:45.4360786Z     256 256 │       for (const j of c) { if (j.group && c.filter((x) => x.group === j.group).length > 3) (groups[j.group] ??= []).push(j); else nodes.push({ kind: "job", id: j.id, jobs: [j] }); }
+2026-11-12T19:21:45.4361855Z     257     │ - ····for·(const·[g,·js]·of·Object.entries(groups))·nodes.push({·kind:·"group",·id:·"g-"·+·g,·name:·g,·jobs:·js·});
+2026-11-12T19:21:45.4362768Z         257 │ + ····for·(const·[g,·js]·of·Object.entries(groups))·nodes.push({·kind:·"group",·id:·`g-${g}`,·name:·g,·jobs:·js·});
+2026-11-12T19:21:45.4363322Z     258 258 │       return nodes;
+2026-11-12T19:21:45.4363740Z     259 259 │     });
+2026-11-12T19:21:45.4363956Z   
+2026-11-12T19:21:45.4364057Z 
+2026-11-12T19:21:45.4364524Z docs/superpowers/specs/assets/command-center-mockup.html:517:119 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4364961Z 
+2026-11-12T19:21:45.4365158Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4365777Z   
+2026-11-12T19:21:45.4366164Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4367067Z     516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4368489Z   > 517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4369807Z         │                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4370957Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4371731Z     519 │ }
+2026-11-12T19:21:45.4372009Z   
+2026-11-12T19:21:45.4372821Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4373703Z   
+2026-11-12T19:21:45.4374018Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4374414Z   
+2026-11-12T19:21:45.4374790Z     277 277 │     // map job -> node for edges
+2026-11-12T19:21:45.4375820Z     278 278 │     const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4377405Z     279     │ - ··const·edges·=·new·Set();·for·(const·j·of·w.jobs)·for·(const·n·of·j.needs)·if·(nodeOf[n]·!==·nodeOf[j.id])·edges.add(nodeOf[n]·+·">"·+·nodeOf[j.id]);
+2026-11-12T19:21:45.4379195Z         279 │ + ··const·edges·=·new·Set();·for·(const·j·of·w.jobs)·for·(const·n·of·j.needs)·if·(nodeOf[n]·!==·nodeOf[j.id])·edges.add(`${nodeOf[n]}>${nodeOf[j.id]}`);
+2026-11-12T19:21:45.4380711Z     280 280 │     return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4381536Z     281 281 │   }
+2026-11-12T19:21:45.4381830Z   
+2026-11-12T19:21:45.4381988Z 
+2026-11-12T19:21:45.4382692Z docs/superpowers/specs/assets/command-center-mockup.html:642:25 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4383397Z 
+2026-11-12T19:21:45.4383695Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4384424Z   
+2026-11-12T19:21:45.4385197Z     640 │       const wB = ease(clamp(1 - d)), wM = ease(clamp(1 - Math.abs(d - 1))) , wS = d >= 1 ? ease(clamp(d - 1)) : 0;
+2026-11-12T19:21:45.4386563Z     641 │       const h = DOCK.small + (DOCK.mid - DOCK.small) * clamp(2 - d) + (DOCK.big - DOCK.mid) * ease(clamp(1 - d));
+2026-11-12T19:21:45.4387433Z   > 642 │       el.style.height = h + "px";
+2026-11-12T19:21:45.4388085Z         │                         ^^^^^^^^
+2026-11-12T19:21:45.4389004Z     643 │       const lvl = d < 0.5 ? 0 : d < 1.5 ? 1 : 2; for (let k = 0; k < 3; k++) el.children[k].style.opacity = k === lvl ? 1 : 0;
+2026-11-12T19:21:45.4389757Z     644 │       tops.push(y); hs.push(h); y += h + 12;
+2026-11-12T19:21:45.4390052Z   
+2026-11-12T19:21:45.4390902Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4391800Z   
+2026-11-12T19:21:45.4392151Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4392556Z   
+2026-11-12T19:21:45.4393331Z     402 402 │         const wB = ease(clamp(1 - d)), wM = ease(clamp(1 - Math.abs(d - 1))) , wS = d >= 1 ? ease(clamp(d - 1)) : 0;
+2026-11-12T19:21:45.4394585Z     403 403 │         const h = DOCK.small + (DOCK.mid - DOCK.small) * clamp(2 - d) + (DOCK.big - DOCK.mid) * ease(clamp(1 - d));
+2026-11-12T19:21:45.4395649Z     404     │ - ······el.style.height·=·h·+·"px";
+2026-11-12T19:21:45.4396245Z         404 │ + ······el.style.height·=·`${h}px`;
+2026-11-12T19:21:45.4397198Z     405 405 │         const lvl = d < 0.5 ? 0 : d < 1.5 ? 1 : 2; for (let k = 0; k < 3; k++) el.children[k].style.opacity = k === lvl ? 1 : 0;
+2026-11-12T19:21:45.4398107Z     406 406 │         tops.push(y); hs.push(h); y += h + 12;
+2026-11-12T19:21:45.4398574Z   
+2026-11-12T19:21:45.4398730Z 
+2026-11-12T19:21:45.4399444Z docs/superpowers/specs/assets/command-center-mockup.html:764:118 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4400156Z 
+2026-11-12T19:21:45.4400462Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4400984Z   
+2026-11-12T19:21:45.4401646Z     762 │     const s = w.jobs.map((j) => j.status[0] + (j.status === "running" ? j.stepIdx : "")).join("");
+2026-11-12T19:21:45.4402808Z     763 │     if (sig[w.id] !== s) { sig[w.id] = s; g.innerHTML = graphHtml(w, +g.dataset.maxcols, g.dataset.compact === "1"); }
+2026-11-12T19:21:45.4403700Z   > 764 │     else for (const j of w.jobs) { const b = g.querySelector(`[data-bar="${w.id}:${j.id}"]`); if (b) b.style.width = pct(j) + "%"; }
+2026-11-12T19:21:45.4404668Z         │                                                                                                                      ^^^^^^^^^^^^
+2026-11-12T19:21:45.4405683Z     765 │     const card = g.closest(".run"); const pr = card?.querySelector(".progress");
+2026-11-12T19:21:45.4406399Z     766 │     const ln = card?.querySelector("[data-lanes]"); if (ln) ln.innerHTML = lanesHtml(w, +ln.dataset.n);
+2026-11-12T19:21:45.4407127Z   
+2026-11-12T19:21:45.4407894Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4408465Z   
+2026-11-12T19:21:45.4408765Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4409169Z   
+2026-11-12T19:21:45.4409861Z     524 524 │       const s = w.jobs.map((j) => j.status[0] + (j.status === "running" ? j.stepIdx : "")).join("");
+2026-11-12T19:21:45.4410818Z     525 525 │       if (sig[w.id] !== s) { sig[w.id] = s; g.innerHTML = graphHtml(w, +g.dataset.maxcols, g.dataset.compact === "1"); }
+2026-11-12T19:21:45.4411765Z     526     │ - ····else·for·(const·j·of·w.jobs)·{·const·b·=·g.querySelector(`[data-bar="${w.id}:${j.id}"]`);·if·(b)·b.style.width·=·pct(j)·+·"%";·}
+2026-11-12T19:21:45.4412862Z         526 │ + ····else·for·(const·j·of·w.jobs)·{·const·b·=·g.querySelector(`[data-bar="${w.id}:${j.id}"]`);·if·(b)·b.style.width·=·`${pct(j)}%`;·}
+2026-11-12T19:21:45.4414232Z     527 527 │       const card = g.closest(".run"); const pr = card?.querySelector(".progress");
+2026-11-12T19:21:45.4415090Z     528 528 │       const ln = card?.querySelector("[data-lanes]"); if (ln) ln.innerHTML = lanesHtml(w, +ln.dataset.n);
+2026-11-12T19:21:45.4415964Z   
+2026-11-12T19:21:45.4416118Z 
+2026-11-12T19:21:45.4416587Z docs/superpowers/specs/assets/command-center-mockup.html:772:66 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4417181Z 
+2026-11-12T19:21:45.4417374Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4417930Z   
+2026-11-12T19:21:45.4418622Z     770 │     const w = workflows.find((x) => x.id === r.dataset.row); if (!w || w.state !== "running") return;
+2026-11-12T19:21:45.4419309Z     771 │     const t = timing(w); const el = r.querySelector(".el"); if (el) el.textContent = t.txt;
+2026-11-12T19:21:45.4419972Z   > 772 │     const b = r.querySelector(".tbar i"); if (b) b.style.width = Math.round(t.f * 100) + "%";
+2026-11-12T19:21:45.4420714Z         │                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4421482Z     773 │     const e = r.querySelector(".eta2"); if (e) e.textContent = t.eta;
+2026-11-12T19:21:45.4422443Z     774 │     const j = w.jobs.find((x) => x.status === "running"); const r3 = r.querySelector(".r3"); if (r3 && j) r3.innerHTML = `${esc(j.name)} › ${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}`;
+2026-11-12T19:21:45.4423531Z   
+2026-11-12T19:21:45.4424335Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4425223Z   
+2026-11-12T19:21:45.4425650Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4425926Z   
+2026-11-12T19:21:45.4426431Z     532 532 │       const w = workflows.find((x) => x.id === r.dataset.row); if (!w || w.state !== "running") return;
+2026-11-12T19:21:45.4427191Z     533 533 │       const t = timing(w); const el = r.querySelector(".el"); if (el) el.textContent = t.txt;
+2026-11-12T19:21:45.4428370Z     534     │ - ····const·b·=·r.querySelector(".tbar·i");·if·(b)·b.style.width·=·Math.round(t.f·*·100)·+·"%";
+2026-11-12T19:21:45.4429103Z         534 │ + ····const·b·=·r.querySelector(".tbar·i");·if·(b)·b.style.width·=·`${Math.round(t.f·*·100)}%`;
+2026-11-12T19:21:45.4430055Z     535 535 │       const e = r.querySelector(".eta2"); if (e) e.textContent = t.eta;
+2026-11-12T19:21:45.4431634Z     536 536 │       const j = w.jobs.find((x) => x.status === "running"); const r3 = r.querySelector(".r3"); if (r3 && j) r3.innerHTML = `${esc(j.name)} › ${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}`;
+2026-11-12T19:21:45.4432627Z   
+2026-11-12T19:21:45.4432772Z 
+2026-11-12T19:21:45.4433442Z docs/superpowers/specs/assets/command-center-mockup.html:777:165 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+2026-11-12T19:21:45.4434160Z 
+2026-11-12T19:21:45.4434443Z   i Template literals are preferred over string concatenation.
+2026-11-12T19:21:45.4434914Z   
+2026-11-12T19:21:45.4435241Z     775 │   });
+2026-11-12T19:21:45.4436611Z     776 │   canvas.querySelectorAll("[data-timing]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.timing); if (w && w.state === "running") e.textContent = timing(w).txt; });
+2026-11-12T19:21:45.4438750Z   > 777 │   canvas.querySelectorAll("[data-tbar]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.tbar); if (w && w.state === "running") e.style.width = Math.round(timing(w).f * 100) + "%"; });
+2026-11-12T19:21:45.4440518Z         │                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4468923Z     778 │   canvas.querySelectorAll("[data-eta]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.eta); if (w && w.state === "running") e.textContent = timing(w).eta; });
+2026-11-12T19:21:45.4470549Z     779 │   drawEdges(); paintClock();
+2026-11-12T19:21:45.4470971Z   
+2026-11-12T19:21:45.4471816Z   i Template literals are easier to read than a chain of + operators and quotes, and they avoid mistakes with spaces and escaped quotes.
+2026-11-12T19:21:45.4472550Z   
+2026-11-12T19:21:45.4472898Z   i Unsafe fix: Use a template literal.
+2026-11-12T19:21:45.4473297Z   
+2026-11-12T19:21:45.4473629Z     537 537 │     });
+2026-11-12T19:21:45.4475092Z     538 538 │     canvas.querySelectorAll("[data-timing]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.timing); if (w && w.state === "running") e.textContent = timing(w).txt; });
+2026-11-12T19:21:45.4477119Z     539     │ - ··canvas.querySelectorAll("[data-tbar]").forEach((e)·=>·{·const·w·=·workflows.find((x)·=>·x.id·===·e.dataset.tbar);·if·(w·&&·w.state·===·"running")·e.style.width·=·Math.round(timing(w).f·*·100)·+·"%";·});
+2026-11-12T19:21:45.4479237Z         539 │ + ··canvas.querySelectorAll("[data-tbar]").forEach((e)·=>·{·const·w·=·workflows.find((x)·=>·x.id·===·e.dataset.tbar);·if·(w·&&·w.state·===·"running")·e.style.width·=·`${Math.round(timing(w).f·*·100)}%`;·});
+2026-11-12T19:21:45.4480979Z     540 540 │     canvas.querySelectorAll("[data-eta]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.eta); if (w && w.state === "running") e.textContent = timing(w).eta; });
+2026-11-12T19:21:45.4482219Z     541 541 │     drawEdges(); paintClock();
+2026-11-12T19:21:45.4482512Z   
+2026-11-12T19:21:45.4482616Z 
+2026-11-12T19:21:45.4483343Z docs/superpowers/specs/assets/command-center-mockup.html:211:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4484036Z 
+2026-11-12T19:21:45.4484292Z   ! Descending specificity selector found. This selector specificity is (0, 3, 0)
+2026-11-12T19:21:45.4484800Z   
+2026-11-12T19:21:45.4486025Z     209 │   .bar.failed { background: var(--red); box-shadow: 0 0 18px var(--red); } .bar.running { background: var(--amber); animation: pulse 1.6s infinite; }
+2026-11-12T19:21:45.4487665Z     210 │   .bar.passed { background: #16502f; } .bar.never { background: repeating-linear-gradient(180deg, var(--dim) 0 6px, transparent 6px 12px); } .bar.missing { background: var(--red); }
+2026-11-12T19:21:45.4488720Z   > 211 │   .B .brow .nm { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4489406Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4490203Z     212 │   .B .brow .sub { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4491509Z     213 │   .B .brow .when { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+2026-11-12T19:21:45.4492311Z   
+2026-11-12T19:21:45.4492647Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4493068Z   
+2026-11-12T19:21:45.4493448Z     145 │   .itile .sub b { color: #c3cbd4; }
+2026-11-12T19:21:45.4494010Z     146 │   .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+2026-11-12T19:21:45.4495067Z   > 147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4495854Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4496372Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4497171Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4497762Z   
+2026-11-12T19:21:45.4498507Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4499267Z   
+2026-11-12T19:21:45.4499411Z 
+2026-11-12T19:21:45.4500119Z docs/superpowers/specs/assets/command-center-mockup.html:169:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4500560Z 
+2026-11-12T19:21:45.4500815Z   ! Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4501213Z   
+2026-11-12T19:21:45.4501952Z     167 │   .strip .mini { width: 11px; height: 11px; border-radius: 3px; }
+2026-11-12T19:21:45.4502924Z     168 │   .pbar { flex: 1; height: 10px; border-radius: 5px; background: #2a2414; overflow: hidden; }
+2026-11-12T19:21:45.4503842Z   > 169 │   .pbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); }
+2026-11-12T19:21:45.4504623Z         │   ^^^^^^^
+2026-11-12T19:21:45.4505527Z     170 │   .dock-fade { position: absolute; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 2; }
+2026-11-12T19:21:45.4506762Z     171 │   .dock-fade.top { top: 0; background: linear-gradient(#000, transparent); }
+2026-11-12T19:21:45.4507382Z   
+2026-11-12T19:21:45.4507710Z   i This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4508021Z   
+2026-11-12T19:21:45.4508613Z     102 │   .node .step { font-size: 15px; font-weight: 500; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4509764Z     103 │   .node .bar { height: 5px; border-radius: 3px; background: #2d250f; overflow: hidden; }
+2026-11-12T19:21:45.4510695Z   > 104 │   .node .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .7s ease; }
+2026-11-12T19:21:45.4511275Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4511642Z     105 │   /* matrix group + collapsed nodes */
+2026-11-12T19:21:45.4512179Z     106 │   .node.group { width: 230px; }
+2026-11-12T19:21:45.4512591Z   
+2026-11-12T19:21:45.4513203Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4514214Z   
+2026-11-12T19:21:45.4514368Z 
+2026-11-12T19:21:45.4515014Z docs/superpowers/specs/assets/command-center-mockup.html:178:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4515868Z 
+2026-11-12T19:21:45.4516287Z   ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4516915Z   
+2026-11-12T19:21:45.4518545Z     176 │   .rrow { position: relative; border-radius: 14px; background: #0d0b06; border: 1px solid #2a2310; padding: 0 18px; display: flex; flex-direction: column; justify-content: center; gap: 6px; transition: background .5s, border-color .5s; flex: none; }
+2026-11-12T19:21:45.4520400Z     177 │   .rrow .r1 { display: flex; align-items: center; gap: 12px; min-width: 0; }
+2026-11-12T19:21:45.4521666Z   > 178 │   .rrow .nm { font-size: 22px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ecdcb8; }
+2026-11-12T19:21:45.4522661Z         │   ^^^^^^^^^
+2026-11-12T19:21:45.4523686Z     179 │   .rrow .el { margin-left: auto; font-size: 18px; font-weight: 600; color: #c9a86a; white-space: nowrap; font-variant-numeric: tabular-nums; }
+2026-11-12T19:21:45.4524730Z     180 │   .rrow .r2 { display: flex; align-items: center; gap: 12px; }
+2026-11-12T19:21:45.4525259Z   
+2026-11-12T19:21:45.4525704Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4526123Z   
+2026-11-12T19:21:45.4526506Z     145 │   .itile .sub b { color: #c3cbd4; }
+2026-11-12T19:21:45.4527333Z     146 │   .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+2026-11-12T19:21:45.4528312Z   > 147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4528782Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4529197Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4530011Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4530518Z   
+2026-11-12T19:21:45.4531071Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4531674Z   
+2026-11-12T19:21:45.4531772Z 
+2026-11-12T19:21:45.4532355Z docs/superpowers/specs/assets/command-center-mockup.html:187:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4533071Z 
+2026-11-12T19:21:45.4533778Z   ! Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4534269Z   
+2026-11-12T19:21:45.4534666Z     185 │   .rrow.slowrun .el { color: #ff9f6a; }
+2026-11-12T19:21:45.4535602Z     186 │   .tbar { flex: 1; height: 8px; border-radius: 4px; background: #2a2414; overflow: hidden; }
+2026-11-12T19:21:45.4536751Z   > 187 │   .tbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .8s ease; }
+2026-11-12T19:21:45.4537853Z         │   ^^^^^^^
+2026-11-12T19:21:45.4538472Z     188 │   .detail { position: relative; display: grid; min-height: 0; min-width: 0; }
+2026-11-12T19:21:45.4539174Z     189 │   .detail .run { height: 100%; }
+2026-11-12T19:21:45.4539441Z   
+2026-11-12T19:21:45.4539652Z   i This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4539980Z   
+2026-11-12T19:21:45.4540913Z     102 │   .node .step { font-size: 15px; font-weight: 500; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4542187Z     103 │   .node .bar { height: 5px; border-radius: 3px; background: #2d250f; overflow: hidden; }
+2026-11-12T19:21:45.4543468Z   > 104 │   .node .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .7s ease; }
+2026-11-12T19:21:45.4544329Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4544630Z     105 │   /* matrix group + collapsed nodes */
+2026-11-12T19:21:45.4544983Z     106 │   .node.group { width: 230px; }
+2026-11-12T19:21:45.4545248Z   
+2026-11-12T19:21:45.4546232Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4547168Z   
+2026-11-12T19:21:45.4547317Z 
+2026-11-12T19:21:45.4547918Z docs/superpowers/specs/assets/command-center-mockup.html:189:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4548459Z 
+2026-11-12T19:21:45.4548845Z   ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4549478Z   
+2026-11-12T19:21:45.4550342Z     187 │   .tbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .8s ease; }
+2026-11-12T19:21:45.4551511Z     188 │   .detail { position: relative; display: grid; min-height: 0; min-width: 0; }
+2026-11-12T19:21:45.4552025Z   > 189 │   .detail .run { height: 100%; }
+2026-11-12T19:21:45.4552521Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4553625Z     190 │   .dwell { position: absolute; left: 24px; right: 24px; bottom: 8px; height: 3px; border-radius: 2px; background: rgba(255,178,36,.12); overflow: hidden; }
+2026-11-12T19:21:45.4555458Z     191 │   .dwell i { display: block; height: 100%; width: 100%; background: rgba(255,178,36,.6); transform-origin: 0 50%; animation: dwell linear forwards; }
+2026-11-12T19:21:45.4556165Z   
+2026-11-12T19:21:45.4556522Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4556936Z   
+2026-11-12T19:21:45.4557491Z     153 │   .ditem .lv { position: absolute; inset: 0; transition: opacity .45s ease; }
+2026-11-12T19:21:45.4558077Z     154 │   .ditem .lv.big { display: grid; }
+2026-11-12T19:21:45.4558693Z   > 155 │   .ditem .lv.big .run { height: 100%; }
+2026-11-12T19:21:45.4559180Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4560437Z     156 │   .midrun, .smallrun { height: 100%; border-radius: 18px; background: linear-gradient(90deg, #1b1504, #0d0b05); border: 2px solid rgba(255,178,36,.35); padding: 14px 22px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+2026-11-12T19:21:45.4562028Z     157 │   .midrun .l1, .smallrun { display: flex; align-items: center; gap: 14px; }
+2026-11-12T19:21:45.4562583Z   
+2026-11-12T19:21:45.4563417Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4564188Z   
+2026-11-12T19:21:45.4564340Z 
+2026-11-12T19:21:45.4565245Z docs/superpowers/specs/assets/command-center-mockup.html:191:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4566107Z 
+2026-11-12T19:21:45.4566481Z   ! Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4567113Z   
+2026-11-12T19:21:45.4567393Z     189 │   .detail .run { height: 100%; }
+2026-11-12T19:21:45.4568379Z     190 │   .dwell { position: absolute; left: 24px; right: 24px; bottom: 8px; height: 3px; border-radius: 2px; background: rgba(255,178,36,.12); overflow: hidden; }
+2026-11-12T19:21:45.4570065Z   > 191 │   .dwell i { display: block; height: 100%; width: 100%; background: rgba(255,178,36,.6); transform-origin: 0 50%; animation: dwell linear forwards; }
+2026-11-12T19:21:45.4570913Z         │   ^^^^^^^^
+2026-11-12T19:21:45.4571561Z     192 │   @keyframes dwell { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+2026-11-12T19:21:45.4572653Z     193 │   .run .eta { display: flex; align-items: center; gap: 14px; font-size: 18px; color: var(--muted); }
+2026-11-12T19:21:45.4573358Z   
+2026-11-12T19:21:45.4573613Z   i This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4573978Z   
+2026-11-12T19:21:45.4574871Z     102 │   .node .step { font-size: 15px; font-weight: 500; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4576197Z     103 │   .node .bar { height: 5px; border-radius: 3px; background: #2d250f; overflow: hidden; }
+2026-11-12T19:21:45.4577371Z   > 104 │   .node .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .7s ease; }
+2026-11-12T19:21:45.4578281Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4578724Z     105 │   /* matrix group + collapsed nodes */
+2026-11-12T19:21:45.4579253Z     106 │   .node.group { width: 230px; }
+2026-11-12T19:21:45.4579653Z   
+2026-11-12T19:21:45.4580500Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4581412Z   
+2026-11-12T19:21:45.4581511Z 
+2026-11-12T19:21:45.4581965Z docs/superpowers/specs/assets/command-center-mockup.html:221:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4582652Z 
+2026-11-12T19:21:45.4583040Z   ! Descending specificity selector found. This selector specificity is (0, 3, 0)
+2026-11-12T19:21:45.4583662Z   
+2026-11-12T19:21:45.4584284Z     219 │   .C .grid { flex: 1; display: grid; grid-auto-flow: dense; gap: 14px; padding: 0 40px 30px; min-height: 0; }
+2026-11-12T19:21:45.4586183Z     220 │   .C .tile { border-radius: 14px; background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; min-height: 0; overflow: hidden; }
+2026-11-12T19:21:45.4588270Z   > 221 │   .C .tile .nm { font-weight: 700; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+2026-11-12T19:21:45.4589190Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4589991Z     222 │   .C .tile .sub { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4591205Z     223 │   .C .tile.passed { border-color: #123a25; background: linear-gradient(170deg, #071a10, #050b08); }
+2026-11-12T19:21:45.4591931Z   
+2026-11-12T19:21:45.4592252Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4592679Z   
+2026-11-12T19:21:45.4593058Z     145 │   .itile .sub b { color: #c3cbd4; }
+2026-11-12T19:21:45.4593878Z     146 │   .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+2026-11-12T19:21:45.4594971Z   > 147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4595807Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4596200Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4597268Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4597688Z   
+2026-11-12T19:21:45.4598548Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4599489Z   
+2026-11-12T19:21:45.4599643Z 
+2026-11-12T19:21:45.4600359Z docs/superpowers/specs/assets/command-center-mockup.html:48:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4601082Z 
+2026-11-12T19:21:45.4601337Z   ! Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4601940Z   
+2026-11-12T19:21:45.4602371Z     46 │   .repo { color: var(--muted); font-weight: 500; }
+2026-11-12T19:21:45.4603035Z     47 │   .meta { color: var(--muted); font-size: 20px; display: flex; gap: 20px; }
+2026-11-12T19:21:45.4603761Z   > 48 │   .meta b { color: #c3cbd4; font-weight: 600; }
+2026-11-12T19:21:45.4604252Z        │   ^^^^^^^
+2026-11-12T19:21:45.4604809Z     49 │   .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+2026-11-12T19:21:45.4606431Z     50 │   .section-label { font-size: 18px; font-weight: 800; letter-spacing: 3px; color: var(--dim); margin: 0 0 10px 2px; display: flex; gap: 14px; align-items: center; flex: none; }
+2026-11-12T19:21:45.4607526Z   
+2026-11-12T19:21:45.4607846Z   i This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4608258Z   
+2026-11-12T19:21:45.4609405Z     35 │   .count { display: flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 600; color: var(--muted); padding: 7px 16px; border-radius: 999px; background: #0d1014; }
+2026-11-12T19:21:45.4610316Z     36 │   .count b { color: var(--text); font-size: 27px; }
+2026-11-12T19:21:45.4610934Z   > 37 │   .count.red b { color: var(--red); } .count.amber b { color: var(--amber); } .count.green b { color: var(--green); }
+2026-11-12T19:21:45.4611718Z        │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4612633Z     38 │   .clock { margin-left: auto; font-size: 30px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+2026-11-12T19:21:45.4613549Z     39 │   .dot { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+2026-11-12T19:21:45.4614168Z   
+2026-11-12T19:21:45.4615024Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4615995Z   
+2026-11-12T19:21:45.4616148Z 
+2026-11-12T19:21:45.4616929Z docs/superpowers/specs/assets/command-center-mockup.html:149:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4617410Z 
+2026-11-12T19:21:45.4617654Z   ! Descending specificity selector found. This selector specificity is (0, 1, 1)
+2026-11-12T19:21:45.4618047Z   
+2026-11-12T19:21:45.4618482Z     147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4619242Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4619997Z   > 149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4620507Z         │   ^^^^^^^
+2026-11-12T19:21:45.4620922Z     150 │   .hist i.f { background: var(--red); }
+2026-11-12T19:21:45.4621565Z     151 │   .dock { position: relative; overflow: hidden; flex: none; }
+2026-11-12T19:21:45.4622080Z   
+2026-11-12T19:21:45.4622393Z   i This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4622796Z   
+2026-11-12T19:21:45.4623698Z     102 │   .node .step { font-size: 15px; font-weight: 500; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4624951Z     103 │   .node .bar { height: 5px; border-radius: 3px; background: #2d250f; overflow: hidden; }
+2026-11-12T19:21:45.4626163Z   > 104 │   .node .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .7s ease; }
+2026-11-12T19:21:45.4627085Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4627529Z     105 │   /* matrix group + collapsed nodes */
+2026-11-12T19:21:45.4628145Z     106 │   .node.group { width: 230px; }
+2026-11-12T19:21:45.4628527Z   
+2026-11-12T19:21:45.4629368Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4630294Z   
+2026-11-12T19:21:45.4630435Z 
+2026-11-12T19:21:45.4631090Z docs/superpowers/specs/assets/command-center-mockup.html:150:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4631698Z 
+2026-11-12T19:21:45.4632079Z   ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+2026-11-12T19:21:45.4632694Z   
+2026-11-12T19:21:45.4633148Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4633927Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4634487Z   > 150 │   .hist i.f { background: var(--red); }
+2026-11-12T19:21:45.4634904Z         │   ^^^^^^^^^
+2026-11-12T19:21:45.4635570Z     151 │   .dock { position: relative; overflow: hidden; flex: none; }
+2026-11-12T19:21:45.4636687Z     152 │   .ditem { position: absolute; left: 0; right: 0; top: 0; overflow: hidden; border-radius: 20px; will-change: transform, height; }
+2026-11-12T19:21:45.4637341Z   
+2026-11-12T19:21:45.4637661Z   i This selector specificity is (0, 3, 1)
+2026-11-12T19:21:45.4638064Z   
+2026-11-12T19:21:45.4638532Z     119 │   .lane .segs { display: flex; gap: 3px; height: 12px; }
+2026-11-12T19:21:45.4639365Z     120 │   .lane .segs i { flex: 1; border-radius: 3px; background: #2a2414; }
+2026-11-12T19:21:45.4640353Z   > 121 │   .lane .segs i.d { background: #3fae6d; } .lane .segs i.n { background: var(--amber); animation: pulse 1.2s infinite; } .lane .segs i.f { background: var(--red); }
+2026-11-12T19:21:45.4641783Z         │                                                                                                                          ^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4642923Z     122 │   .lane .cur { color: #ffd690; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 17px; }
+2026-11-12T19:21:45.4644079Z     123 │   .lane.failure .ln { color: #ff9aa3; } .lane.failure .cur { color: #ff9aa3; }
+2026-11-12T19:21:45.4644674Z   
+2026-11-12T19:21:45.4645289Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4646342Z   
+2026-11-12T19:21:45.4646510Z 
+2026-11-12T19:21:45.4647244Z docs/superpowers/specs/assets/command-center-mockup.html:159:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4647945Z 
+2026-11-12T19:21:45.4648324Z   ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4648809Z   
+2026-11-12T19:21:45.4649175Z     157 │   .midrun .l1, .smallrun { display: flex; align-items: center; gap: 14px; }
+2026-11-12T19:21:45.4650088Z     158 │   .smallrun { flex-direction: row; padding: 0 22px; border-width: 1px; }
+2026-11-12T19:21:45.4651315Z   > 159 │   .midrun .nm, .smallrun .nm { font-size: 26px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4652044Z         │   ^^^^^^^^^^^
+2026-11-12T19:21:45.4652398Z     160 │   .smallrun .nm { font-size: 21px; width: 520px; flex: none; }
+2026-11-12T19:21:45.4652962Z     161 │   .midrun .cnt { color: #c9a86a; font-size: 18px; font-weight: 600; }
+2026-11-12T19:21:45.4653510Z   
+2026-11-12T19:21:45.4653843Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4654253Z   
+2026-11-12T19:21:45.4654618Z     145 │   .itile .sub b { color: #c3cbd4; }
+2026-11-12T19:21:45.4655184Z     146 │   .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+2026-11-12T19:21:45.4656288Z   > 147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4657009Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4657551Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4658551Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4659160Z   
+2026-11-12T19:21:45.4659796Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4660395Z   
+2026-11-12T19:21:45.4660489Z 
+2026-11-12T19:21:45.4661221Z docs/superpowers/specs/assets/command-center-mockup.html:159:16 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4662100Z 
+2026-11-12T19:21:45.4662448Z   ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4662848Z   
+2026-11-12T19:21:45.4663378Z     157 │   .midrun .l1, .smallrun { display: flex; align-items: center; gap: 14px; }
+2026-11-12T19:21:45.4664274Z     158 │   .smallrun { flex-direction: row; padding: 0 22px; border-width: 1px; }
+2026-11-12T19:21:45.4665652Z   > 159 │   .midrun .nm, .smallrun .nm { font-size: 26px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4666640Z         │                ^^^^^^^^^^^^^
+2026-11-12T19:21:45.4667249Z     160 │   .smallrun .nm { font-size: 21px; width: 520px; flex: none; }
+2026-11-12T19:21:45.4667827Z     161 │   .midrun .cnt { color: #c9a86a; font-size: 18px; font-weight: 600; }
+2026-11-12T19:21:45.4668175Z   
+2026-11-12T19:21:45.4668390Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4668733Z   
+2026-11-12T19:21:45.4669098Z     145 │   .itile .sub b { color: #c3cbd4; }
+2026-11-12T19:21:45.4669914Z     146 │   .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+2026-11-12T19:21:45.4670769Z   > 147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4671328Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4671868Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4672675Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4673264Z   
+2026-11-12T19:21:45.4674119Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4675043Z   
+2026-11-12T19:21:45.4675194Z 
+2026-11-12T19:21:45.4675935Z docs/superpowers/specs/assets/command-center-mockup.html:160:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4676384Z 
+2026-11-12T19:21:45.4676631Z   ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4677084Z   
+2026-11-12T19:21:45.4677631Z     158 │   .smallrun { flex-direction: row; padding: 0 22px; border-width: 1px; }
+2026-11-12T19:21:45.4678827Z     159 │   .midrun .nm, .smallrun .nm { font-size: 26px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4679590Z   > 160 │   .smallrun .nm { font-size: 21px; width: 520px; flex: none; }
+2026-11-12T19:21:45.4680185Z         │   ^^^^^^^^^^^^^
+2026-11-12T19:21:45.4680733Z     161 │   .midrun .cnt { color: #c9a86a; font-size: 18px; font-weight: 600; }
+2026-11-12T19:21:45.4681889Z     162 │   .midrun .el, .smallrun .el { margin-left: auto; font-size: 22px; font-weight: 700; color: #ffd690; font-variant-numeric: tabular-nums; }
+2026-11-12T19:21:45.4682763Z   
+2026-11-12T19:21:45.4683078Z   i This selector specificity is (0, 4, 0)
+2026-11-12T19:21:45.4683491Z   
+2026-11-12T19:21:45.4683856Z     145 │   .itile .sub b { color: #c3cbd4; }
+2026-11-12T19:21:45.4684542Z     146 │   .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+2026-11-12T19:21:45.4685200Z   > 147 │   .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4685845Z         │   ^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4686186Z     148 │   .hist { display: flex; gap: 4px; margin-top: auto; }
+2026-11-12T19:21:45.4687002Z     149 │   .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+2026-11-12T19:21:45.4687589Z   
+2026-11-12T19:21:45.4688427Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4689353Z   
+2026-11-12T19:21:45.4689500Z 
+2026-11-12T19:21:45.4690249Z docs/superpowers/specs/assets/command-center-mockup.html:164:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+2026-11-12T19:21:45.4691112Z 
+2026-11-12T19:21:45.4691491Z   ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+2026-11-12T19:21:45.4692103Z   
+2026-11-12T19:21:45.4693061Z     162 │   .midrun .el, .smallrun .el { margin-left: auto; font-size: 22px; font-weight: 700; color: #ffd690; font-variant-numeric: tabular-nums; }
+2026-11-12T19:21:45.4694270Z     163 │   .midrun .l2 { display: flex; align-items: center; gap: 20px; min-width: 0; }
+2026-11-12T19:21:45.4695584Z   > 164 │   .midrun .cur { font-size: 19px; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+2026-11-12T19:21:45.4696439Z         │   ^^^^^^^^^^^^
+2026-11-12T19:21:45.4696931Z     165 │   .strip { display: flex; gap: 10px; flex: none; }
+2026-11-12T19:21:45.4697798Z     166 │   .strip .seg { display: flex; gap: 3px; padding: 4px 6px; border-radius: 6px; background: #15120a; }
+2026-11-12T19:21:45.4698504Z   
+2026-11-12T19:21:45.4698818Z   i This selector specificity is (0, 3, 0)
+2026-11-12T19:21:45.4699154Z   
+2026-11-12T19:21:45.4699816Z     121 │   .lane .segs i.d { background: #3fae6d; } .lane .segs i.n { background: var(--amber); animation: pulse 1.2s infinite; } .lane .segs i.f { background: var(--red); }
+2026-11-12T19:21:45.4701297Z     122 │   .lane .cur { color: #ffd690; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 17px; }
+2026-11-12T19:21:45.4702472Z   > 123 │   .lane.failure .ln { color: #ff9aa3; } .lane.failure .cur { color: #ff9aa3; }
+2026-11-12T19:21:45.4703121Z         │                                         ^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4703859Z     124 │   .lane.more { display: block; color: var(--muted); font-weight: 500; }
+2026-11-12T19:21:45.4704454Z     125 │ 
+2026-11-12T19:21:45.4704715Z   
+2026-11-12T19:21:45.4705661Z   i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+2026-11-12T19:21:45.4706249Z   
+2026-11-12T19:21:45.4706359Z 
+2026-11-12T19:21:45.4706901Z docs/superpowers/specs/assets/command-center-mockup.html:232:49 lint/a11y/useButtonType ━━━━━━━━━━━━
+2026-11-12T19:21:45.4707561Z 
+2026-11-12T19:21:45.4707904Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4708411Z   
+2026-11-12T19:21:45.4708869Z     230 │   <span class="lbl">Lykta · Command Center</span>
+2026-11-12T19:21:45.4709532Z     231 │   <span class="sep"></span><span class="lbl">Monitored</span>
+2026-11-12T19:21:45.4710600Z   > 232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4711223Z         │                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4711938Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4712848Z     234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4713414Z   
+2026-11-12T19:21:45.4713870Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4714486Z   
+2026-11-12T19:21:45.4714844Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4715298Z   
+2026-11-12T19:21:45.4715568Z 
+2026-11-12T19:21:45.4716021Z docs/superpowers/specs/assets/command-center-mockup.html:232:3 lint/a11y/useButtonType ━━━━━━━━━━━━━
+2026-11-12T19:21:45.4716428Z 
+2026-11-12T19:21:45.4716898Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4717405Z   
+2026-11-12T19:21:45.4717863Z     230 │   <span class="lbl">Lykta · Command Center</span>
+2026-11-12T19:21:45.4718565Z     231 │   <span class="sep"></span><span class="lbl">Monitored</span>
+2026-11-12T19:21:45.4719530Z   > 232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4720540Z         │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4721185Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4722180Z     234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4723005Z   
+2026-11-12T19:21:45.4723646Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4724175Z   
+2026-11-12T19:21:45.4724432Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4724733Z   
+2026-11-12T19:21:45.4724836Z 
+2026-11-12T19:21:45.4725261Z docs/superpowers/specs/assets/command-center-mockup.html:232:84 lint/a11y/useButtonType ━━━━━━━━━━━━
+2026-11-12T19:21:45.4726084Z 
+2026-11-12T19:21:45.4726412Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4726916Z   
+2026-11-12T19:21:45.4727345Z     230 │   <span class="lbl">Lykta · Command Center</span>
+2026-11-12T19:21:45.4728057Z     231 │   <span class="sep"></span><span class="lbl">Monitored</span>
+2026-11-12T19:21:45.4728979Z   > 232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4729659Z         │                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4730141Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4730859Z     234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4731474Z   
+2026-11-12T19:21:45.4732163Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4732946Z   
+2026-11-12T19:21:45.4733279Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4733728Z   
+2026-11-12T19:21:45.4733869Z 
+2026-11-12T19:21:45.4734526Z docs/superpowers/specs/assets/command-center-mockup.html:234:3 lint/a11y/useButtonType ━━━━━━━━━━━━━
+2026-11-12T19:21:45.4735181Z 
+2026-11-12T19:21:45.4735625Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4736126Z   
+2026-11-12T19:21:45.4736920Z     232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4737815Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4738523Z   > 234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4739112Z         │   ^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4739403Z     235 │   <span class="sep"></span>
+2026-11-12T19:21:45.4739818Z     236 │   <button id="breakit">Break one</button>
+2026-11-12T19:21:45.4740401Z   
+2026-11-12T19:21:45.4741089Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4741871Z   
+2026-11-12T19:21:45.4742231Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4742639Z   
+2026-11-12T19:21:45.4742794Z 
+2026-11-12T19:21:45.4743449Z docs/superpowers/specs/assets/command-center-mockup.html:234:34 lint/a11y/useButtonType ━━━━━━━━━━━━
+2026-11-12T19:21:45.4744108Z 
+2026-11-12T19:21:45.4744429Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4744948Z   
+2026-11-12T19:21:45.4745877Z     232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4746869Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4747653Z   > 234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4748320Z         │                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4748681Z     235 │   <span class="sep"></span>
+2026-11-12T19:21:45.4749018Z     236 │   <button id="breakit">Break one</button>
+2026-11-12T19:21:45.4749303Z   
+2026-11-12T19:21:45.4749838Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4750620Z   
+2026-11-12T19:21:45.4750976Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4751438Z   
+2026-11-12T19:21:45.4751581Z 
+2026-11-12T19:21:45.4752187Z docs/superpowers/specs/assets/command-center-mockup.html:234:76 lint/a11y/useButtonType ━━━━━━━━━━━━
+2026-11-12T19:21:45.4752782Z 
+2026-11-12T19:21:45.4753101Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4753611Z   
+2026-11-12T19:21:45.4754428Z     232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4755546Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4756270Z   > 234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4756971Z         │                                                                            ^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4757357Z     235 │   <span class="sep"></span>
+2026-11-12T19:21:45.4757688Z     236 │   <button id="breakit">Break one</button>
+2026-11-12T19:21:45.4757965Z   
+2026-11-12T19:21:45.4758664Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4759447Z   
+2026-11-12T19:21:45.4759798Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4760245Z   
+2026-11-12T19:21:45.4760387Z 
+2026-11-12T19:21:45.4760993Z docs/superpowers/specs/assets/command-center-mockup.html:234:107 lint/a11y/useButtonType ━━━━━━━━━━━
+2026-11-12T19:21:45.4761602Z 
+2026-11-12T19:21:45.4761936Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4762432Z   
+2026-11-12T19:21:45.4763221Z     232 │   <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+2026-11-12T19:21:45.4764220Z     233 │   <span class="sep"></span><span class="lbl">Running</span>
+2026-11-12T19:21:45.4765143Z   > 234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4766075Z         │                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4766580Z     235 │   <span class="sep"></span>
+2026-11-12T19:21:45.4767086Z     236 │   <button id="breakit">Break one</button>
+2026-11-12T19:21:45.4767706Z   
+2026-11-12T19:21:45.4768280Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4769070Z   
+2026-11-12T19:21:45.4769424Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4769819Z   
+2026-11-12T19:21:45.4769923Z 
+2026-11-12T19:21:45.4770341Z docs/superpowers/specs/assets/command-center-mockup.html:236:3 lint/a11y/useButtonType ━━━━━━━━━━━━━
+2026-11-12T19:21:45.4770978Z 
+2026-11-12T19:21:45.4771305Z   × Provide an explicit type attribute for the button element.
+2026-11-12T19:21:45.4771810Z   
+2026-11-12T19:21:45.4773482Z     234 │   <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+2026-11-12T19:21:45.4774570Z     235 │   <span class="sep"></span>
+2026-11-12T19:21:45.4775026Z   > 236 │   <button id="breakit">Break one</button>
+2026-11-12T19:21:45.4775736Z         │   ^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4776150Z     237 │ </div>
+2026-11-12T19:21:45.4776472Z     238 │ 
+2026-11-12T19:21:45.4776653Z   
+2026-11-12T19:21:45.4777320Z   i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element.
+2026-11-12T19:21:45.4778115Z   
+2026-11-12T19:21:45.4778477Z   i Allowed button types are: submit, button or reset
+2026-11-12T19:21:45.4778930Z   
+2026-11-12T19:21:45.4779080Z 
+2026-11-12T19:21:45.4779604Z docs/superpowers/specs/assets/command-center-mockup.html:490:28 lint/suspicious/noAssignInExpressions ━━━━━━━━━━
+2026-11-12T19:21:45.4780197Z 
+2026-11-12T19:21:45.4780464Z   × The assignment should not be in an expression.
+2026-11-12T19:21:45.4780912Z   
+2026-11-12T19:21:45.4781282Z     488 │ function graphModel(w, maxCols) {
+2026-11-12T19:21:45.4781825Z     489 │   const d = depths(w); const cols = [];
+2026-11-12T19:21:45.4782450Z   > 490 │   for (const j of w.jobs) (cols[d[j.id]] ??= []).push(j);
+2026-11-12T19:21:45.4783228Z         │                            ^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4783780Z     491 │   // split columns into nodes: big groups (matrix/shards) become one group node
+2026-11-12T19:21:45.4784260Z     492 │   const colNodes = cols.map((c) => {
+2026-11-12T19:21:45.4784535Z   
+2026-11-12T19:21:45.4784776Z   i The use of assignments in expressions is confusing.
+2026-11-12T19:21:45.4785154Z     Expressions are often considered as side-effect free.
+2026-11-12T19:21:45.4785734Z   
+2026-11-12T19:21:45.4785892Z 
+2026-11-12T19:21:45.4786645Z docs/superpowers/specs/assets/command-center-mockup.html:494:91 lint/suspicious/noAssignInExpressions ━━━━━━━━━━
+2026-11-12T19:21:45.4787240Z 
+2026-11-12T19:21:45.4787497Z   × The assignment should not be in an expression.
+2026-11-12T19:21:45.4787943Z   
+2026-11-12T19:21:45.4788311Z     492 │   const colNodes = cols.map((c) => {
+2026-11-12T19:21:45.4788823Z     493 │     const groups = {}; const nodes = [];
+2026-11-12T19:21:45.4789690Z   > 494 │     for (const j of c) { if (j.group && c.filter((x) => x.group === j.group).length > 3) (groups[j.group] ??= []).push(j); else nodes.push({ kind: "job", id: j.id, jobs: [j] }); }
+2026-11-12T19:21:45.4790980Z         │                                                                                           ^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4792057Z     495 │     for (const [g, js] of Object.entries(groups)) nodes.push({ kind: "group", id: "g-" + g, name: g, jobs: js });
+2026-11-12T19:21:45.4792599Z     496 │     return nodes;
+2026-11-12T19:21:45.4792829Z   
+2026-11-12T19:21:45.4793078Z   i The use of assignments in expressions is confusing.
+2026-11-12T19:21:45.4793667Z     Expressions are often considered as side-effect free.
+2026-11-12T19:21:45.4794056Z   
+2026-11-12T19:21:45.4794204Z 
+2026-11-12T19:21:45.4794970Z docs/superpowers/specs/assets/command-center-mockup.html:263:11 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━
+2026-11-12T19:21:45.4795837Z 
+2026-11-12T19:21:45.4796268Z   × This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4797033Z   
+2026-11-12T19:21:45.4797726Z     261 │   J.push(job("lint", "Lint & checkstyle", ["mirror"], ["Checkout", "Run lint"], undefined, [1, 4]));
+2026-11-12T19:21:45.4798627Z     262 │   const targets = ["aosp_cf_x86_64-userdebug", "lynx-userdebug", "lynx-user", "tangorpro-userdebug"];
+2026-11-12T19:21:45.4799879Z   > 263 │   targets.forEach((t) => J.push(job(`build-${t}`, `Build · ${t}`, ["mirror"], AOSP_BUILD, "Build", AOSP_W)));
+2026-11-12T19:21:45.4800674Z         │           ^^^^^^^
+2026-11-12T19:21:45.4801679Z     264 │   J.push(job("sign", "Sign images", targets.map((t) => `build-${t}`), ["Download images", "Sign", "Verify signatures"], undefined, [2, 3, 1]));
+2026-11-12T19:21:45.4803210Z     265 │   for (const d of ["Pixel 9", "Pixel Tablet", "Zebra TC58", "Rugged R11"]) J.push(job(`dev-${d}`, `Flash & boot · ${d}`, ["sign"], ["Reserve bench", "fastboot flash", "Wait for boot", "Smoke checks", "Collect logcat"], "Flash & boot", [1, 3, 3, 4, 1]));
+2026-11-12T19:21:45.4804073Z   
+2026-11-12T19:21:45.4804491Z   i Either remove this return or remove the returned value.
+2026-11-12T19:21:45.4804982Z   
+2026-11-12T19:21:45.4805789Z     261 │   J.push(job("lint", "Lint & checkstyle", ["mirror"], ["Checkout", "Run lint"], undefined, [1, 4]));
+2026-11-12T19:21:45.4806869Z     262 │   const targets = ["aosp_cf_x86_64-userdebug", "lynx-userdebug", "lynx-user", "tangorpro-userdebug"];
+2026-11-12T19:21:45.4808024Z   > 263 │   targets.forEach((t) => J.push(job(`build-${t}`, `Build · ${t}`, ["mirror"], AOSP_BUILD, "Build", AOSP_W)));
+2026-11-12T19:21:45.4808716Z         │                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4809996Z     264 │   J.push(job("sign", "Sign images", targets.map((t) => `build-${t}`), ["Download images", "Sign", "Verify signatures"], undefined, [2, 3, 1]));
+2026-11-12T19:21:45.4811765Z     265 │   for (const d of ["Pixel 9", "Pixel Tablet", "Zebra TC58", "Rugged R11"]) J.push(job(`dev-${d}`, `Flash & boot · ${d}`, ["sign"], ["Reserve bench", "fastboot flash", "Wait for boot", "Smoke checks", "Collect logcat"], "Flash & boot", [1, 3, 3, 4, 1]));
+2026-11-12T19:21:45.4812597Z   
+2026-11-12T19:21:45.4812712Z 
+2026-11-12T19:21:45.4813288Z docs/superpowers/specs/assets/command-center-mockup.html:499:12 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━
+2026-11-12T19:21:45.4814050Z 
+2026-11-12T19:21:45.4814524Z   × This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4815040Z   
+2026-11-12T19:21:45.4815463Z     497 │   });
+2026-11-12T19:21:45.4817171Z     498 │   const status = (js) => (js.some((j) => j.status === "failure") ? "failure" : js.some((j) => j.status === "running") ? "running" : js.every((j) => j.status === "success") ? "success" : js.every((j) => j.status === "skipped") ? "skipped" : js.some((j) => j.status === "success") ? "running" : "queued");
+2026-11-12T19:21:45.4818583Z   > 499 │   colNodes.forEach((c) => c.forEach((n) => (n.status = status(n.jobs))));
+2026-11-12T19:21:45.4819240Z         │            ^^^^^^^
+2026-11-12T19:21:45.4820065Z     500 │   // keep the active frontier in view: collapse finished columns on the left and later ones on the right
+2026-11-12T19:21:45.4821162Z     501 │   let active = colNodes.findIndex((c) => c.some((n) => n.status !== "success"));
+2026-11-12T19:21:45.4821764Z   
+2026-11-12T19:21:45.4822042Z   i Either remove this return or remove the returned value.
+2026-11-12T19:21:45.4822364Z   
+2026-11-12T19:21:45.4822589Z     497 │   });
+2026-11-12T19:21:45.4823864Z     498 │   const status = (js) => (js.some((j) => j.status === "failure") ? "failure" : js.some((j) => j.status === "running") ? "running" : js.every((j) => j.status === "success") ? "success" : js.every((j) => j.status === "skipped") ? "skipped" : js.some((j) => j.status === "success") ? "running" : "queued");
+2026-11-12T19:21:45.4824989Z   > 499 │   colNodes.forEach((c) => c.forEach((n) => (n.status = status(n.jobs))));
+2026-11-12T19:21:45.4825906Z         │                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4827130Z     500 │   // keep the active frontier in view: collapse finished columns on the left and later ones on the right
+2026-11-12T19:21:45.4828255Z     501 │   let active = colNodes.findIndex((c) => c.some((n) => n.status !== "success"));
+2026-11-12T19:21:45.4828893Z   
+2026-11-12T19:21:45.4829042Z 
+2026-11-12T19:21:45.4829852Z docs/superpowers/specs/assets/command-center-mockup.html:499:29 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━
+2026-11-12T19:21:45.4830611Z 
+2026-11-12T19:21:45.4831052Z   × This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4831662Z   
+2026-11-12T19:21:45.4831970Z     497 │   });
+2026-11-12T19:21:45.4833726Z     498 │   const status = (js) => (js.some((j) => j.status === "failure") ? "failure" : js.some((j) => j.status === "running") ? "running" : js.every((j) => j.status === "success") ? "success" : js.every((j) => j.status === "skipped") ? "skipped" : js.some((j) => j.status === "success") ? "running" : "queued");
+2026-11-12T19:21:45.4835778Z   > 499 │   colNodes.forEach((c) => c.forEach((n) => (n.status = status(n.jobs))));
+2026-11-12T19:21:45.4836462Z         │                             ^^^^^^^
+2026-11-12T19:21:45.4837391Z     500 │   // keep the active frontier in view: collapse finished columns on the left and later ones on the right
+2026-11-12T19:21:45.4838530Z     501 │   let active = colNodes.findIndex((c) => c.some((n) => n.status !== "success"));
+2026-11-12T19:21:45.4839171Z   
+2026-11-12T19:21:45.4839579Z   i Either remove this return or remove the returned value.
+2026-11-12T19:21:45.4840105Z   
+2026-11-12T19:21:45.4840410Z     497 │   });
+2026-11-12T19:21:45.4842179Z     498 │   const status = (js) => (js.some((j) => j.status === "failure") ? "failure" : js.some((j) => j.status === "running") ? "running" : js.every((j) => j.status === "success") ? "success" : js.every((j) => j.status === "skipped") ? "skipped" : js.some((j) => j.status === "success") ? "running" : "queued");
+2026-11-12T19:21:45.4844133Z   > 499 │   colNodes.forEach((c) => c.forEach((n) => (n.status = status(n.jobs))));
+2026-11-12T19:21:45.4844920Z         │                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4846058Z     500 │   // keep the active frontier in view: collapse finished columns on the left and later ones on the right
+2026-11-12T19:21:45.4847191Z     501 │   let active = colNodes.findIndex((c) => c.some((n) => n.status !== "success"));
+2026-11-12T19:21:45.4847834Z   
+2026-11-12T19:21:45.4847994Z 
+2026-11-12T19:21:45.4848821Z docs/superpowers/specs/assets/command-center-mockup.html:516:26 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━
+2026-11-12T19:21:45.4849618Z 
+2026-11-12T19:21:45.4850069Z   × This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4850692Z   
+2026-11-12T19:21:45.4851870Z     514 │   if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+2026-11-12T19:21:45.4852986Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4853702Z   > 516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4854205Z         │                          ^^^^^^^
+2026-11-12T19:21:45.4854930Z     517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4856347Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4856847Z   
+2026-11-12T19:21:45.4857120Z   i Either remove this return or remove the returned value.
+2026-11-12T19:21:45.4857445Z   
+2026-11-12T19:21:45.4858155Z     514 │   if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+2026-11-12T19:21:45.4858995Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4859742Z   > 516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4860357Z         │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4861139Z     517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4862019Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4862482Z   
+2026-11-12T19:21:45.4862582Z 
+2026-11-12T19:21:45.4863069Z docs/superpowers/specs/assets/command-center-mockup.html:516:43 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━
+2026-11-12T19:21:45.4863631Z 
+2026-11-12T19:21:45.4863915Z   × This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4864335Z   
+2026-11-12T19:21:45.4865078Z     514 │   if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+2026-11-12T19:21:45.4866059Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4866665Z   > 516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4867272Z         │                                           ^^^^^^^
+2026-11-12T19:21:45.4868047Z     517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4869000Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4869517Z   
+2026-11-12T19:21:45.4869822Z   i Either remove this return or remove the returned value.
+2026-11-12T19:21:45.4870189Z   
+2026-11-12T19:21:45.4870989Z     514 │   if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+2026-11-12T19:21:45.4871736Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4872284Z   > 516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4872909Z         │                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4873659Z     517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4874642Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4875141Z   
+2026-11-12T19:21:45.4875242Z 
+2026-11-12T19:21:45.4876187Z docs/superpowers/specs/assets/command-center-mockup.html:516:65 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━
+2026-11-12T19:21:45.4876931Z 
+2026-11-12T19:21:45.4877270Z   × This callback passed to forEach() iterable method should not return a value.
+2026-11-12T19:21:45.4877699Z   
+2026-11-12T19:21:45.4878394Z     514 │   if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+2026-11-12T19:21:45.4879345Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4879883Z   > 516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4880452Z         │                                                                 ^^^^^^^
+2026-11-12T19:21:45.4881180Z     517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4882217Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4882690Z   
+2026-11-12T19:21:45.4882964Z   i Either remove this return or remove the returned value.
+2026-11-12T19:21:45.4883286Z   
+2026-11-12T19:21:45.4884101Z     514 │   if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+2026-11-12T19:21:45.4884815Z     515 │   // map job -> node for edges
+2026-11-12T19:21:45.4885563Z   > 516 │   const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+2026-11-12T19:21:45.4886176Z         │                                                                                ^^^^^^^^^^^^^^^^^^^^^
+2026-11-12T19:21:45.4886916Z     517 │   const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+2026-11-12T19:21:45.4887890Z     518 │   return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+2026-11-12T19:21:45.4888372Z   
+2026-11-12T19:21:45.4888476Z 
+2026-11-12T19:21:45.4888604Z Checked 20 files in 44ms. No fixes applied.
+2026-11-12T19:21:45.4888894Z Found 24 errors.
+2026-11-12T19:21:45.4889117Z Found 23 warnings.
+2026-11-12T19:21:45.4889328Z Found 13 infos.
+2026-11-12T19:21:45.4889769Z ci ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-11-12T19:21:45.4890065Z 
+2026-11-12T19:21:45.4890244Z   × Some errors were emitted while running checks.
+2026-11-12T19:21:45.4890543Z   
+2026-11-12T19:21:45.4890649Z 
+2026-11-12T19:21:45.4908489Z error: script "lint" exited with code 1
+2026-11-12T19:21:45.4920182Z ##[error]Process completed with exit code 1.
+2026-11-12T19:21:45.5089331Z Post job cleanup.
+2026-11-12T19:21:45.5935990Z [command]/usr/bin/git version
+2026-11-12T19:21:45.5991859Z git version 2.56.0
+2026-11-12T19:21:45.6029975Z Temporarily overriding HOME='/home/runner/work/_temp/4a1321f5-5cd6-422a-9460-d2e9cfcce182' before making global git config changes
+2026-11-12T19:21:45.6031313Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T19:21:45.6035196Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lykta/lykta
+2026-11-12T19:21:45.6076091Z Removing SSH command configuration
+2026-11-12T19:21:45.6083179Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T19:21:45.6129360Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T19:21:45.6480007Z Removing HTTP extra header
+2026-11-12T19:21:45.6482903Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T19:21:45.6551502Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T19:21:45.6924574Z Removing includeIf entries pointing to credentials config files
+2026-11-12T19:21:45.6932097Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T19:21:45.6962498Z includeif.gitdir:/home/runner/work/lykta/lykta/.git.path
+2026-11-12T19:21:45.6963484Z includeif.gitdir:/home/runner/work/lykta/lykta/.git/worktrees/*.path
+2026-11-12T19:21:45.6964449Z includeif.gitdir:/github/workspace/.git.path
+2026-11-12T19:21:45.6965269Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-12T19:21:45.6971391Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/lykta/lykta/.git.path
+2026-11-12T19:21:45.7000837Z /home/runner/work/_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:45.7012164Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/lykta/lykta/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-3a2ec65e\-ba00\-4139\-90d6\-b8ca56279762\.config
+2026-11-12T19:21:45.7053110Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/lykta/lykta/.git/worktrees/*.path
+2026-11-12T19:21:45.7085646Z /home/runner/work/_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:45.7094897Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/lykta/lykta/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-3a2ec65e\-ba00\-4139\-90d6\-b8ca56279762\.config
+2026-11-12T19:21:45.7134192Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-12T19:21:45.7160628Z /github/runner_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:45.7177567Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-3a2ec65e\-ba00\-4139\-90d6\-b8ca56279762\.config
+2026-11-12T19:21:45.7206852Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-12T19:21:45.7235495Z /github/runner_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config
+2026-11-12T19:21:45.7273564Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-3a2ec65e\-ba00\-4139\-90d6\-b8ca56279762\.config
+2026-11-12T19:21:45.7312329Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T19:21:45.7618386Z Removing credentials config '/home/runner/work/_temp/git-credentials-3a2ec65e-ba00-4139-90d6-b8ca56279762.config'
+2026-11-12T19:21:45.7780795Z Cleaning up orphan processes
