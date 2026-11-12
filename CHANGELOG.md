@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-11-12
+
+### Changed
+
+- npm releases are published with Trusted Publishing: the release workflow authenticates to npm
+  through GitHub's OIDC token, so no npm token is stored, and every version carries a signed
+  provenance statement.
+
 ## [0.0.2] - 2026-11-12
 
 ### Changed
@@ -22,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Rust release, reserving the `lykta` name on crates.io.
 
-[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/mklab-se/lykta/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/mklab-se/lykta/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/mklab-se/lykta/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/mklab-se/lykta/releases/tag/v0.0.1

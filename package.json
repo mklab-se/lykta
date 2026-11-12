@@ -1,6 +1,6 @@
 {
   "name": "@mklab-se/lykta",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A highly visible dashboard for monitoring GitHub Actions workflows",
   "keywords": [
     "github",
