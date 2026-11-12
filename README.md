@@ -1,7 +1,8 @@
-<p align="center"><img src="https://raw.githubusercontent.com/mklab-se/lykta/main/media/lykta-horizontal.png" width="600"></p>
+<p align="center"><img src="media/lykta-banner.svg" alt="Lykta: a GitHub Actions wall that nobody can ignore" width="900"></p>
 
 <p align="center">
 <a href="https://github.com/mklab-se/lykta/actions/workflows/ci.yml"><img src="https://github.com/mklab-se/lykta/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+<a href="https://github.com/mklab-se/lykta/pkgs/container/lykta"><img src="https://img.shields.io/badge/container-ghcr.io%2Fmklab--se%2Flykta-2496ED?logo=docker&logoColor=white" alt="Container image"></a>
 <a href="https://www.npmjs.com/package/@mklab-se/lykta"><img src="https://img.shields.io/npm/v/@mklab-se/lykta.svg" alt="npm"></a>
 <a href="https://github.com/mklab-se/lykta/releases/latest"><img src="https://img.shields.io/github/v/release/mklab-se/lykta" alt="GitHub Release"></a>
 <a href="https://github.com/mklab-se/homebrew-tap/blob/main/Formula/lykta.rb"><img src="https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmklab-se%2Fhomebrew-tap%2Fmain%2FFormula%2Flykta.rb&search=%5Cd%2B%5C.%5Cd%2B%5C.%5Cd%2B&label=homebrew&prefix=v&color=orange" alt="Homebrew"></a>
@@ -11,120 +12,164 @@
 <!-- "What's new" callout: keep it right after the badges and refresh it on every minor/major
      release (version and a one-line summary of the headline changes). Only link CHANGELOG.md. -->
 <p align="center">
-  <strong>lykta 0.0.2</strong> is here: Lykta is now built on Bun and TypeScript. The workflow
-  dashboard itself is next.<br>
+  <strong>lykta 0.1</strong> is here: the track and the pit on real GitHub data, labels for
+  teams sharing a wall, an MCP endpoint for AI assistants, and a container image.<br>
   <a href="CHANGELOG.md"><strong>What's new</strong></a>
 </p>
 
-# lykta
+# Lykta
 
-**Lykta** (Swedish for *lantern*) is a highly visible, easy-to-read dashboard for **GitHub Actions
-workflows**, made for wall-mounted monitors and TVs. Anyone walking past the screen should see at
-once what is running, what has failed and what is green, and feel an urge to fix what is broken.
-
-> **Status:** the dashboard runs with simulated workflows (`lykta demo`). Connecting it to GitHub
-> is next; until then it shows what Lykta will look like on your wall.
-
-## Try the demo
+**Lykta** (Swedish for *lantern*) puts your GitHub Actions workflows on a big screen: the TV by
+the coffee machine, the monitor above the team's desks. From across the room you see what is
+running, what is green and, above all, **what is broken**. Walk up to it and it tells you where
+the build broke and what the error said.
 
 ```sh
-bunx @mklab-se/lykta demo          # or: brew install mklab-se/tap/lykta && lykta demo
+docker run --rm -p 8080:8080 ghcr.io/mklab-se/lykta demo
 ```
 
-Open <http://localhost:8080> (full screen works best). The demo simulates workflows across
-repositories: long Android builds, matrix builds, ARC and lab runners, runs that fail and recover.
-Move the mouse to show the demo bar (how many workflows run at once, or "Break one").
+Open <http://localhost:8080> and watch simulated workflows run, fail and recover.
 
-`lykta demo --count 100 --running 12` shows a busy day; `--low-power` forces the reduced-motion mode
-used on weak screens.
+<p align="center"><img src="media/wall.png" alt="The Lykta wall: the pit with two failing workflows on the left, every other workflow in its place in the grid, running ones glowing yellow" width="100%"></p>
 
-## Try it against GitHub
+## Why teams put Lykta on the wall
 
-This repository has live sample workflows (`.github/workflows/live-*.yml`: a pipeline with a
-matrix and a reusable workflow, an Android-style nightly, a deploy chain, a security scan with
-parallel jobs, a release dry run, flaky integration checks, docs and a quick one) and an example
-configuration that monitors them. They are manual only and just `echo` and `sleep`; most take a
-`fail` input. With the [GitHub CLI](https://cli.github.com) signed in:
+**A broken build nobody can miss.** A failing workflow leaves its place in the grid and drives
+into *the pit*: a red pane that opens on the left only when something needs fixing. Its empty
+slot is a question in itself: *where did my workflow go?*
+
+**Your workflow is always in the same place.** Every monitored workflow has a fixed spot in *the
+grid*, in the order you configured. After a day, people look at "their" corner without reading.
+Opening the pit makes tiles narrower; it never moves them.
+
+**See where it broke, not just that it broke.** Each car in the pit shows how far the run got
+(passed stages green, the failed one red, what never ran dimmed), the failed job and step, and
+the **error message itself**: `…/Battery.java:212: error: cannot find symbol`, not 400 lines of
+log or "Process completed with exit code 1".
+
+**Watch builds happen.** Running workflows glow yellow with a progress bar against their usual
+duration ("2h 14m of ~5h 50m", even for 6-hour Android builds). Every 20 seconds one of them opens
+as a large diagram over the grid: the job graph with matrices and reusable workflows, where each
+job runs (GitHub-hosted, Kubernetes runners, a lab bench and its device), and which step it is on.
+When a run finishes it gets one last turn, so the people watching see it land.
+
+<p align="center"><img src="media/spotlight.png" alt="The spotlight: a running workflow's job graph opened over the blurred grid, with the pit beside it" width="100%"></p>
+
+**Teams share one screen.** Give workflows labels and a color: each team's tiles get their own
+border and a `#hashtag` in the corner, and anyone can ask about just their team's workflows.
+
+**Ask it from your AI assistant.** Lykta speaks MCP: point Claude Code, Cursor or any MCP client
+at it and ask *"what is failing for #mobile, and why?"*. Read-only, opt-in, and build output is
+always handed over as data, never as instructions.
+
+**Made for a screen nobody touches.** It recovers by itself from network drops and restarts,
+reloads when a new version is deployed, shows when data is stale, drifts slowly against burn-in,
+and switches to a low-power mode on a Raspberry Pi or a TV stick.
+
+**A good neighbour to your GitHub organization.** Lykta reads only (Actions and Contents,
+read-only), keeps tokens on the server, and polls sparingly: unchanged answers are free (ETags),
+it stays within a fifth of each organization's hourly rate limit so other tools keep working, and
+it backs off before GitHub has to ask.
+
+## Get started
+
+**1. Try it** with simulated workflows: `docker run --rm -p 8080:8080 ghcr.io/mklab-se/lykta demo`
+
+**2. Create a read-only token** (a fine-grained token with *Actions* and *Contents* read access),
+or a [GitHub App](docs/github-app.md) for a shared wall.
+
+**3. Write `lykta.yaml`:**
+
+```yaml
+title: Our builds
+
+organizations:
+  acme:
+    auth: token          # the token comes from LYKTA_TOKEN_ACME, never from this file
+
+monitor:                 # one entry = one tile, in this order
+  - repo: acme/android
+    workflow: nightly.yml
+    labels: [mobile]     # optional: shown as #mobile, filterable over MCP
+    color: "#a78bfa"     # optional: the tile's border
+  - repo: acme/web
+    workflow: ci.yml
+  - repo: acme/web
+    workflow: deploy.yml
+    branch: release      # default: main
+```
+
+**4. Check it, then run it:**
 
 ```sh
-LYKTA_TOKEN_MKLAB_SE=$(gh auth token) lykta serve --config lykta.example.yaml
-gh workflow run live-pipeline.yml -R mklab-se/lykta -f fail_at=build -f minutes=4
-gh workflow run live-deploy.yml -R mklab-se/lykta -f fail=true
+export LYKTA_TOKEN_ACME=github_pat_...
+docker run --rm -e LYKTA_TOKEN_ACME -v "$PWD/lykta.yaml:/config/lykta.yaml:ro" ghcr.io/mklab-se/lykta check
+docker run -d --restart unless-stopped -p 8080:8080 \
+  -e LYKTA_TOKEN_ACME -v "$PWD/lykta.yaml:/config/lykta.yaml:ro" ghcr.io/mklab-se/lykta
 ```
 
-For your own workflows: `lykta init` writes a starter `lykta.yaml`, and `lykta check` verifies it
-against GitHub before it goes on a wall.
+`check` signs in and prints what the wall would show, so a typo shows up in your terminal and not
+on the screen. Then open the page full screen on the TV (`chromium --kiosk http://...:8080`).
+
+## Run it where you like
+
+| | |
+| --- | --- |
+| **Docker** | [docs/docker.md](docs/docker.md): the quickest way, with every setting and troubleshooting |
+| **Kubernetes** | [docs/kubernetes.md](docs/kubernetes.md): Helm chart `oci://ghcr.io/mklab-se/charts/lykta`, Argo CD, plain manifests |
+| **Docker Compose** | [deploy/compose/docker-compose.yaml](deploy/compose/docker-compose.yaml) |
+| **Without containers** | one self-contained binary (Linux, macOS, Windows), Homebrew or npm: [INSTALL.md](INSTALL.md) |
+| **GitHub App** | [docs/github-app.md](docs/github-app.md): the best way to connect a shared wall |
+| **AI assistants (MCP)** | [docs/mcp.md](docs/mcp.md) |
+
+The container image (about 65 MB) runs on linux/amd64 and linux/arm64 (Raspberry Pi 4 and 5),
+as a non-root user on a minimal base; the Helm chart asks for 25 millicores and 64 MiB.
 
 ## Configuration
 
-A YAML file (`lykta.yaml`, or the whole file in `LYKTA_CONFIG`); see
-[`lykta.example.yaml`](lykta.example.yaml). Secrets never go in the file:
+Everything lives in one YAML file (or the `LYKTA_CONFIG` environment variable), with secrets only
+in environment variables: `LYKTA_TOKEN_<ORG>` per organization, or `LYKTA_APP_ID` and
+`LYKTA_APP_PRIVATE_KEY` for a GitHub App (each also as `..._FILE`). The full reference is
+[`lykta.example.yaml`](lykta.example.yaml). Worth knowing:
 
-| Organization signs in with | Set |
-| --- | --- |
-| a fine-grained token | `LYKTA_TOKEN_<ORG>` (e.g. `LYKTA_TOKEN_MKLAB_SE`), or `LYKTA_TOKEN_<ORG>_FILE` |
-| a GitHub App | `LYKTA_APP_ID` and `LYKTA_APP_PRIVATE_KEY` (or `LYKTA_APP_PRIVATE_KEY_FILE`) |
+| Setting | Default | |
+| --- | --- | --- |
+| `monitor[].branch` | `main` | the branch a tile follows; another branch is another tile |
+| `monitor[].labels`, `color` | none | team labels (`#hashtags`) and the tile's border color |
+| `monitor[].ignoreEvents` | none | triggers that never count, for example `workflow_dispatch` |
+| `polling.budget` | `0.2` | the share of each organization's hourly rate limit Lykta may use |
+| `display.spotlightSeconds`, `spotlightEverySeconds` | `8`, `20` | how long a diagram stays open, and how often one opens |
+| `display.lowPower` | `auto` | fewer effects for weak screens (`on`, `off`) |
+| `mcp.enabled` | `false` | the read-only MCP endpoint at `/mcp` (`LYKTA_MCP=on`) |
 
-Each entry under `monitor` is one tile: a repository, a workflow file and a branch (default
-`main`). Watching the same workflow on another branch is another entry. `LYKTA_PORT`,
-`LYKTA_HOST`, `LYKTA_TITLE` and `LYKTA_LOW_POWER` override the file.
+`LYKTA_PORT`, `LYKTA_HOST`, `LYKTA_TITLE` and `LYKTA_LOW_POWER` override the file.
 
-Lykta shares each organization's GitHub rate limit with everyone else using it (other teams'
-tools, other Lykta walls). It stays sparse on purpose: unchanged answers (`304`) are free, and it
-slows down as soon as less than half of the limit is left, or when its own use in the last hour
-nears `polling.budget` (default `0.2`, a fifth of the hourly limit). When GitHub says to slow
-down, Lykta stops calling that organization until the reset and keeps showing the last known
-state with a warning.
+## How it works
 
-```yaml
-polling:
-  activeSeconds: 15 # running workflows
-  idleSeconds: 60 # waiting for new runs
-  budget: 0.2 # share of each organization's hourly rate limit Lykta may use
-```
+Lykta is one small server (Bun and TypeScript, compiled to a single binary) that polls the GitHub
+REST API and pushes the result to every screen over Server-Sent Events. Job graphs come from the
+workflow file at the run's commit, so matrices, reusable workflows and jobs that have not started
+yet are drawn where they belong. Error messages come from the failed step's own log. The screens
+hold no secrets and need no sign-in: put Lykta on your internal network (sign-in for viewers is
+[planned](https://github.com/mklab-se/lykta/issues/3)).
 
-Every 20 seconds one running workflow opens as a large diagram over the track for 8 seconds:
-
-```yaml
-display:
-  spotlightSeconds: 8 # how long a diagram stays open
-  spotlightEverySeconds: 20 # how often one opens
-```
-
-## What it shows
-
-- 🏁 **The track:** every monitored workflow in its own fixed place in a grid, with its latest
-  result and its last 10 results (older ones fade; dotted until there are runs). Your workflow is
-  always in the same spot, even when the pit opens.
-- 🟡 **Running:** the tile glows yellow with a progress bar against its usual duration. Every 20
-  seconds one running workflow opens as a large diagram over the blurred track: the job graph
-  (matrices folded), a lane per running job with its steps, and where each job runs
-  (GitHub-hosted, Kubernetes/ARC, or a lab bench and its device). A run that just finished gets
-  one last turn.
-- 🔴 **The pit:** failed workflows (and ones that cannot be found) leave the track for the pit on
-  the left, leaving a gap in their place. Each shows how long it has been broken, how far the
-  run got, where it broke and the error message. A workflow that is restarted drives back out to
-  its place.
-- Click or use the arrow keys and Enter for details (with a QR code to open the run on your phone);
-  everything closes after a minute without input.
-- Made for kiosks: recovers by itself after network drops and restarts, reloads when a new version
-  is deployed, guards against burn-in, and switches to a low-power mode on slow hardware.
-
-## Build & run
+## Build & run from source
 
 ```sh
 bun install                    # install dependencies
 bun start demo                 # the dashboard with simulated workflows on :8080
-bun start --help               # show the CLI help
-bun start version              # banner + version
-bun start completion zsh       # generate a zsh completion script
+bun start serve -c lykta.yaml  # against GitHub
 bun test                       # run the tests
 bun run build                  # compile dist/lykta (single-file binary)
 ```
 
-### Install
+This repository also has live sample workflows (`.github/workflows/live-*.yml`, manual only,
+`echo` and `sleep`), monitored by [`lykta.example.yaml`](lykta.example.yaml):
 
-See [INSTALL.md](INSTALL.md) for Homebrew, npm/bun, prebuilt binaries and from-source instructions.
+```sh
+LYKTA_TOKEN_MKLAB_SE=$(gh auth token) bun start serve --config lykta.example.yaml
+gh workflow run live-pipeline.yml -R mklab-se/lykta -f fail_at=build -f minutes=4
+```
 
 ## Releasing
 
@@ -139,6 +184,8 @@ tags `vX.Y.Z`. Pushing the tag triggers `.github/workflows/release.yml`, which:
 3. Creates a GitHub Release with the archives and SBOMs
 4. Publishes `@mklab-se/lykta` to npm with provenance
 5. Updates the Homebrew formula in [`mklab-se/homebrew-tap`](https://github.com/mklab-se/homebrew-tap)
+6. Pushes the container image to `ghcr.io/mklab-se/lykta` (amd64 and arm64) and the Helm chart to
+   `oci://ghcr.io/mklab-se/charts/lykta`
 
 ### Required secrets
 
