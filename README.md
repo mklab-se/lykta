@@ -51,6 +51,20 @@ gh workflow run live-pipeline.yml -R mklab-se/lykta -f fail_at=build -f minutes=
 For your own workflows: `lykta init` writes a starter `lykta.yaml`, and `lykta check` verifies it
 against GitHub before it goes on a wall.
 
+## Configuration
+
+A YAML file (`lykta.yaml`, or the whole file in `LYKTA_CONFIG`); see
+[`lykta.example.yaml`](lykta.example.yaml). Secrets never go in the file:
+
+| Organization signs in with | Set |
+| --- | --- |
+| a fine-grained token | `LYKTA_TOKEN_<ORG>` (e.g. `LYKTA_TOKEN_MKLAB_SE`), or `LYKTA_TOKEN_<ORG>_FILE` |
+| a GitHub App | `LYKTA_APP_ID` and `LYKTA_APP_PRIVATE_KEY` (or `LYKTA_APP_PRIVATE_KEY_FILE`) |
+
+Each entry under `monitor` is one tile: a repository, a workflow file and a branch (default
+`main`). Watching the same workflow on another branch is another entry. `LYKTA_PORT`,
+`LYKTA_HOST`, `LYKTA_TITLE` and `LYKTA_LOW_POWER` override the file.
+
 ## What it shows
 
 - 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long

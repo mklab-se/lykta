@@ -9,8 +9,8 @@ for wall-mounted monitors and TVs: failures must be impossible to ignore, and it
 of what the monitored workflows are doing. It is built on Bun and TypeScript from the `bun-templ`
 template.
 
-Status: the dashboard runs in demo mode (`lykta demo`, plan 1). Connecting to GitHub (plan 2) and
-packaging/docs (plan 3) follow. Design: `docs/superpowers/specs/2026-11-12-lykta-dashboard-design.md`
+Status: the dashboard runs on real GitHub data (`lykta serve`, plan 2) and in demo mode (`lykta demo`,
+plan 1). Packaging and the long-form docs (plan 3) follow. Design: `docs/superpowers/specs/2026-11-12-lykta-dashboard-design.md`
 (approved); plans in `docs/superpowers/plans/`.
 
 History: Lykta started as a Rust tool. `v0.0.1` (Rust) is published on crates.io as `lykta` and is
@@ -57,7 +57,28 @@ TypeScript run directly by Bun; `bun build --compile` produces single-file binar
   reload); `canvas.ts` (virtual 1920-wide canvas); `power.ts` (low-power mode); `rotation.ts`,
   `focus.ts`, `idle.ts`; components in `components/`. `styles.css` holds all styles (only
   `transform`/`opacity` animate); `fonts.css` bundles Latin woff2 subsets.
-- `src/commands/demo.ts`: `lykta demo`.
+- `src/server/config.ts`: `lykta.yaml` (or inline `LYKTA_CONFIG`) with defaults and `LYKTA_*`
+  overrides; secrets only from env vars or `*_FILE` (`LYKTA_TOKEN_<ORG>`, `LYKTA_APP_ID`,
+  `LYKTA_APP_PRIVATE_KEY`). Entry key `<repo>:<workflow>:<branch>`; one entry = one tile.
+- `src/server/github/`:
+  - `auth.ts`: per-org token or GitHub App (RS256 JWT via `node:crypto`, installation tokens cached).
+  - `client.ts`: REST client, API version `2026-03-10`, one serial queue per org, ETags (304s are
+    free), rate-limit tracking and waiting, never a token in errors.
+  - `map.ts`: GitHub runs/jobs to the core model; runner classification (rules, GitHub-hosted via
+    group "GitHub Actions", else self-hosted).
+  - `workflow-file.ts`: the job graph from the workflow file at the run's commit; matches API job
+    names (`Build x`, `Build (x)`, `Caller / Callee`) to definitions; falls back to a flat list.
+  - `logs.ts`: cleans logs (BOM, ANSI, timestamps) and cuts the failing step's excerpt.
+  - `source.ts`: `GitHubSource` polls (running every 15 s, idle every 60 s, doubled when the rate
+    limit is below 20%), caches completed runs, turns 404/403 into visible problems.
+- `src/commands/`: `serve.ts` (`lykta serve`), `check.ts` (`lykta check`: one real sync, prints
+  what the wall would show), `init.ts` (`lykta init`), `demo.ts` (`lykta demo`).
+- `test/fixtures/github/`: real runs recorded with `scripts/capture-fixture.ts` (uses your `gh`
+  login); tests never touch the network. `.github/workflows/live-*.yml` are manual-only live test
+  workflows, monitored by `lykta.example.yaml`.
+- GitHub facts verified on real runs: reusable jobs are `Caller / Callee`; matrix names are the
+  filled-in `name` template or `name (values)`; job id equals check-run id; `/rate_limit` has only
+  `resources.core` in API 2026-03-10; logs start with a BOM.
 - CLI plumbing from the template: `cli.ts`, `meta.ts`, `banner.ts`, `color.ts`, `paths.ts`,
   `config.ts`, `update.ts`, `commands/completion.ts`.
 - `test/`: `bun test` (core, server, web pure functions and server-rendered components).

@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `lykta serve --config lykta.yaml`: the dashboard on real GitHub Actions data, from several
+  organizations, signing in with a GitHub App (recommended) or fine-grained tokens. Polls within
+  rate limits (cheap repeat requests, slows down when the limit runs low, shows a warning instead
+  of failing), builds each running workflow's job graph from its workflow file (matrices and
+  reusable workflows included), shows the failing step's log lines, and turns missing, disabled
+  or inaccessible workflows into visible problems. A "Connecting to GitHub..." screen shows until
+  the first sync.
+- `lykta check` verifies a configuration against GitHub and prints what the wall would show;
+  `lykta init` writes a starter `lykta.yaml`.
+- Live test workflows in this repository and `lykta.example.yaml` monitoring them.
+
 - The dashboard (Command Center layout) with `lykta demo`, driven by simulated workflows: failures
   pinned at the top with broken-for, failing job and step, runner and log excerpt; every running
   workflow in a list with progress against its usual duration and expected finish, and rotating
