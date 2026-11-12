@@ -1,0 +1,76 @@
+/**
+ * HTTP server: the web app, the Server-Sent Events stream, details for overlays,
+ * and health/readiness probes.
+ */
+import type { Server } from "bun";
+import index from "../web/index.html";
+import type { Hub, HubState } from "./hub.ts";
+import type { Source } from "./source.ts";
+
+export interface ServerOptions {
+  port: number;
+  hostname?: string;
+  hub: Hub;
+  source: Source;
+  /** Extra routes (demo controls). */
+  routes?: Record<
+    string,
+    (req: Request & { params: Record<string, string> }) => Response | Promise<Response>
+  >;
+}
+
+const PING_MS = 15_000;
+
+function events(hub: Hub): Response {
+  let unsubscribe = () => {};
+  let ping: ReturnType<typeof setInterval> | undefined;
+  const enc = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      const send = (event: string, data: unknown) => {
+        try {
+          controller.enqueue(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+        } catch {
+          unsubscribe();
+        }
+      };
+      send("snapshot", hub.snapshot());
+      unsubscribe = hub.subscribe((s: HubState) => send("snapshot", s));
+      ping = setInterval(() => send("ping", { at: new Date().toISOString() }), PING_MS);
+    },
+    cancel() {
+      unsubscribe();
+      if (ping) clearInterval(ping);
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      "content-type": "text/event-stream",
+      "cache-control": "no-store",
+      connection: "keep-alive",
+    },
+  });
+}
+
+export function startServer(opts: ServerOptions): Server<undefined> {
+  const { hub, source } = opts;
+  return Bun.serve({
+    port: opts.port,
+    hostname: opts.hostname ?? "0.0.0.0",
+    // SSE connections stay open; pings every 15 s keep them inside this timeout.
+    idleTimeout: 60,
+    routes: {
+      "/": index,
+      "/events": () => events(hub),
+      "/healthz": () => new Response("ok"),
+      "/readyz": () =>
+        hub.ready ? new Response("ready") : new Response("not ready", { status: 503 }),
+      "/api/entries/:key/details": async (req) => {
+        const details = await source.details(req.params.key);
+        return details ? Response.json(details) : new Response("not found", { status: 404 });
+      },
+      ...(opts.routes ?? {}),
+    },
+    fetch: () => new Response("not found", { status: 404 }),
+  });
+}

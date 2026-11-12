@@ -16,11 +16,11 @@ async function run(...args: string[]) {
 }
 
 describe("cli", () => {
-  test("no command shows the banner and the coming-soon note", async () => {
+  test("no command shows the banner and points to lykta demo", async () => {
     const r = await run();
     expect(r.code).toBe(0);
     expect(r.stdout).toContain(`v${VERSION}`);
-    expect(r.stdout).toContain("The workflow dashboard is coming soon.");
+    expect(r.stdout).toContain("lykta demo");
   });
 
   test("--version prints the package version", async () => {
@@ -48,6 +48,7 @@ describe("completion", () => {
       expect(script).toContain(TOOL);
       expect(script).toContain("version");
       expect(script).toContain("completion");
+      expect(script).toContain("demo");
     }
   });
 });

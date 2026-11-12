@@ -1,0 +1,80 @@
+import { afterEach, describe, expect, test } from "bun:test";
+import { DemoSource } from "../../src/server/demo-source.ts";
+import { startServer } from "../../src/server/http.ts";
+import { Hub } from "../../src/server/hub.ts";
+
+let stops: (() => void)[] = [];
+afterEach(() => {
+  for (const s of stops) s();
+  stops = [];
+});
+
+function boot(opts: { startSource?: boolean } = {}) {
+  const hub = new Hub("0.0.1+test");
+  const source = new DemoSource({ count: 14, running: 2, seed: 7, tickMs: 60_000 });
+  if (opts.startSource !== false) source.start((inputs) => hub.update(inputs));
+  const server = startServer({ port: 0, hostname: "127.0.0.1", hub, source });
+  stops.push(() => {
+    source.stop();
+    server.stop(true);
+  });
+  return { hub, source, base: `http://127.0.0.1:${server.port}` };
+}
+
+async function firstEvent(base: string, name: string): Promise<unknown> {
+  const res = await fetch(`${base}/events`);
+  expect(res.headers.get("content-type")).toContain("text/event-stream");
+  const reader = (res.body as ReadableStream<Uint8Array>).getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) throw new Error("stream ended");
+    buf += dec.decode(value);
+    for (const block of buf.split("\n\n")) {
+      if (block.startsWith(`event: ${name}`)) {
+        reader.cancel();
+        const data = block.split("\n").find((l) => l.startsWith("data: "));
+        return JSON.parse((data ?? "").slice(6));
+      }
+    }
+  }
+}
+
+describe("http", () => {
+  test("healthz ok", async () => {
+    const { base } = boot();
+    const res = await fetch(`${base}/healthz`);
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("ok");
+  });
+
+  test("readyz 503 before first update, 200 after", async () => {
+    const { base, hub, source } = boot({ startSource: false });
+    expect((await fetch(`${base}/readyz`)).status).toBe(503);
+    source.start((inputs) => hub.update(inputs));
+    expect((await fetch(`${base}/readyz`)).status).toBe(200);
+  });
+
+  test("events sends snapshot on connect", async () => {
+    const { base } = boot();
+    const snap = (await firstEvent(base, "snapshot")) as { entries: unknown[]; version: string };
+    expect(snap.entries).toHaveLength(14);
+    expect(snap.version).toBe("0.0.1+test");
+  });
+
+  test("details 404 for unknown key", async () => {
+    const { base } = boot();
+    expect((await fetch(`${base}/api/entries/nope/details`)).status).toBe(404);
+    const ok = await fetch(`${base}/api/entries/e1/details`);
+    expect(ok.status).toBe(200);
+    expect(((await ok.json()) as { runUrl: string }).runUrl).toContain("/actions/runs/");
+  });
+
+  test("root serves html", async () => {
+    const { base } = boot();
+    const res = await fetch(`${base}/`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/html");
+  });
+});

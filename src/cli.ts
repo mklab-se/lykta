@@ -10,6 +10,7 @@ import { Argument, Command } from "commander";
 import { printBannerWithVersion } from "./banner.ts";
 import { dim, setColorEnabled, yellow } from "./color.ts";
 import { generateCompletion, SHELLS, type Shell } from "./commands/completion.ts";
+import { runDemo } from "./commands/demo.ts";
 import { DESCRIPTION, NO_UPDATE_CHECK_ENV, PACKAGE_NAME, TOOL, VERSION } from "./meta.ts";
 import { checkForUpdate } from "./update.ts";
 
@@ -34,7 +35,7 @@ export function buildProgram(): Command {
     .addHelpText(
       "after",
       `
-Lykta (Swedish for "lantern") shows at a glance which GitHub Actions workflows are running, which have failed and which are green. This early release ships the plumbing; the dashboard itself is coming next.`,
+Lykta (Swedish for "lantern") shows at a glance which GitHub Actions workflows are running, which have failed and which are green. Try it with "lykta demo"; connecting to GitHub comes next.`,
     )
     .hook("preAction", (cmd) => {
       const opts = cmd.optsWithGlobals<GlobalOptions>();
@@ -44,15 +45,26 @@ Lykta (Swedish for "lantern") shows at a glance which GitHub Actions workflows a
     // banner and a short note. `--help` still works.
     .action(() => {
       printBannerWithVersion();
-      console.log(
-        "The workflow dashboard is coming soon. Run `lykta --help` for what works today.",
-      );
+      console.log("Run `lykta demo` to see the dashboard with simulated workflows.");
     });
 
   program
     .command("version")
     .description("show the banner and version")
     .action(() => printBannerWithVersion());
+
+  program
+    .command("demo")
+    .description("serve the dashboard with simulated workflows")
+    .option("-p, --port <port>", "port to listen on", (v) => Number.parseInt(v, 10), 8080)
+    .option("--host <host>", "address to listen on", "0.0.0.0")
+    .option("--count <n>", "number of monitored workflows", (v) => Number.parseInt(v, 10), 14)
+    .option("--running <n>", "workflows running at once", (v) => Number.parseInt(v, 10), 2)
+    .option("--low-power", "force low-power mode (fewer effects)", false)
+    .action(
+      (o: { port: number; host: string; count: number; running: number; lowPower: boolean }) =>
+        runDemo(o),
+    );
 
   program
     .command("completion")
