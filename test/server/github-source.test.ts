@@ -272,6 +272,83 @@ describe("GitHubSource", () => {
     expect(src.nextPollIn("mklab-se/lykta:live.yml:main")).toBe(30_000);
   });
 
+  test("re-running a failed run keeps the failure and shows only the new attempt's jobs", async () => {
+    const { gh, src, failed } = await setup();
+    const failedJobs = (await fx<{ jobs: GhJob[] }>("lykta-ci-failed", "jobs.json")).jobs;
+    // GitHub re-runs in place: same run id, attempt 2, back to in_progress
+    const rerun: GhRun = { ...failed, run_attempt: 2, status: "in_progress", conclusion: null };
+    const attempt2 = failedJobs.slice(0, 2).map((j) => ({
+      ...j,
+      id: j.id + 1000,
+      run_attempt: 2,
+      status: "in_progress",
+      conclusion: null,
+    }));
+    gh.routes.unshift([/workflows\/ci\.yml\/runs/, () => ({ workflow_runs: [rerun] })]);
+    gh.routes.unshift([new RegExp(`runs/${failed.id}/attempts/1$`), () => failed]);
+    gh.routes.unshift([
+      new RegExp(`runs/${failed.id}/attempts/1/jobs`),
+      () => ({ total_count: failedJobs.length, jobs: failedJobs }),
+    ]);
+    gh.routes.unshift([
+      new RegExp(`runs/${failed.id}/jobs`),
+      () => ({
+        total_count: attempt2.length + failedJobs.length,
+        jobs: [...attempt2, ...failedJobs],
+      }),
+    ]);
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.syncAll();
+    const ci = byWorkflow(got, "ci.yml");
+    const view = deriveEntry(ci);
+    expect(view.state).toBe("running");
+    expect(view.failing).toBe(true);
+    expect(view.failure?.job).toBe("Lint");
+    expect(view.current?.jobs.map((j) => j.name)).toEqual(["Test", "Build"]);
+    expect(view.current?.jobs.every((j) => j.status === "running")).toBe(true);
+  });
+
+  test("a re-run that passes clears the failure", async () => {
+    const { gh, src, failed } = await setup();
+    const passed: GhRun = { ...failed, run_attempt: 2, conclusion: "success" };
+    gh.routes.unshift([/workflows\/ci\.yml\/runs/, () => ({ workflow_runs: [passed] })]);
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.syncAll();
+    const view = deriveEntry(byWorkflow(got, "ci.yml"));
+    expect(view.state).toBe("passed");
+    expect(view.failure).toBeUndefined();
+  });
+
+  test("a re-run that fails again shows the new attempt's failure", async () => {
+    const { gh, src, failed } = await setup();
+    const failedJobs = (await fx<{ jobs: GhJob[] }>("lykta-ci-failed", "jobs.json")).jobs;
+    const again: GhRun = { ...failed, run_attempt: 2 };
+    const attempt2 = failedJobs.map((j) => ({
+      ...j,
+      id: j.id + 1000,
+      run_attempt: 2,
+      conclusion: j.name === "Typecheck" ? "failure" : "success",
+      steps: j.steps?.map((st) => ({ ...st, conclusion: "success" })),
+    }));
+    gh.routes.unshift([/workflows\/ci\.yml\/runs/, () => ({ workflow_runs: [again] })]);
+    gh.routes.unshift([
+      new RegExp(`runs/${failed.id}/jobs`),
+      () => ({ total_count: attempt2.length, jobs: attempt2 }),
+    ]);
+    let got: EntryInput[] = [];
+    src.start((i) => {
+      got = i;
+    });
+    await src.syncAll();
+    expect(deriveEntry(byWorkflow(got, "ci.yml")).failure?.job).toBe("Typecheck");
+  });
+
   test("details for a run", async () => {
     const { src, failed } = await setup();
     const d = await src.details("mklab-se/lykta:ci.yml:main", failed.id);

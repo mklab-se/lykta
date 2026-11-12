@@ -133,6 +133,6 @@ export function mapRun(run: GhRun, jobs: GhJob[], rules: RunnerRule[]): RunRecor
     completedAt: status === "completed" ? run.updated_at : null,
     status,
     conclusion: status === "completed" ? (run.conclusion as Conclusion) : null,
-    jobs: (latest.length ? latest : jobs).map((j) => mapJob(j, rules)),
+    jobs: latest.map((j) => mapJob(j, rules)),
   };
 }

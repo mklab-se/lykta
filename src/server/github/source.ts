@@ -33,13 +33,16 @@ interface EntryState {
   org: string;
   runs: GhRun[];
   failure?: FailureInfo;
-  failureRunId?: number;
+  failureRunId?: string;
   problem?: string;
   intervalMs: number;
   nextAt: number;
 }
 
 const completed = (r: GhRun) => r.status === "completed";
+/** Caches are per attempt: a re-run keeps the run id but is a new attempt with new jobs. */
+const runKey = (r: GhRun) => `${r.id}#${r.run_attempt}`;
+const MAX_ATTEMPT_LOOKBACK = 3;
 const counted = (r: GhRun) =>
   completed(r) && (r.conclusion === "success" || isFailureConclusion(r.conclusion as Conclusion));
 
@@ -49,11 +52,13 @@ export class GitHubSource implements Source {
   private readonly entries: EntryState[];
   private readonly now: () => number;
   private readonly schedule: (fn: () => void, ms: number) => unknown;
-  private readonly runJobs = new Map<number, GhJob[]>(); // completed runs only
-  private readonly liveJobs = new Map<number, GhJob[]>(); // latest poll of running runs
+  private readonly runJobs = new Map<string, GhJob[]>(); // completed attempts only
+  private readonly liveJobs = new Map<string, GhJob[]>(); // latest poll of running attempts
+  /** Earlier, completed attempts of runs being re-run (they never change). */
+  private readonly prevAttempts = new Map<string, GhRun | null>();
   private readonly workflows = new Map<string, WorkflowDef | null>();
   private readonly graphs = new Map<
-    number,
+    string,
     { caller: WorkflowDef | null; called: Record<string, WorkflowDef | null> }
   >();
   private readonly warnings = new Map<string, number>();
@@ -116,7 +121,7 @@ export class GitHubSource implements Source {
     if (!e || !run) return null;
     const jobs = await this.jobsFor(e, run).catch(() => [] as GhJob[]);
     let logExcerpt: string[] = [];
-    if (e.failureRunId === run.id && e.failure) logExcerpt = e.failure.logExcerpt;
+    if (e.failureRunId === runKey(run) && e.failure) logExcerpt = e.failure.logExcerpt;
     else {
       const last = [...jobs].reverse().find((j) => j.status === "completed");
       if (last) {
@@ -156,7 +161,10 @@ export class GitHubSource implements Source {
     try {
       const path = `/repos/${repo}/actions/workflows/${encodeURIComponent(workflow)}/runs?branch=${encodeURIComponent(branch)}&per_page=${RUNS_PER_ENTRY}&exclude_pull_requests=true`;
       const { data } = await this.opts.client.json<{ workflow_runs: GhRun[] }>(e.org, path);
-      e.runs = data.workflow_runs.filter((r) => !ignoreEvents.includes(r.event));
+      e.runs = await this.withPreviousAttempts(
+        e,
+        data.workflow_runs.filter((r) => !ignoreEvents.includes(r.event)),
+      );
       this.forgetUnlisted();
       e.problem = undefined;
       const newest = e.runs[0];
@@ -178,12 +186,53 @@ export class GitHubSource implements Source {
     e.nextAt = this.now() + e.intervalMs;
   }
 
+  /**
+   * A re-run puts the same run id back to running, and the list then no longer says it
+   * failed. Insert the newest decisive earlier attempt after it, so the wall keeps showing
+   * the failure (and since when) until the re-run decides.
+   */
+  private async withPreviousAttempts(e: EntryState, runs: GhRun[]): Promise<GhRun[]> {
+    const out: GhRun[] = [];
+    for (const run of runs) {
+      out.push(run);
+      if (completed(run)) continue;
+      for (
+        let n = run.run_attempt - 1;
+        n >= Math.max(1, run.run_attempt - MAX_ATTEMPT_LOOKBACK);
+        n--
+      ) {
+        const key = `${run.id}#${n}`;
+        if (!this.prevAttempts.has(key)) {
+          try {
+            const { data } = await this.opts.client.json<GhRun>(
+              e.org,
+              `/repos/${e.cfg.repo}/actions/runs/${run.id}/attempts/${n}`,
+            );
+            this.prevAttempts.set(key, data);
+          } catch (err) {
+            if (!(err instanceof GitHubError && err.status === 404)) throw err;
+            this.prevAttempts.set(key, null);
+          }
+        }
+        const prev = this.prevAttempts.get(key);
+        if (prev && counted(prev)) {
+          out.push(prev);
+          break;
+        }
+      }
+    }
+    return out;
+  }
+
   /** Bounded memory over weeks: drop cached data for runs no entry lists any more. */
   private forgetUnlisted(): void {
-    const listed = new Set(this.entries.flatMap((x) => x.runs.map((r) => r.id)));
-    for (const id of this.liveJobs.keys()) if (!listed.has(id)) this.liveJobs.delete(id);
-    for (const id of this.graphs.keys()) if (!listed.has(id)) this.graphs.delete(id);
-    for (const id of this.runJobs.keys()) if (!listed.has(id)) this.runJobs.delete(id);
+    const listed = new Set(this.entries.flatMap((x) => x.runs.map(runKey)));
+    const ids = new Set(this.entries.flatMap((x) => x.runs.map((r) => String(r.id))));
+    for (const k of this.liveJobs.keys()) if (!listed.has(k)) this.liveJobs.delete(k);
+    for (const k of this.graphs.keys()) if (!listed.has(k)) this.graphs.delete(k);
+    for (const k of this.runJobs.keys()) if (!listed.has(k)) this.runJobs.delete(k);
+    for (const k of this.prevAttempts.keys())
+      if (!ids.has(k.slice(0, k.indexOf("#")))) this.prevAttempts.delete(k);
     const shas = new Set(this.entries.flatMap((x) => x.runs.map((r) => r.head_sha)));
     for (const key of this.workflows.keys()) {
       const sha = key.slice(key.indexOf("@") + 1, key.indexOf(":"));
@@ -192,19 +241,23 @@ export class GitHubSource implements Source {
   }
 
   private async jobsFor(e: EntryState, run: GhRun): Promise<GhJob[]> {
-    const cached = this.runJobs.get(run.id);
+    const key = runKey(run);
+    const cached = this.runJobs.get(key);
     if (cached) return cached;
+    const previous = this.prevAttempts.get(key) === run;
     const jobs: GhJob[] = [];
     for (let page = 1; page <= 10; page++) {
       const { data } = await this.opts.client.json<{ total_count: number; jobs: GhJob[] }>(
         e.org,
-        `/repos/${e.cfg.repo}/actions/runs/${run.id}/jobs?filter=latest&per_page=100&page=${page}`,
+        previous
+          ? `/repos/${e.cfg.repo}/actions/runs/${run.id}/attempts/${run.run_attempt}/jobs?per_page=100&page=${page}`
+          : `/repos/${e.cfg.repo}/actions/runs/${run.id}/jobs?filter=latest&per_page=100&page=${page}`,
       );
       jobs.push(...data.jobs);
       if (jobs.length >= data.total_count || data.jobs.length === 0) break;
     }
-    if (completed(run)) this.runJobs.set(run.id, jobs);
-    else this.liveJobs.set(run.id, jobs);
+    if (completed(run)) this.runJobs.set(key, jobs);
+    else this.liveJobs.set(key, jobs);
     return jobs;
   }
 
@@ -246,7 +299,7 @@ export class GitHubSource implements Source {
       const org = owner && this.opts.config.organizations[owner] ? owner : e.org;
       called[def.uses] = await this.fileAt(org, `${owner}/${name}`, rest.join("/"), ref.sha);
     }
-    this.graphs.set(run.id, { caller, called });
+    this.graphs.set(runKey(run), { caller, called });
     return { caller, called };
   }
 
@@ -257,7 +310,7 @@ export class GitHubSource implements Source {
       e.failureRunId = undefined;
       return;
     }
-    if (e.failureRunId === decisive.id) return;
+    if (e.failureRunId === runKey(decisive)) return;
     const jobs = await this.jobsFor(e, decisive);
     const job = jobs.find((j) => isFailureConclusion(j.conclusion as Conclusion));
     const step =
@@ -279,7 +332,7 @@ export class GitHubSource implements Source {
       runner: job ? classifyRunner(job, this.opts.config.runners) : undefined,
       logExcerpt,
     };
-    e.failureRunId = decisive.id;
+    e.failureRunId = runKey(decisive);
   }
 
   private async handleError(e: EntryState, err: unknown): Promise<void> {
@@ -328,10 +381,10 @@ export class GitHubSource implements Source {
     const rules = this.opts.config.runners;
     const inputs: EntryInput[] = this.entries.map((e) => {
       const runs: RunRecord[] = e.runs.map((run) => {
-        const jobs = this.runJobs.get(run.id) ?? this.liveJobs.get(run.id) ?? [];
+        const jobs = this.runJobs.get(runKey(run)) ?? this.liveJobs.get(runKey(run)) ?? [];
         const record = mapRun(run, jobs, rules);
         if (completed(run)) return record;
-        const graph = this.graphs.get(run.id);
+        const graph = this.graphs.get(runKey(run));
         if (!graph) return record;
         const { caller, called } = graph;
         return { ...record, jobs: attachGraph(record.jobs, caller, called) };
