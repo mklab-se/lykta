@@ -1958,7 +1958,7 @@ body {
 }
 
 /* labels as luggage tags: the team's color as a rounded patch, the #label printed on it */
-.tags .tag {
+.tags .ltag {
   display: inline-block;
   padding: 3px 9px;
   border-radius: 7px;
@@ -1966,16 +1966,16 @@ body {
   color: #c9d1db;
   font-weight: 800;
 }
-.tags .tag.empty {
+.tags .ltag.empty {
   width: 46px;
   height: 20px;
   padding: 0;
 }
-.tile.xl .tags .tag {
+.tile.xl .tags .ltag {
   padding: 4px 12px;
   border-radius: 9px;
 }
-.tile.xl .tags .tag.empty {
+.tile.xl .tags .ltag.empty {
   width: 60px;
   height: 26px;
 }

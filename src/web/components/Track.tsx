@@ -60,12 +60,12 @@ export function Tags(props: { e: EntryView }) {
     <div className="tags">
       {labels?.length ? (
         labels.map((l) => (
-          <span key={l} className="tag" style={style}>
+          <span key={l} className="ltag" style={style}>
             {`#${l}`}
           </span>
         ))
       ) : (
-        <span className="tag empty" style={style} />
+        <span className="ltag empty" style={style} />
       )}
     </div>
   );

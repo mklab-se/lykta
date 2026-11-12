@@ -141,7 +141,7 @@ describe("labels and colors", () => {
     );
     expect(html).not.toContain("border-color");
     expect(html).toContain('class="tags"');
-    expect(html.match(/class="tag" style="background:#a78bfa/g)).toHaveLength(2);
+    expect(html.match(/class="ltag" style="background:#a78bfa/g)).toHaveLength(2);
     expect(html).toContain("#android");
     expect(html).toContain("#nightly");
     // the plain one looks exactly as before: no tags at all
@@ -162,7 +162,7 @@ describe("labels and colors", () => {
         onOpen={() => {}}
       />,
     );
-    expect(html).toContain('class="tag empty" style="background:#38bdf8');
+    expect(html).toContain('class="ltag empty" style="background:#38bdf8');
   });
 
   test("tag text stays readable: dark on light colors, light on dark ones", () => {
