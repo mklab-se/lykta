@@ -86,15 +86,22 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
   const seen = new Set<string>();
   const list = Array.isArray(raw.monitor) ? raw.monitor : [];
   if (!Array.isArray(raw.monitor)) problems.push("monitor: list the workflows to monitor");
-  list.forEach((m, i) => {
+  for (const [i, m] of list.entries()) {
     const where = `monitor[${i}]`;
-    if (!isObj(m)) return problems.push(`${where}: must be a mapping with repo and workflow`);
+    if (!isObj(m)) {
+      problems.push(`${where}: must be a mapping with repo and workflow`);
+      continue;
+    }
     const repo = str(m.repo);
     const workflow = str(m.workflow);
-    if (!repo || !/^[^/\s]+\/[^/\s]+$/.test(repo))
-      return problems.push(`${where}: repo must be owner/name`);
-    if (!workflow)
-      return problems.push(`${where}: workflow (the file name, e.g. ci.yml) is required`);
+    if (!repo || !/^[^/\s]+\/[^/\s]+$/.test(repo)) {
+      problems.push(`${where}: repo must be owner/name`);
+      continue;
+    }
+    if (!workflow) {
+      problems.push(`${where}: workflow (the file name, e.g. ci.yml) is required`);
+      continue;
+    }
     const owner = repo.split("/")[0] as string;
     if (!organizations[owner])
       problems.push(`${where}: organization ${owner} is not listed under organizations`);
@@ -111,7 +118,7 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
     if (seen.has(key)) problems.push(`${where}: ${repo} ${workflow} on ${branch} is listed twice`);
     seen.add(key);
     monitor.push(entry);
-  });
+  }
 
   const runners: RunnerRule[] = [];
   for (const [i, r] of (Array.isArray(raw.runners) ? raw.runners : []).entries()) {
