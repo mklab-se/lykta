@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lykta: Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000; --panel: #0b0d10; --line: #1c2129; --text: #e8edf3; --muted: #7d8794; --dim: #4a525d;
+    --red: #ff3d4d; --green: #2fe07f; --amber: #ffb224; --grey: #3a414b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--text); font-family: Inter, system-ui, sans-serif; overflow: hidden; }
+
+  /* Floating controls: auto-hide when the mouse is still (kiosk-friendly) */
+  #chrome { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px; background: rgba(16,18,22,.92); border: 1px solid #262b33; border-radius: 14px; z-index: 50; font-size: 14px; backdrop-filter: blur(8px); transition: opacity .5s, transform .5s; }
+  #chrome.hidden { opacity: 0; transform: translateX(-50%) translateY(20px); pointer-events: none; }
+  #chrome button { font: inherit; color: var(--text); background: #171a20; border: 1px solid #262b33; border-radius: 9px; padding: 7px 12px; cursor: pointer; white-space: nowrap; }
+  #chrome button.on { background: #e8edf3; color: #000; border-color: #e8edf3; font-weight: 600; }
+  #chrome .sep { width: 1px; height: 26px; background: #2a2f37; margin: 0 4px; }
+  #chrome .lbl { color: var(--muted); padding: 0 4px; }
+  #chrome .pick { background: #10331f; border-color: #1f6b41; }
+  #chrome .pick.picked { background: var(--green); color: #000; font-weight: 700; }
+
+  #tv { position: fixed; left: 0; top: 0; width: 1920px; background: var(--bg); overflow: hidden; transform-origin: 0 0; }
+  #canvas { position: absolute; inset: 0; animation: drift 240s ease-in-out infinite alternate; }
+  @keyframes drift { 0% { transform: translate(0,0); } 33% { transform: translate(6px,-4px); } 66% { transform: translate(-5px,5px); } 100% { transform: translate(4px,3px); } }
+
+  /* ---------- shared ---------- */
+  .header { display: flex; align-items: center; gap: 22px; height: 80px; padding: 0 40px; flex: none; }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 30px; letter-spacing: .5px; color: #cfd6de; }
+  .lantern { width: 24px; height: 32px; border-radius: 8px 8px 10px 10px; background: radial-gradient(circle at 50% 60%, #ffd27a 0 30%, #b97a10 70%); box-shadow: 0 0 22px rgba(255,190,80,.45); }
+  .counts { display: flex; gap: 12px; margin-left: 14px; }
+  .count { display: flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 600; color: var(--muted); padding: 7px 16px; border-radius: 999px; background: #0d1014; }
+  .count b { color: var(--text); font-size: 27px; }
+  .count.red b { color: var(--red); } .count.amber b { color: var(--amber); } .count.green b { color: var(--green); }
+  .clock { margin-left: auto; font-size: 30px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+  .dot.failed { background: var(--red); box-shadow: 0 0 14px var(--red); }
+  .dot.running { background: var(--amber); box-shadow: 0 0 14px var(--amber); animation: pulse 1.6s ease-in-out infinite; }
+  .dot.passed { background: var(--green); }
+  .dot.never { border: 2px dashed var(--dim); }
+  .dot.missing { border: 3px solid var(--red); }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .repo { color: var(--muted); font-weight: 500; }
+  .meta { color: var(--muted); font-size: 20px; display: flex; gap: 20px; }
+  .meta b { color: #c3cbd4; font-weight: 600; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .section-label { font-size: 18px; font-weight: 800; letter-spacing: 3px; color: var(--dim); margin: 0 0 10px 2px; display: flex; gap: 14px; align-items: center; flex: none; }
+  .pager { display: flex; gap: 6px; } .pager i { width: 8px; height: 8px; border-radius: 50%; background: #262b33; } .pager i.on { background: #8a939e; }
+
+  /* runner badges */
+  .where-run { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #aeb7c2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .where-run .k { padding: 1px 7px; border-radius: 6px; font-size: 12px; font-weight: 800; letter-spacing: 1px; color: #000; flex: none; }
+  .k.gh { background: #c9d1d9; } .k.k8s { background: #5aa9ff; } .k.lab { background: #c792ff; }
+
+  /* failure card */
+  .fail { position: relative; border-radius: 20px; background: linear-gradient(160deg, #2a070c 0%, #140306 60%, #0d0204 100%); border: 2px solid rgba(255,61,77,.55); padding: 18px 24px; overflow: hidden; display: flex; flex-direction: column; gap: 9px; min-height: 0; min-width: 0; }
+  .fail::before { content: ""; position: absolute; inset: -40%; background: radial-gradient(circle at 20% 0%, rgba(255,61,77,.2), transparent 55%); animation: breathe 6s ease-in-out infinite; pointer-events: none; }
+  @keyframes breathe { 50% { opacity: .35; } }
+  .fail > * { position: relative; flex-shrink: 0; }
+  .fail .tag { font-size: 18px; font-weight: 800; letter-spacing: 3px; color: var(--red); display: flex; align-items: center; gap: 10px; }
+  .fail .name { font-size: 36px; font-weight: 800; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fail .broken { font-size: 26px; font-weight: 700; color: #ffb3ba; }
+  .fail .where { font-size: 21px; color: #ffd5d9; display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; }
+  .fail .where .x { width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #000; display: grid; place-items: center; font-weight: 900; font-size: 16px; flex: none; }
+  .fail .log { flex-shrink: 1; min-height: 0; font-family: "JetBrains Mono", monospace; font-size: 17px; line-height: 1.45; background: rgba(0,0,0,.55); border-radius: 10px; padding: 10px 14px; color: #c9ced6; border-left: 4px solid var(--red); white-space: pre; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+  .fail .log .err { color: #ff8a94; }
+  .fail .ai { font-size: 17px; color: #ffd9a3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .fail.fresh { animation: arrive 1.4s cubic-bezier(.2,.9,.2,1) both; }
+  @keyframes arrive { 0% { box-shadow: 0 0 0 0 rgba(255,61,77,.9); transform: scale(1.04); } 40% { box-shadow: 0 0 0 26px rgba(255,61,77,0); } 100% { box-shadow: 0 0 0 0 rgba(255,61,77,0); transform: scale(1); } }
+  /* dense failure row (when many fail) */
+  .failrow { display: grid; grid-template-columns: 10px 1fr auto; gap: 14px; align-items: center; border-radius: 14px; background: linear-gradient(90deg, #26070b, #12040690); border: 1px solid rgba(255,61,77,.45); padding: 10px 16px 10px 0; min-width: 0; overflow: hidden; }
+  .failrow .bar { align-self: stretch; background: var(--red); box-shadow: 0 0 14px var(--red); border-radius: 0 6px 6px 0; }
+  .failrow .nm { font-size: 22px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .failrow .sub { font-size: 16px; color: #ffc2c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .failrow .dur { font-size: 20px; font-weight: 700; color: #ffb3ba; font-variant-numeric: tabular-nums; }
+  .failrow.fresh { animation: arrive 1.4s both; }
+
+  /* running card */
+  .run { border-radius: 20px; background: linear-gradient(160deg, #1b1504 0%, #0d0b05 70%); border: 2px solid rgba(255,178,36,.45); padding: 16px 22px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; min-height: 0; min-width: 0; }
+  .run > * { flex-shrink: 0; }
+  .run .tag { font-size: 18px; font-weight: 800; letter-spacing: 3px; color: var(--amber); display: flex; align-items: center; gap: 10px; }
+  .run .name { font-size: 30px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .run .elapsed { margin-left: auto; font-size: 24px; font-weight: 700; color: #ffd690; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+  .run .progress { margin-left: 14px; font-size: 18px; color: #c9a86a; letter-spacing: 0; font-weight: 600; }
+  .graph { position: relative; flex: 1 1 0; min-height: 0; display: flex; gap: 26px; align-items: center; justify-content: flex-start; }
+  .graph svg.edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .col { display: flex; flex-direction: column; gap: 8px; justify-content: center; z-index: 1; min-width: 0; }
+  .node { width: 200px; border-radius: 12px; padding: 7px 11px; background: #14171c; border: 2px solid #262b33; font-size: 18px; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+  .node .row { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .node .row span.t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st { width: 20px; height: 20px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 13px; font-weight: 900; color: #000; }
+  .node.queued { color: var(--muted); } .node.queued .st { border: 2px dashed var(--dim); }
+  .node.running { border-color: var(--amber); background: #221a06; }
+  .node.running .st, .mini.running { border: 3px solid rgba(255,178,36,.3); border-top-color: var(--amber); animation: spin .9s linear infinite; }
+  .node.success { border-color: rgba(47,224,127,.45); } .node.success .st { background: var(--green); }
+  .node.failure { border-color: var(--red); background: #2a080d; } .node.failure .st { background: var(--red); }
+  .node.skipped { opacity: .4; } .node.skipped .st { background: var(--grey); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .node .step { font-size: 15px; font-weight: 500; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .node .bar { height: 5px; border-radius: 3px; background: #2d250f; overflow: hidden; }
+  .node .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .7s ease; }
+  /* matrix group + collapsed nodes */
+  .node.group { width: 230px; }
+  .dots { display: grid; grid-template-columns: repeat(8, 14px); gap: 5px; padding: 2px 0; }
+  .mini { width: 14px; height: 14px; border-radius: 4px; background: #262b33; }
+  .mini.success { background: var(--green); } .mini.failure { background: var(--red); } .mini.queued { background: transparent; border: 2px solid #343a44; } .mini.skipped { background: #2a2f37; }
+  .mini.running { border-radius: 50%; background: transparent; }
+  .node .cnt { font-size: 15px; color: var(--muted); font-weight: 600; }
+  .node.collapsed { width: 150px; align-items: center; text-align: center; font-size: 17px; }
+  .node.collapsed.done { border-color: rgba(47,224,127,.35); color: #9fe8be; background: #0a1a12; }
+  .node.collapsed.later { border-style: dashed; color: var(--muted); }
+
+  .lanes { display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; flex: 1 1 0; border-top: 1px solid #2a2310; padding-top: 10px; }
+  .lane { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr) minmax(0,2fr) minmax(0,1.5fr); align-items: center; gap: 16px; height: 34px; font-size: 18px; font-weight: 600; color: #e9dcc0; flex: none; }
+  .lane .ln { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lane .segs { display: flex; gap: 3px; height: 12px; }
+  .lane .segs i { flex: 1; border-radius: 3px; background: #2a2414; }
+  .lane .segs i.d { background: #3fae6d; } .lane .segs i.n { background: var(--amber); animation: pulse 1.2s infinite; } .lane .segs i.f { background: var(--red); }
+  .lane .cur { color: #ffd690; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 17px; }
+  .lane.failure .ln { color: #ff9aa3; } .lane.failure .cur { color: #ff9aa3; }
+  .lane.more { display: block; color: var(--muted); font-weight: 500; }
+
+  /* idle: cards, chips and cells */
+  .chip { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); min-width: 0; }
+  .chip .txt { display: flex; flex-direction: column; min-width: 0; }
+  .chip .nm { font-size: 22px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip .sub { font-size: 17px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cell { display: flex; align-items: center; gap: 9px; padding: 0 12px; border-radius: 9px; background: #080a0c; border: 1px solid #14181d; min-width: 0; font-size: 17px; font-weight: 600; color: #b9c2cc; }
+  .cell .dot { width: 10px; height: 10px; box-shadow: none; }
+  .cell span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cell.never { color: var(--muted); } .cell.missing { border-color: rgba(255,61,77,.6); color: #ff9aa3; }
+  .calm { flex: 1; display: grid; place-items: center; color: var(--dim); font-size: 30px; border: 2px dashed #14181d; border-radius: 20px; min-height: 0; }
+
+  .itile { border-radius: 16px; background: linear-gradient(170deg, #08170f, #050a07); border: 1px solid #123a25; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow: hidden; }
+  .itile.never { background: #07090b; border: 1px dashed #2a3039; }
+  .itile .top { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; letter-spacing: 2px; color: #4fd18b; }
+  .itile.never .top { color: var(--muted); }
+  .itile .when { margin-left: auto; letter-spacing: 0; font-weight: 600; color: var(--muted); font-size: 17px; }
+  .itile.big .nm { font-size: 34px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e3f6ea; }
+  .itile.big .rp { font-size: 19px; color: var(--muted); margin-top: -4px; }
+  .itile .sub { font-size: 17px; color: #9aa6b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .itile .sub b { color: #c3cbd4; }
+  .itile.mid .top { letter-spacing: 0; font-size: 22px; color: #dfe8e2; font-weight: 700; }
+  .itile.mid .top .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hist { display: flex; gap: 4px; margin-top: auto; }
+  .hist i { flex: 1; height: 14px; border-radius: 3px; background: #1e6b43; }
+  .hist i.f { background: var(--red); }
+  .dock { position: relative; overflow: hidden; flex: none; }
+  .ditem { position: absolute; left: 0; right: 0; top: 0; overflow: hidden; border-radius: 20px; will-change: transform, height; }
+  .ditem .lv { position: absolute; inset: 0; transition: opacity .45s ease; }
+  .ditem .lv.big { display: grid; }
+  .ditem .lv.big .run { height: 100%; }
+  .midrun, .smallrun { height: 100%; border-radius: 18px; background: linear-gradient(90deg, #1b1504, #0d0b05); border: 2px solid rgba(255,178,36,.35); padding: 14px 22px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .midrun .l1, .smallrun { display: flex; align-items: center; gap: 14px; }
+  .smallrun { flex-direction: row; padding: 0 22px; border-width: 1px; }
+  .midrun .nm, .smallrun .nm { font-size: 26px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .smallrun .nm { font-size: 21px; width: 520px; flex: none; }
+  .midrun .cnt { color: #c9a86a; font-size: 18px; font-weight: 600; }
+  .midrun .el, .smallrun .el { margin-left: auto; font-size: 22px; font-weight: 700; color: #ffd690; font-variant-numeric: tabular-nums; }
+  .midrun .l2 { display: flex; align-items: center; gap: 20px; min-width: 0; }
+  .midrun .cur { font-size: 19px; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .strip { display: flex; gap: 10px; flex: none; }
+  .strip .seg { display: flex; gap: 3px; padding: 4px 6px; border-radius: 6px; background: #15120a; }
+  .strip .mini { width: 11px; height: 11px; border-radius: 3px; }
+  .pbar { flex: 1; height: 10px; border-radius: 5px; background: #2a2414; overflow: hidden; }
+  .pbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); }
+  .dock-fade { position: absolute; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 2; }
+  .dock-fade.top { top: 0; background: linear-gradient(#000, transparent); }
+  .dock-fade.bottom { bottom: 0; background: linear-gradient(transparent, #000); }
+
+  .split { display: grid; grid-template-columns: 600px 1fr; gap: 18px; flex: none; }
+  .rlist { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .rrow { position: relative; border-radius: 14px; background: #0d0b06; border: 1px solid #2a2310; padding: 0 18px; display: flex; flex-direction: column; justify-content: center; gap: 6px; transition: background .5s, border-color .5s; flex: none; }
+  .rrow .r1 { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .rrow .nm { font-size: 22px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ecdcb8; }
+  .rrow .el { margin-left: auto; font-size: 18px; font-weight: 600; color: #c9a86a; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rrow .r2 { display: flex; align-items: center; gap: 12px; }
+  .rrow .eta2 { font-size: 16px; color: var(--muted); white-space: nowrap; }
+  .rrow .r3 { font-size: 16px; color: #ffd690; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rrow.sel { background: linear-gradient(90deg, #3a2a05, #1c1504); border-color: var(--amber); box-shadow: 0 0 24px rgba(255,178,36,.18); }
+  .rrow.sel::after { content: ""; position: absolute; right: -19px; top: 50%; width: 18px; height: 3px; background: var(--amber); transform: translateY(-50%); }
+  .rrow.slowrun .el { color: #ff9f6a; }
+  .tbar { flex: 1; height: 8px; border-radius: 4px; background: #2a2414; overflow: hidden; }
+  .tbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb224, #ffe08a); transition: width .8s ease; }
+  .detail { position: relative; display: grid; min-height: 0; min-width: 0; }
+  .detail .run { height: 100%; }
+  .dwell { position: absolute; left: 24px; right: 24px; bottom: 8px; height: 3px; border-radius: 2px; background: rgba(255,178,36,.12); overflow: hidden; }
+  .dwell i { display: block; height: 100%; width: 100%; background: rgba(255,178,36,.6); transform-origin: 0 50%; animation: dwell linear forwards; }
+  @keyframes dwell { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .run .eta { display: flex; align-items: center; gap: 14px; font-size: 18px; color: var(--muted); }
+  .run .slow { margin-left: 14px; font-size: 15px; letter-spacing: 1px; padding: 3px 10px; border-radius: 6px; background: #3a1606; color: #ffab73; }
+
+  /* ---------- A ---------- */
+  .A { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .A .body { flex: 1; display: flex; flex-direction: column; gap: 18px; padding: 0 40px 30px; min-height: 0; }
+  .A .band { display: flex; flex-direction: column; min-height: 0; }
+  .grid-fill { display: grid; gap: 14px; min-height: 0; flex: 1; }
+
+  /* ---------- B ---------- */
+  .B { position: absolute; inset: 0; display: grid; grid-template-columns: 560px 1fr; }
+  .B .board { border-right: 1px solid #12161b; display: flex; flex-direction: column; min-height: 0; padding-bottom: 26px; }
+  .B .board .header { padding: 0 30px; }
+  .B .rows { display: flex; flex-direction: column; padding: 4px 20px; gap: 5px; min-height: 0; }
+  .B .brow { display: grid; grid-template-columns: 8px 1fr auto; gap: 16px; align-items: center; padding: 0 14px 0 0; border-radius: 10px; background: #07090b; min-height: 0; overflow: hidden; }
+  .B .brow .bar { align-self: stretch; border-radius: 0 6px 6px 0; }
+  .bar.failed { background: var(--red); box-shadow: 0 0 18px var(--red); } .bar.running { background: var(--amber); animation: pulse 1.6s infinite; }
+  .bar.passed { background: #16502f; } .bar.never { background: repeating-linear-gradient(180deg, var(--dim) 0 6px, transparent 6px 12px); } .bar.missing { background: var(--red); }
+  .B .brow .nm { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .B .brow .sub { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .B .brow .when { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .B .brow.failed .nm { color: #ffb3ba; } .B .brow.running .nm { color: #ffd690; } .B .brow.passed .nm { color: #b9c2cc; }
+  .B .stage { padding: 22px 36px 30px; display: flex; flex-direction: column; gap: 20px; min-height: 0; }
+
+  /* ---------- C ---------- */
+  .C { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .C .grid { flex: 1; display: grid; grid-auto-flow: dense; gap: 14px; padding: 0 40px 30px; min-height: 0; }
+  .C .tile { border-radius: 14px; background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; min-height: 0; overflow: hidden; }
+  .C .tile .nm { font-weight: 700; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .C .tile .sub { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .C .tile.passed { border-color: #123a25; background: linear-gradient(170deg, #071a10, #050b08); }
+  .C .tile.never { border-style: dashed; } .C .tile.missing { border-color: rgba(255,61,77,.6); background: #1a0508; }
+</style>
+</head>
+<body>
+<div id="tv"><div id="canvas"></div></div>
+<div id="chrome">
+  <span class="lbl">Lykta · Command Center</span>
+  <span class="sep"></span><span class="lbl">Monitored</span>
+  <button data-count="14" class="on">14</button><button data-count="40">40</button><button data-count="100">100</button>
+  <span class="sep"></span><span class="lbl">Running</span>
+  <button data-run="0">0</button><button data-run="2" class="on">2</button><button data-run="5">5</button><button data-run="12">12</button>
+  <span class="sep"></span>
+  <button id="breakit">Break one</button>
+</div>
+
+<script>
+// ===================== pipelines =====================
+const STEPS_LONG = ["Set up job", "Checkout", "Restore cache", "Setup Bun", "Install deps", "Generate code", "Compile", "Run migrations", "Seed fixtures", "Start services", "Run suite", "Collect coverage", "Upload artifacts", "Post cache", "Complete job"];
+const job = (id, name, needs, steps, group, weights) => ({ id, name, needs, steps, group, weights: weights ?? steps.map(() => 1) });
+const PIPE_SMALL = () => [
+  job("check", "Check", [], ["Checkout", "Typecheck", "Lint"]),
+  job("unit", "Assemble", [], ["Checkout", "Install", "Assemble"]),
+  job("pkg", "Package", ["check", "unit"], ["Build image", "Push"]),
+];
+const PIPE_MED = () => [
+  job("lint", "Lint", [], ["Checkout", "Setup Bun", "Biome"]),
+  job("b-linux", "Build · linux", ["lint"], ["Checkout", "Install", "Compile", "Upload"]),
+  job("b-mac", "Build · macos", ["lint"], ["Checkout", "Install", "Compile", "Sign"]),
+  job("b-win", "Build · windows", ["lint"], ["Checkout", "Install", "Compile"]),
+  job("test", "Integration tests", ["b-linux", "b-mac", "b-win"], ["Start services", "Run suite", "Report"]),
+  job("deploy", "Deploy staging", ["test"], ["Login", "Helm upgrade", "Smoke test"]),
+];
+// A long Android (AOSP) pipeline: hours of compile in a single step
+const AOSP_BUILD = ["Set up job", "Free disk space", "repo sync -j16", "envsetup && lunch", "m -j64", "Package images", "Upload artifacts", "Complete job"];
+const AOSP_W = [1, 1, 6, 1, 60, 4, 3, 1];
+const PIPE_BIG = () => {
+  const J = [job("mirror", "Update mirror", [], ["Set up job", "Fetch manifest", "repo sync mirror"], undefined, [1, 1, 8])];
+  J.push(job("lint", "Lint & checkstyle", ["mirror"], ["Checkout", "Run lint"], undefined, [1, 4]));
+  const targets = ["aosp_cf_x86_64-userdebug", "lynx-userdebug", "lynx-user", "tangorpro-userdebug"];
+  targets.forEach((t) => J.push(job(`build-${t}`, `Build · ${t}`, ["mirror"], AOSP_BUILD, "Build", AOSP_W)));
+  J.push(job("sign", "Sign images", targets.map((t) => `build-${t}`), ["Download images", "Sign", "Verify signatures"], undefined, [2, 3, 1]));
+  for (const d of ["Pixel 9", "Pixel Tablet", "Zebra TC58", "Rugged R11"]) J.push(job(`dev-${d}`, `Flash & boot · ${d}`, ["sign"], ["Reserve bench", "fastboot flash", "Wait for boot", "Smoke checks", "Collect logcat"], "Flash & boot", [1, 3, 3, 4, 1]));
+  J.push(job("publish", "Publish OTA", J.filter((j) => j.group === "Flash & boot").map((j) => j.id), ["Build OTA package", "Upload", "Notify"], undefined, [4, 2, 1]));
+  return J;
+};
+const FAIL_LOGS = {
+  generic: ["> Task :app:compileReleaseKotlin", "e: src/main/kotlin/Sync.kt:88:17 Unresolved reference: retryPolicy", "> Task :app:compileReleaseKotlin FAILED", "BUILD FAILED in 4m 12s", "Error: Process completed with exit code 1."],
+  build: ["[ 87% 118342/136011] //frameworks/base:framework-minus-apex javac", "FAILED: out/soong/.intermediates/frameworks/base/framework-minus-apex", "frameworks/base/core/java/android/os/Battery.java:212: error: cannot find symbol", "ninja: build stopped: subcommand failed.", "#### failed to build some targets (4:38:51 (hh:mm:ss)) ####"],
+  device: ["Sending 'super' (4194304 KB)   OKAY [ 91.2s]", "Rebooting into bootloader      OKAY", "Waiting for device to boot ... timeout after 600 s", "adb: device 'lab-bench-2' not found", "Error: device did not become ready"],
+};
+const AI = {
+  generic: "Probable cause: retryPolicy was renamed in the networking module two commits earlier; Sync.kt still uses the old name.",
+  build: "Probable cause: Battery.java uses an API removed by the framework change in this run; the build failed after 4h 38m.",
+  device: "Probable cause: the Pixel 9 on lab-bench-2 never finished booting after flashing; likely the bench device, not the build.",
+};
+// where jobs run
+const R = {
+  gh: (l) => ({ kind: "gh", label: l, host: "GitHub hosted" }),
+  k8s: (n) => ({ kind: "k8s", label: "arc-runners", host: `k8s-node-0${n}` }),
+  lab: (b, d) => ({ kind: "lab", label: `lab-bench-${b}`, host: d }),
+};
+function runnerFor(j) {
+  if (/macos/.test(j.name)) return R.gh(/arm/.test(j.name) ? "macos-15" : "macos-15-intel");
+  if (/windows/.test(j.name)) return R.gh("windows-latest");
+  if (/Flash & boot · (.*)/.test(j.name)) return R.lab(2 + Math.floor(Math.random() * 4), j.name.split("· ")[1]);
+  if (/Build · .*(aosp|lynx|tangor)/.test(j.name)) return { kind: "k8s", label: "arc-aosp-64core", host: `k8s-build-0${1 + Math.floor(Math.random() * 6)}` };
+  if (/Integration/.test(j.name)) return R.k8s(1 + Math.floor(Math.random() * 8));
+  if (/Deploy|Package|Smoke/.test(j.name)) return R.k8s(1 + Math.floor(Math.random() * 3));
+  return Math.random() < 0.5 ? R.gh("ubuntu-latest") : R.k8s(1 + Math.floor(Math.random() * 8));
+}
+
+// ===================== workflows =====================
+const min = 60e3, hour = 60 * min;
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const ORGS = ["mklab-se", "acme-corp", "northwind"];
+const REPOS = ["shop", "shop-app", "ailloy", "pidge", "lykta", "cosq", "rigg", "honk", "skiss", "mdeck", "deemer", "infra", "mklab.se", "billing", "auth", "search", "gateway", "inventory", "mobile", "firmware", "warehouse", "analytics", "notifier", "payments", "docs", "design-system", "scheduler", "ledger", "media", "reports"];
+const NAMES = ["CI", "Release", "Deploy", "Nightly", "Docs", "Terraform plan", "E2E", "Security scan", "Publish", "Benchmarks"];
+let workflows = [];
+function makeWf(i, o = {}) {
+  const repo = o.repo ?? `${i < 14 ? "mklab-se" : pick(ORGS)}/${REPOS[i % REPOS.length]}${i >= REPOS.length ? "-" + Math.floor(i / REPOS.length + 1) : ""}`;
+  const name = o.name ?? NAMES[(i * 7) % NAMES.length];
+  const pipe = o.pipe ?? pick([PIPE_SMALL, PIPE_SMALL, PIPE_MED, PIPE_BIG]);
+  const w = { id: "w" + i, repo, name, pipe, state: o.state ?? "passed", last: Date.now() - (o.ago ?? Math.random() * 30 * hour), since: null, fresh: false, branch: pick(["main", "main", "main", "release/2.4"]), actor: pick(["kristofer", "anna", "jonas", "dependabot"]), sha: hex() };
+  w.jobs = assign(pipe());
+  w.expected = pipe === PIPE_BIG ? 5 * hour + 50 * min : pipe === PIPE_MED ? 14 * min : 4 * min;
+  w.history = Array.from({ length: 14 }, () => (Math.random() < 0.12 ? "f" : "p"));
+  w.lastDur = (1 + Math.random() * 14) * min;
+  if (w.state === "running") startRun(w, o.progress ?? 0.3);
+  if (w.state === "failed") failNow(w, o.failGroup, Date.now() - (o.brokenFor ?? 40 * min), true);
+  return w;
+}
+function hex() { return Math.random().toString(16).slice(2, 9); }
+function assign(jobs) { for (const j of jobs) { j.runner = runnerFor(j); j.status = "queued"; j.stepIdx = 0; j.progress = 0; } return jobs; }
+function seed(n) {
+  const list = [
+    makeWf(0, { repo: "mklab-se/android-platform", name: "Nightly build", pipe: PIPE_BIG, state: "failed", failGroup: "aosp", brokenFor: 7 * hour + 12 * min }),
+    makeWf(1, { repo: "mklab-se/field-app", name: "Release", pipe: PIPE_MED, state: "failed", failGroup: "generic", brokenFor: 47 * min }),
+    makeWf(2, { repo: "mklab-se/android-platform", name: "Android build", pipe: PIPE_BIG, state: "running", progress: 0.4 }),
+    makeWf(3, { repo: "mklab-se/pidge", name: "Release", pipe: PIPE_MED, state: "running", progress: 0.1 }),
+    makeWf(4, { repo: "mklab-se/mklab.se", name: "Publish", state: "never" }),
+    makeWf(5, { repo: "acme-corp/billing", name: "Nightly", state: "missing" }),
+  ];
+  list.push(makeWf(90, { repo: "mklab-se/android-platform", name: "Release build", pipe: PIPE_BIG, state: "running", progress: 0.7 })); list[list.length - 1].slow = true;
+  for (let i = 6; i < n; i++) list.push(makeWf(i, { state: Math.random() < (n > 20 ? 0.04 : 0) ? "never" : "passed" }));
+  if (n >= 40) { list.push(makeWf(n + 1, { repo: "mklab-se/android-devices", name: "Device bring-up", state: "failed", failGroup: "device", pipe: PIPE_BIG, brokenFor: 20 * hour })); list.push(makeWf(n + 2, { state: "failed", failGroup: "generic", brokenFor: 9 * min })); }
+  if (n >= 100) { for (let k = 0; k < 4; k++) list.push(makeWf(n + 3 + k, { state: "failed", failGroup: "generic", brokenFor: Math.random() * 6 * hour })); list.push(makeWf(n + 9, { state: "running", pipe: PIPE_BIG, progress: 0.7 })); }
+  workflows = list;
+}
+function wsum(j) { return j.weights.reduce((a, b) => a + b, 0); }
+function runFrac(w) {
+  // critical-path-ish progress: the slowest branch decides, so use the furthest-behind unfinished job weighted by depth
+  const d = depths(w), maxD = Math.max(...Object.values(d)) + 1; let f = 0;
+  for (const j of w.jobs) {
+    const done = j.status === "success" || j.status === "failure" ? 1 : j.status === "running" ? (j.weights.slice(0, j.stepIdx).reduce((a, b) => a + b, 0) + j.progress * (j.weights[j.stepIdx] ?? 0)) / wsum(j) : 0;
+    f += done * (j.group === "Build" ? 6 : 1);
+  }
+  const total = w.jobs.reduce((a, j) => a + (j.group === "Build" ? 6 : 1), 0);
+  return Math.min(0.999, f / total);
+}
+const hm = (ms) => { const m = Math.round(ms / 60000); return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m` : `${m}m`; };
+const clockAt = (t) => new Date(t).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+function timing(w) {
+  const f = runFrac(w), el = f * w.expected * (w.slow ? 1.35 : 1);
+  const eta = Date.now() + Math.max(0, w.expected * (w.slow ? 1.35 : 1) - el);
+  return { f, el, txt: `${hm(el)} of ~${hm(w.expected)}`, eta: `done ~${clockAt(eta)}` };
+}
+function startRun(w, progress = 0) {
+  w.jobs = assign(w.pipe()); w.state = "running"; w.started = Date.now() - progress * 6 * min; w.sha = hex();
+  w.actor = pick(["kristofer", "anna", "jonas", "dependabot"]);
+  w.jumped = false;
+  w.willFail = Math.random() < (w.failure ? 0.15 : 0.12) ? pick(w.jobs.filter((j) => j.needs.length)).id : null;
+  // fast-forward to the requested progress
+  const depth = depths(w); const maxD = Math.max(...Object.values(depth));
+  for (const j of w.jobs) if (depth[j.id] < Math.floor(progress * maxD)) j.status = "success";
+}
+function failNow(w, kind, since, seeded) {
+  const order = depths(w);
+  for (const j of w.jobs) j.status = "success";
+  let f = w.jobs.find((j) => (kind === "aosp" ? j.group === "Build" : kind === "build" ? /windows|Build/.test(j.name) : kind === "device" ? j.group === "Flash & boot" : j.needs.length));
+  f ??= w.jobs[w.jobs.length - 1];
+  f.status = "failure"; f.stepIdx = Math.max(0, f.steps.length - 3);
+  for (const j of w.jobs) if (order[j.id] > order[f.id]) j.status = "skipped";
+  const k = /Flash/.test(f.name) ? "device" : /Build · .*(aosp|lynx|tangor)/.test(f.name) ? "build" : "generic";
+  w.failure = { job: f.name, step: f.steps[f.stepIdx], log: FAIL_LOGS[k], ai: AI[k], runner: f.runner };
+  w.state = "failed"; w.since = since; w.last = Date.now() - (seeded ? 5 * min : 0);
+}
+function depths(w) { const d = {}; const f = (j) => (d[j.id] ??= j.needs.length ? 1 + Math.max(...j.needs.map((n) => f(w.jobs.find((x) => x.id === n)))) : 0); w.jobs.forEach(f); return d; }
+
+// ===================== simulation =====================
+function tick() {
+  for (const w of workflows) {
+    if (w.state !== "running") continue;
+    for (const j of w.jobs) {
+      if (j.status === "queued" && j.needs.every((n) => w.jobs.find((x) => x.id === n).status === "success")) j.status = "running";
+      if (j.status !== "running") continue;
+      j.progress += (0.25 + Math.random() * 0.35) / Math.sqrt(j.weights[j.stepIdx] ?? 1) * (w.pipe === PIPE_BIG ? 0.5 : 1);
+      while (j.progress >= 1) { j.progress -= 1; j.stepIdx++; }
+      if (w.willFail === j.id && j.stepIdx >= Math.floor(j.steps.length / 2)) { j.status = "failure"; }
+      else if (j.stepIdx >= j.steps.length) { j.stepIdx = j.steps.length - 1; j.status = "success"; }
+    }
+    const failed = w.jobs.find((j) => j.status === "failure");
+    if (failed) {
+      const order = depths(w);
+      for (const j of w.jobs) if (j.status === "queued" || (j.status === "running" && order[j.id] > order[failed.id])) j.status = "skipped";
+      if (selId !== w.id && running().length >= 2 && !w.jumped) { w.jumped = true; selId = w.id; selAt = Date.now(); structural(); }
+      if (!w.jobs.some((j) => j.status === "running")) {
+        const k = /Flash/.test(failed.name) ? "device" : /Build · .*(aosp|lynx|tangor)/.test(failed.name) ? "build" : "generic";
+        w.since = w.failure ? w.since : Date.now();
+        w.failure = { job: failed.name, step: failed.steps[failed.stepIdx], log: FAIL_LOGS[k], ai: AI[k], runner: failed.runner };
+        w.state = "failed"; w.fresh = true; w.last = Date.now(); w.lastDur = Date.now() - w.started; w.history = w.history.slice(1).concat("f"); structural();
+      }
+    } else if (w.jobs.every((j) => j.status === "success")) {
+      w.state = "passed"; w.failure = null; w.last = Date.now(); w.lastDur = Date.now() - w.started; w.history = w.history.slice(1).concat("p"); structural();
+    }
+  }
+  paintLive();
+}
+let runTarget = 2;
+function maxRunning() { return runTarget; }
+function kick(prefer) {
+  const running = workflows.filter((w) => w.state === "running").length;
+  if (running >= maxRunning()) return;
+  const pool = workflows.filter((w) => w.state === "passed" || w.state === "failed");
+  const w = prefer ?? pick(pool); if (!w) return;
+  startRun(w); structural();
+}
+function breakOne() {
+  const w = pick(workflows.filter((x) => x.state === "passed")); if (!w) return;
+  failNow(w, w.pipe === PIPE_BIG ? pick(["aosp", "device"]) : "generic", Date.now(), false); w.fresh = true; structural();
+}
+setInterval(tick, 700);
+setInterval(() => { if (workflows.filter((w) => w.state === "running").length < maxRunning()) kick(); }, 4000);
+function setRunTarget(n) {
+  runTarget = n;
+  const r = running();
+  // finish extras right away (as passes) so the demo reacts immediately
+  for (const w of r.slice(n)) { w.state = "passed"; w.failure = null; w.last = Date.now(); w.history = w.history.slice(1).concat("p"); }
+  const pool = () => workflows.filter((w) => w.state === "passed" || w.state === "failed");
+  for (let k = r.length; k < n; k++) { const w = pick(pool()); if (w) startRun(w, Math.random() * 0.6); }
+  structural();
+}
+
+// ===================== geometry =====================
+let VW = 1920, VH = 1080, scale = 1;
+function fit() {
+  scale = innerWidth / 1920; VH = Math.round(innerHeight / scale);
+  const tv = document.getElementById("tv"); tv.style.height = VH + "px"; tv.style.transform = `scale(${scale})`;
+  render();
+}
+
+// ===================== rendering helpers =====================
+const canvas = document.getElementById("canvas");
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+const short = (w) => w.repo.split("/")[1];
+function ago(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); if (s < 60) return "just now"; const m = Math.round(s / 60); if (m < 60) return m + " min ago"; const h = Math.floor(m / 60); return h < 24 ? h + " h ago" : Math.floor(h / 24) + " d ago"; }
+function dur(t) { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(r).padStart(2, "0")}s`; }
+const vt = (w, p = "wf") => `style="view-transition-name: ${p}-${w.id}"`;
+const ORDER = { failed: 0, missing: 1, running: 2, passed: 3, never: 4 };
+const sorted = () => [...workflows].sort((a, b) => ORDER[a.state] - ORDER[b.state] || (a.state === "failed" ? a.since - b.since : b.last - a.last));
+const failing = () => sorted().filter((w) => w.state === "failed" || w.state === "missing");
+const running = () => workflows.filter((w) => w.state === "running").sort((a, b) => a.started - b.started);
+const idle = () => sorted().filter((w) => w.state === "passed" || w.state === "never");
+function runnerHtml(r, mode) {
+  if (!r) return "";
+  const k = { gh: "GH", k8s: "K8S", lab: "LAB" }[r.kind];
+  const text = r.kind === "gh" ? r.label : mode === "short" ? r.host : `${r.label} · ${r.host}`;
+  return `<div class="where-run"><span class="k ${r.kind}">${k}</span>${esc(text)}</div>`;
+}
+function header(withCounts = true) {
+  const f = failing().length, r = running().length, p = workflows.filter((w) => w.state === "passed").length;
+  return `<div class="header"><div class="brand"><div class="lantern"></div>LYKTA</div>${withCounts ? countsHtml(f, r, p) : ""}<div class="clock" data-clock></div></div>`;
+}
+const countsHtml = (f, r, p) => `<div class="counts"><div class="count red"><b>${f}</b> failing</div><div class="count amber"><b>${r}</b> running</div><div class="count green"><b>${p}</b> passing</div><div class="count"><b>${workflows.length}</b> monitored</div></div>`;
+
+// ---------- failures ----------
+function failCard(w, opt = {}) {
+  if (w.state === "missing") return `<div class="fail" ${vt(w, opt.prefix)}><div class="tag"><span class="dot missing"></span>NOT FOUND</div><div class="name">${esc(w.repo)}</div><div class="where" style="white-space:normal">Workflow “${esc(w.name)}” cannot be read: 404 from GitHub (renamed, deleted, or no access)</div></div>`;
+  const lines = (w.failure.log || []).slice(-(opt.log ?? 4)).map((l) => (/✗|error|Error|FAIL|Expected|exit code|timeout/.test(l) ? `<span class="err">${esc(l)}</span>` : `<span>${esc(l)}</span>`)).join("");
+  return `<div class="fail ${w.fresh ? "fresh" : ""}" ${vt(w, opt.prefix)}>
+    <div class="tag"><span class="dot failed"></span>FAILED</div>
+    <div class="name">${esc(w.name)} <span class="repo">· ${esc(short(w))}</span></div>
+    <div class="broken" data-since="${w.since}">Broken for ${dur(w.since)}</div>
+    <div class="where"><span class="x">✕</span>${esc(w.failure.job)} › ${esc(w.failure.step)}</div>
+    ${runnerHtml(w.failure.runner)}
+    ${opt.log === 0 ? "" : `<div class="log">${lines}</div>`}
+    ${opt.ai === false ? "" : `<div class="ai">✦ ${esc(w.failure.ai)}</div>`}
+  </div>`;
+}
+function failRow(w, prefix) {
+  const sub = w.state === "missing" ? "workflow not found (404)" : `${w.failure.job} › ${w.failure.step}`;
+  return `<div class="failrow ${w.fresh ? "fresh" : ""}" ${vt(w, prefix)}><div class="bar"></div><div style="min-width:0"><div class="nm">${esc(w.name)} · ${esc(short(w))}</div><div class="sub">${esc(sub)}</div></div><div class="dur" ${w.state === "missing" ? "" : `data-since="${w.since}"`}>${w.state === "missing" ? "404" : dur(w.since)}</div></div>`;
+}
+// Failures always fit: big cards, then smaller cards, then dense rows.
+function failuresHtml(list, width, height, prefix) {
+  const n = list.length; if (!n) return "";
+  const tight = height < 260 ? { log: 0, ai: true } : {};
+  if (n <= 3 && width >= 1500) return grid(list.map((w) => failCard(w, { prefix, ...tight })), n, 1, height);
+  if (n <= 2) return grid(list.map((w) => failCard(w, { prefix })), n, 1, height);
+  if (n <= 6) { const cols = Math.min(3, Math.ceil(n / 2)), rows = Math.ceil(n / cols); if (height / rows >= 190) return grid(list.map((w) => failCard(w, { prefix, log: 0, ai: false })), cols, rows, height); }
+  const cols = width >= 1500 ? 3 : 2; return grid(list.map((w) => failRow(w, prefix)), cols, Math.ceil(n / cols), height);
+}
+const grid = (items, cols, rows, height) => `<div class="grid-fill" style="grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rows},minmax(0,1fr));height:${height}px;flex:none">${items.join("")}</div>`;
+
+// ---------- running graph ----------
+function graphModel(w, maxCols) {
+  const d = depths(w); const cols = [];
+  for (const j of w.jobs) (cols[d[j.id]] ??= []).push(j);
+  // split columns into nodes: big groups (matrix/shards) become one group node
+  const colNodes = cols.map((c) => {
+    const groups = {}; const nodes = [];
+    for (const j of c) { if (j.group && c.filter((x) => x.group === j.group).length > 3) (groups[j.group] ??= []).push(j); else nodes.push({ kind: "job", id: j.id, jobs: [j] }); }
+    for (const [g, js] of Object.entries(groups)) nodes.push({ kind: "group", id: "g-" + g, name: g, jobs: js });
+    return nodes;
+  });
+  const status = (js) => (js.some((j) => j.status === "failure") ? "failure" : js.some((j) => j.status === "running") ? "running" : js.every((j) => j.status === "success") ? "success" : js.every((j) => j.status === "skipped") ? "skipped" : js.some((j) => j.status === "success") ? "running" : "queued");
+  colNodes.forEach((c) => c.forEach((n) => (n.status = status(n.jobs))));
+  // keep the active frontier in view: collapse finished columns on the left and later ones on the right
+  let active = colNodes.findIndex((c) => c.some((n) => n.status !== "success"));
+  if (active < 0) active = colNodes.length - 1;
+  let first = 0, last = colNodes.length - 1, out = [];
+  if (colNodes.length > maxCols) {
+    first = Math.max(0, active - 1);
+    let slots = maxCols - (first > 0 ? 1 : 0);
+    if (colNodes.length - first > slots) slots -= 1;
+    slots = Math.max(1, slots);
+    if (first + slots > colNodes.length) first = Math.max(0, colNodes.length - slots);
+    last = first + slots - 1;
+  }
+  if (first > 0) { const js = colNodes.slice(0, first).flat().flatMap((n) => n.jobs); out.push([{ kind: "done", id: "done", jobs: js, status: "success" }]); }
+  out.push(...colNodes.slice(first, last + 1));
+  if (last < colNodes.length - 1) { const js = colNodes.slice(last + 1).flat().flatMap((n) => n.jobs); out.push([{ kind: "later", id: "later", jobs: js, status: "queued" }]); }
+  // map job -> node for edges
+  const nodeOf = {}; out.forEach((c) => c.forEach((n) => n.jobs.forEach((j) => (nodeOf[j.id] = n.id))));
+  const edges = new Set(); for (const j of w.jobs) for (const n of j.needs) if (nodeOf[n] !== nodeOf[j.id]) edges.add(nodeOf[n] + ">" + nodeOf[j.id]);
+  return { cols: out, edges: [...edges], nodeById: Object.fromEntries(out.flat().map((n) => [n.id, n])) };
+}
+function nodeHtml(w, n, compact) {
+  const icon = { success: "✓", failure: "✕", skipped: "–" }[n.status] || "";
+  const key = `${w.id}:${n.id}`;
+  if (n.kind === "done") return `<div class="node collapsed done" data-node="${key}"><div class="row"><span class="st" style="background:var(--green)">✓</span><span class="t">${n.jobs.length} jobs done</span></div></div>`;
+  if (n.kind === "later") return `<div class="node collapsed later" data-node="${key}"><div class="row"><span class="t">+${n.jobs.length} jobs</span></div><div class="cnt">waiting</div></div>`;
+  if (n.kind === "group") {
+    const c = (s) => n.jobs.filter((j) => j.status === s).length;
+    const nodes = [...new Set(n.jobs.map((j) => j.runner.host))];
+    const r = n.jobs[0].runner; const where = r.kind === "k8s" ? `<div class="where-run"><span class="k k8s">K8S</span>${nodes.length} nodes</div>` : runnerHtml(r, "short");
+    const running = n.jobs.find((j) => j.status === "running");
+    return `<div class="node group ${n.status}" data-node="${key}"><div class="row"><span class="st">${icon}</span><span class="t">${esc(n.name)} ×${n.jobs.length}</span></div>
+      <div class="dots">${n.jobs.map((j) => `<i class="mini ${j.status}"></i>`).join("")}</div>
+      <div class="cnt">${c("success")} done · ${c("running")} running${c("failure") ? ` · <span style="color:var(--red)">${c("failure")} failed</span>` : ""}</div>${where}
+      ${running && !compact ? `<div class="step">step ${running.stepIdx + 1}/${running.steps.length} · ${esc(running.steps[running.stepIdx])}</div>` : ""}</div>`;
+  }
+  const j = n.jobs[0];
+  const where = j.status === "queued" || j.status === "skipped" ? "" : runnerHtml(j.runner, "short");
+  const live = j.status === "running" ? `<div class="step" data-step="${w.id}:${j.id}">${compact ? "" : `step ${j.stepIdx + 1}/${j.steps.length} · `}${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}</div><div class="bar"><i data-bar="${w.id}:${j.id}" style="width:${pct(j)}%"></i></div>` : "";
+  return `<div class="node ${n.status}" data-node="${key}"><div class="row"><span class="st">${icon}</span><span class="t">${esc(j.name)}</span></div>${where}${live}</div>`;
+}
+const pct = (j) => Math.min(100, Math.round(((j.stepIdx + j.progress) / j.steps.length) * 100));
+function graphHtml(w, maxCols, compact) {
+  const m = graphModel(w, maxCols);
+  return `<svg class="edges"></svg>${m.cols.map((c) => `<div class="col">${c.map((n) => nodeHtml(w, n, compact)).join("")}</div>`).join("")}`;
+}
+function runCard(w, opt = {}) {
+  const total = w.jobs.length, done = w.jobs.filter((j) => j.status === "success").length;
+  return `<div class="run" ${vt(w, opt.prefix)}>
+    <div class="tag"><span class="dot running"></span>RUNNING<span class="progress">${done}/${total} jobs</span>${w.slow ? `<span class="slow">SLOWER THAN USUAL</span>` : ""}<span class="elapsed" data-timing="${w.id}">${timing(w).txt}</span></div>
+    <div class="eta"><span class="tbar"><i data-tbar="${w.id}" style="width:${Math.round(timing(w).f * 100)}%"></i></span><span data-eta="${w.id}">${timing(w).eta}</span></div>
+    <div class="name">${esc(w.name)} <span class="repo">· ${esc(short(w))}</span></div>
+    <div class="graph" data-graph="${w.id}" data-maxcols="${opt.maxCols ?? 5}" data-compact="${opt.compact ? 1 : 0}" ${lanesFor(opt) ? `style="flex:none;height:${graphH(opt)}px"` : ""}>${graphHtml(w, opt.maxCols ?? 5, opt.compact)}</div>
+    ${lanesFor(opt) ? `<div class="lanes" data-lanes="${w.id}" data-n="${lanesFor(opt)}">${lanesHtml(w, lanesFor(opt))}</div>` : ""}
+    ${opt.meta === false ? "" : `<div class="meta"><span><b>${esc(w.branch)}</b></span><span class="mono">${w.sha}</span><span>by <b>${esc(w.actor)}</b></span></div>`}
+  </div>`;
+}
+// Tall cards show a live lane per running job: step segments plus the current step.
+const graphH = (opt) => Math.min(300, Math.max(200, (opt.height ?? 0) * 0.45));
+function lanesFor(opt) { if (!opt.height || opt.height < 420) return 0; return Math.max(0, Math.floor((opt.height - 130 - (opt.meta === false ? 0 : 30) - graphH(opt)) / 40)); }
+function lanesHtml(w, n) {
+  const act = w.jobs.filter((j) => j.status === "running");
+  const recent = w.jobs.filter((j) => j.status === "failure");
+  const list = recent.concat(act).slice(0, n);
+  const more = act.length + recent.length - list.length;
+  return list.map((j) => `<div class="lane ${j.status}"><span class="ln">${esc(j.name)}</span>${runnerHtml(j.runner, "short")}<span class="segs">${j.steps.map((st, i) => `<i class="${i < j.stepIdx ? "d" : i === j.stepIdx ? (j.status === "failure" ? "f" : "n") : ""}"></i>`).join("")}</span><span class="cur">${j.stepIdx + 1}/${j.steps.length} · ${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}</span></div>`).join("") + (more > 0 ? `<div class="lane more">+${more} more running</div>` : "");
+}
+let sel = 0, selAt = Date.now(), selId = null;
+function runningHtml(list, width, height, prefix) {
+  if (list.length >= 2) return splitHtml(list, width, height);
+  if (!list.length) return `<div class="calm" style="height:${height}px;flex:none">Nothing running right now</div>`;
+  const n = list.length;
+  const cols = n === 1 ? 1 : 2, rows = Math.ceil(n / cols);
+  const cardW = (width - (cols - 1) * 20) / cols, cardH = (height - (rows - 1) * 20) / rows;
+  const maxCols = Math.max(3, Math.floor((cardW - 44 + 26) / 226));
+  return `<div class="grid-fill" style="grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rows},minmax(0,1fr));height:${height}px;flex:none;gap:20px">${list.map((w) => runCard(w, { prefix, maxCols, compact: cardH < 330, meta: cardH >= 380, height: cardH })).join("")}</div>`;
+}
+
+function stageStrip(w) {
+  const m = graphModel(w, 99);
+  return `<div class="strip">${m.cols.map((c) => { const js = c.flatMap((n) => n.jobs); return `<span class="seg">${js.map((j) => `<i class="mini ${j.status}"></i>`).join("")}</span>`; }).join("")}</div>`;
+}
+function dockHtml(list, width, height) {
+  DOCK.big = Math.min(460, Math.max(330, height - 2 * DOCK.mid - 2 * DOCK.small - 40));
+  const items = list.map((w) => {
+    const act = w.jobs.filter((j) => j.status === "running"); const j = act[0];
+    const done = w.jobs.filter((x) => x.status === "success").length;
+    return `<div class="ditem" data-ditem="${w.id}" ${vt(w)}>
+      <div class="lv big">${runCard(w, { maxCols: Math.max(3, Math.floor((width - 44 + 26) / 226)), height: DOCK.big, meta: true })}</div>
+      <div class="lv mid"><div class="midrun">
+        <div class="l1"><span class="dot running"></span><span class="nm">${esc(w.name)} <span class="repo">· ${esc(short(w))}</span></span><span class="cnt">${done}/${w.jobs.length} jobs</span><span class="el" data-started="${w.started}">${dur(w.started)}</span></div>
+        <div class="l2">${stageStrip(w)}${j ? `<span class="cur">${esc(j.name)} › ${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}</span>${runnerHtml(j.runner, "short")}` : ""}</div>
+      </div></div>
+      <div class="lv small"><div class="smallrun"><span class="dot running"></span><span class="nm">${esc(w.name)} <span class="repo">· ${esc(short(w))}</span></span><span class="pbar"><i style="width:${Math.round((done / w.jobs.length) * 100)}%"></i></span><span class="el" data-started="${w.started}">${dur(w.started)}</span></div></div>
+    </div>`;
+  });
+  return `<div class="dock" data-dock style="height:${height}px">${items.join("")}<div class="dock-fade top"></div><div class="dock-fade bottom"></div></div>`;
+}
+function rowHtml(w, isSel, rowH) {
+  const t = timing(w), act = w.jobs.filter((j) => j.status === "running"), j = act[0];
+  const big = rowH >= 86;
+  return `<div class="rrow ${isSel ? "sel" : ""} ${w.slow ? "slowrun" : ""}" data-row="${w.id}" ${vt(w)} style="height:${rowH}px">
+    <div class="r1"><span class="dot running"></span><span class="nm">${esc(w.name)} <span class="repo">· ${esc(short(w))}</span></span><span class="el">${t.txt}</span></div>
+    <div class="r2"><span class="tbar"><i style="width:${Math.round(t.f * 100)}%"></i></span>${big ? `<span class="eta2">${t.eta}</span>` : ""}</div>
+    ${big && j ? `<div class="r3">${esc(j.name)}${act.length > 1 ? ` <span class="repo">+${act.length - 1}</span>` : ""} › ${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}</div>` : ""}
+  </div>`;
+}
+function splitHtml(list, width, height) {
+  if (!list.find((w) => w.id === selId)) { sel = sel % list.length; selId = list[sel].id; }
+  sel = list.findIndex((w) => w.id === selId);
+  const listW = 600, gap = 18, n = list.length;
+  const rowH = Math.max(44, Math.min(120, Math.floor((height - (n - 1) * 10) / n)));
+  const w = list[sel];
+  const rows = list.map((x, i) => rowHtml(x, i === sel, rowH)).join("");
+  const dwell = Math.max(6, Math.min(12, 30 / n));
+  return `<div class="split" style="height:${height}px">
+    <div class="rlist" data-rlist>${rows}</div>
+    <div class="detail" style="view-transition-name: detail-panel">${runCard(w, { maxCols: Math.max(3, Math.floor((width - listW - gap - 44 + 26) / 226)), height, meta: true })}
+      <div class="dwell"><i style="animation-duration:${dwell}s" data-dwell="${dwell}"></i></div></div>
+  </div>`;
+}
+setInterval(() => {
+  const list = running(); if (list.length < 2) return;
+  const dwell = Math.max(6, Math.min(12, 30 / list.length));
+  if (Date.now() - selAt < dwell * 1000) return;
+  sel = (list.findIndex((w) => w.id === selId) + 1) % list.length; selId = list[sel].id; selAt = Date.now();
+  structural();
+}, 500);
+// The focus glides down the list and back up; size falls off with distance (Dock magnification).
+let focusF = 0, focusDir = 1, focusPause = 0, lastT = performance.now();
+function dockFrame(t) {
+  const dt = Math.min(0.1, (t - lastT) / 1000); lastT = t;
+  const dock = canvas.querySelector("[data-dock]");
+  if (dock) {
+    const items = [...dock.querySelectorAll("[data-ditem]")]; const n = items.length;
+    if (focusPause > 0) focusPause -= dt; else { focusF += focusDir * dt / 5.5; if (focusF >= n - 1) { focusF = n - 1; focusDir = -1; focusPause = 2.5; } if (focusF <= 0) { focusF = 0; focusDir = 1; focusPause = 2.5; } }
+    const clamp = (x) => Math.max(0, Math.min(1, x));
+    const ease = (x) => x * x * (3 - 2 * x);
+    let y = 0; const tops = [], hs = [];
+    items.forEach((el, i) => {
+      const d = Math.abs(i - focusF);
+      const wB = ease(clamp(1 - d)), wM = ease(clamp(1 - Math.abs(d - 1))) , wS = d >= 1 ? ease(clamp(d - 1)) : 0;
+      const h = DOCK.small + (DOCK.mid - DOCK.small) * clamp(2 - d) + (DOCK.big - DOCK.mid) * ease(clamp(1 - d));
+      el.style.height = h + "px";
+      const lvl = d < 0.5 ? 0 : d < 1.5 ? 1 : 2; for (let k = 0; k < 3; k++) el.children[k].style.opacity = k === lvl ? 1 : 0;
+      tops.push(y); hs.push(h); y += h + 12;
+    });
+    const H = dock.clientHeight, total = y - 12;
+    const i0 = Math.floor(focusF), fr = focusF - i0, c0 = tops[i0] + hs[i0] / 2, c1 = tops[Math.min(n - 1, i0 + 1)] + hs[Math.min(n - 1, i0 + 1)] / 2;
+    let off = H / 2 - (c0 + (c1 - c0) * fr);
+    off = Math.min(0, Math.max(H - total, off));
+    items.forEach((el, i) => (el.style.transform = `translateY(${tops[i] + off}px)`));
+  }
+  requestAnimationFrame(dockFrame);
+}
+requestAnimationFrame(dockFrame);
+
+// ---------- idle ----------
+let page = 0;
+function idleHtml(list, width, height, label = true) {
+  // choose the most readable unit that still fits everything, else page through
+  const units = [{ cls: "big", w: 430, h: 200 }, { cls: "mid", w: 340, h: 120 }, { cls: "chip", w: 300, h: 76 }, { cls: "cell", w: 230, h: 44 }, { cls: "cell", w: 180, h: 36 }];
+  const lh = label ? 32 : 0; let u, cols, rows;
+  for (u of units) { cols = Math.max(1, Math.floor((width + 14) / (u.w + 14))); rows = Math.max(1, Math.floor((height - lh + 10) / (u.h + 10))); if (cols * rows >= list.length) break; }
+  const per = cols * rows, pages = Math.max(1, Math.ceil(list.length / per)), p = page % pages;
+  const items = list.slice(p * per, p * per + per).map((w) => (u.cls === "big" ? bigTile(w) : u.cls === "mid" ? midTile(w) : u.cls === "chip" ? chip(w) : cell(w)));
+  return `${label ? `<div class="section-label">ALL MONITORED · ${list.length}${pages > 1 ? `<span class="pager">${Array.from({ length: pages }, (_, i) => `<i class="${i === p ? "on" : ""}"></i>`).join("")}</span>` : ""}</div>` : ""}
+    <div class="grid-fill" style="grid-template-columns:repeat(${cols},minmax(0,1fr));grid-auto-rows:${u.h}px;gap:10px 14px;align-content:start">${items.join("")}</div>`;
+}
+const hist = (w) => `<div class="hist">${w.history.map((h) => `<i class="${h}"></i>`).join("")}</div>`;
+function bigTile(w) {
+  const never = w.state === "never";
+  return `<div class="itile big ${w.state}" ${vt(w)}>
+    <div class="top"><span class="dot ${w.state}"></span><span class="res">${never ? "NEVER RUN" : "PASSED"}</span><span class="when">${never ? "" : ago(w.last)}</span></div>
+    <div class="nm">${esc(w.name)}</div><div class="rp">${esc(w.repo)}</div>
+    ${never ? `<div class="sub">Monitored, waiting for its first run</div>` : `<div class="sub"><b>${esc(w.branch)}</b> · <span class="mono">${w.sha}</span> · ${esc(w.actor)} · took ${dur(Date.now() - w.lastDur)}</div>${hist(w)}`}
+  </div>`;
+}
+function midTile(w) {
+  const never = w.state === "never";
+  return `<div class="itile mid ${w.state}" ${vt(w)}>
+    <div class="top"><span class="dot ${w.state}"></span><span class="nm">${esc(w.name)} <span class="repo">· ${esc(short(w))}</span></span><span class="when">${never ? "never run" : ago(w.last)}</span></div>
+    ${never ? `<div class="sub">waiting for its first run</div>` : hist(w)}
+  </div>`;
+}
+function chip(w) { const sub = { passed: `passed ${ago(w.last)}`, never: "never run" }[w.state]; return `<div class="chip ${w.state}" ${vt(w)}><span class="dot ${w.state}"></span><div class="txt"><div class="nm">${esc(w.name)} · ${esc(short(w))}</div><div class="sub">${sub}</div></div></div>`; }
+function cell(w) { return `<div class="cell ${w.state}" ${vt(w)}><span class="dot ${w.state}"></span><span>${esc(short(w))} · ${esc(w.name)}</span></div>`; }
+
+// ===================== layouts =====================
+function renderA() {
+  const W = VW - 80, H = VH - 80 - 30; const f = failing(), r = running(), i = idle();
+  const label = 28, gap = 18;
+  const fH = f.length ? (f.length <= 3 ? (r.length > 4 ? 230 : 320) : Math.min(r.length > 4 ? 300 : 400, Math.ceil(f.length / 3) * 74)) : 0;
+  const rest = H - (f.length ? fH + label + gap : 0);
+  // monitored tiles get what running does not need: everything when idle, a strip when busy
+  const rShare = r.length === 0 ? 0 : r.length <= 2 ? 0.62 : 0.84;
+  const rH = r.length ? Math.round((rest - 2 * label - gap) * rShare) : 0;
+  const iH = rest - (r.length ? rH + label + gap : 0);
+  return `<div class="A">${header()}<div class="body">
+    ${f.length ? `<div class="band"><div class="section-label">NEEDS FIXING · ${f.length}</div>${failuresHtml(f, W, fH)}</div>` : ""}
+    ${r.length ? `<div class="band"><div class="section-label">IN PROGRESS · ${r.length}</div>${runningHtml(r, W, rH)}</div>` : ""}
+    <div class="band" style="height:${iH}px;flex:none">${idleHtml(i, W, iH)}</div>
+  </div></div>`;
+}
+function renderB() {
+  const all = sorted(); const f = failing(), r = running();
+  const boardH = VH - 80 - 26 - 8;
+  const rowH = all.length <= 16 ? 62 : all.length <= 30 ? 44 : 34;
+  const fit = Math.floor((boardH + 5) / (rowH + 5));
+  const pinned = all.filter((w) => w.state !== "passed" && w.state !== "never");
+  const rest = all.filter((w) => w.state === "passed" || w.state === "never");
+  const room = Math.max(1, fit - pinned.length - 1), pages = Math.max(1, Math.ceil(rest.length / room)), p = page % pages;
+  const shown = pinned.concat(rest.slice(p * room, p * room + room));
+  const fs = rowH >= 60 ? [24, 17, 19] : rowH >= 44 ? [20, 0, 17] : [17, 0, 15];
+  const rows = shown.map((w) => {
+    const when = w.state === "running" ? `<span data-started="${w.started}">${dur(w.started)}</span>` : w.state === "failed" ? `<span style="color:#ff8a94">${dur(w.since)}</span>` : w.state === "never" ? "never" : w.state === "missing" ? `<span style="color:#ff8a94">404</span>` : ago(w.last);
+    return `<div class="brow ${w.state}" ${vt(w)} style="height:${rowH}px"><div class="bar ${w.state}"></div><div style="min-width:0"><div class="nm" style="font-size:${fs[0]}px">${esc(w.name)} ${fs[1] ? "" : `<span class="repo">· ${esc(short(w))}</span>`}</div>${fs[1] ? `<div class="sub" style="font-size:${fs[1]}px">${esc(w.repo)}</div>` : ""}</div><div class="when" style="font-size:${fs[2]}px">${when}</div></div>`;
+  });
+  const W = VW - 560 - 72, H = VH - 22 - 30;
+  const countsH = 50, gap = 20;
+  const fH = f.length ? (f.length <= 2 ? Math.min(360, (H - countsH) * 0.42) : f.length <= 6 ? 330 : Math.min(420, Math.ceil(f.length / 2) * 74)) : 0;
+  const rH = H - countsH - gap - (f.length ? fH + gap : 0);
+  const pager = pages > 1 ? `<div class="section-label" style="padding:6px 24px 0">MORE<span class="pager">${Array.from({ length: pages }, (_, i) => `<i class="${i === p ? "on" : ""}"></i>`).join("")}</span></div>` : "";
+  return `<div class="B"><div class="board">${header(false)}<div class="rows">${rows.join("")}</div>${pager}</div>
+    <div class="stage"><div style="height:${countsH}px;display:flex;align-items:center">${countsHtml(f.length, r.length, workflows.filter((w) => w.state === "passed").length).replace('class="counts"', 'class="counts" style="margin:0"')}</div>
+      ${f.length ? failuresHtml(f, W, fH, "big") : ""}
+      ${runningHtml(r, W, rH, "big")}
+    </div></div>`;
+}
+function renderC() {
+  const f = failing(), r = running(), i = idle();
+  const W = VW - 80, H = VH - 80 - 30;
+  // big cards share the top; tiles fill what is left and page if needed
+  const bigCount = f.length + r.length;
+  const cols = i.length <= 16 ? 10 : i.length <= 50 ? 14 : 18;
+  const rowsTotal = Math.max(8, Math.round((H / W) * cols * 2.3));
+  const failSpan = f.length > 4 ? [Math.max(2, Math.round(cols / 5)), Math.max(1, Math.round(rowsTotal / 8))] : [Math.round(cols * 0.3), Math.round(rowsTotal * 0.4)];
+  const runSpan = [Math.round(cols / 2), Math.round(rowsTotal * 0.4)];
+  const cap = cols * rowsTotal - f.length * failSpan[0] * failSpan[1] - r.length * runSpan[0] * runSpan[1];
+  const per = Math.max(0, cap), pages = Math.max(1, Math.ceil(i.length / Math.max(1, per))), p = page % pages;
+  const tileFs = cols <= 10 ? [21, 16] : cols <= 14 ? [17, 13] : [14, 11];
+  const cellH = (H - (rowsTotal - 1) * 14) / rowsTotal;
+  const items = [
+    ...f.map((w) => `<div style="grid-column:span ${failSpan[0]};grid-row:span ${failSpan[1]};display:grid;min-height:0;min-width:0">${f.length > 4 ? failRow(w) : failCard(w, { log: cellH * failSpan[1] > 300 ? 3 : 0, ai: cellH * failSpan[1] > 300 })}</div>`),
+    ...r.map((w) => `<div style="grid-column:span ${runSpan[0]};grid-row:span ${runSpan[1]};display:grid;min-height:0;min-width:0">${runCard(w, { maxCols: Math.max(3, Math.floor((runSpan[0] * (W / cols)) / 240)), compact: true, meta: false })}</div>`),
+    ...i.slice(p * per, p * per + per).map((w) => { const sub = { passed: `passed ${ago(w.last)}`, never: "never run" }[w.state]; return `<div class="tile ${w.state}" ${vt(w)}><span class="dot ${w.state}" style="width:10px;height:10px"></span><div style="min-width:0"><div class="nm" style="font-size:${tileFs[0]}px">${esc(w.name)}</div><div class="sub" style="font-size:${tileFs[1]}px">${esc(short(w))} · ${sub}</div></div></div>`; }),
+  ];
+  return `<div class="C">${header()}<div class="grid" style="grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rowsTotal},minmax(0,1fr))">${items.join("")}</div></div>`;
+}
+
+// ===================== render loop =====================
+let layout = "A";
+function render() {
+  canvas.innerHTML = { A: renderA, B: renderB, C: renderC }[layout]();
+  drawEdges(); paintClock();
+  for (const w of workflows) w.fresh = false;
+}
+function structural() { if (document.startViewTransition) document.startViewTransition(render); else render(); }
+// Live, in-place updates: re-render a graph only when its shape/status changed; otherwise just move bars.
+const sig = {};
+function paintLive() {
+  canvas.querySelectorAll("[data-graph]").forEach((g) => {
+    const w = workflows.find((x) => x.id === g.dataset.graph); if (!w || w.state !== "running") return;
+    const s = w.jobs.map((j) => j.status[0] + (j.status === "running" ? j.stepIdx : "")).join("");
+    if (sig[w.id] !== s) { sig[w.id] = s; g.innerHTML = graphHtml(w, +g.dataset.maxcols, g.dataset.compact === "1"); }
+    else for (const j of w.jobs) { const b = g.querySelector(`[data-bar="${w.id}:${j.id}"]`); if (b) b.style.width = pct(j) + "%"; }
+    const card = g.closest(".run"); const pr = card?.querySelector(".progress");
+    const ln = card?.querySelector("[data-lanes]"); if (ln) ln.innerHTML = lanesHtml(w, +ln.dataset.n);
+    if (pr) pr.textContent = `${w.jobs.filter((j) => j.status === "success").length}/${w.jobs.length} jobs`;
+  });
+  canvas.querySelectorAll("[data-row]").forEach((r) => {
+    const w = workflows.find((x) => x.id === r.dataset.row); if (!w || w.state !== "running") return;
+    const t = timing(w); const el = r.querySelector(".el"); if (el) el.textContent = t.txt;
+    const b = r.querySelector(".tbar i"); if (b) b.style.width = Math.round(t.f * 100) + "%";
+    const e = r.querySelector(".eta2"); if (e) e.textContent = t.eta;
+    const j = w.jobs.find((x) => x.status === "running"); const r3 = r.querySelector(".r3"); if (r3 && j) r3.innerHTML = `${esc(j.name)} › ${esc(j.steps[Math.min(j.stepIdx, j.steps.length - 1)])}`;
+  });
+  canvas.querySelectorAll("[data-timing]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.timing); if (w && w.state === "running") e.textContent = timing(w).txt; });
+  canvas.querySelectorAll("[data-tbar]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.tbar); if (w && w.state === "running") e.style.width = Math.round(timing(w).f * 100) + "%"; });
+  canvas.querySelectorAll("[data-eta]").forEach((e) => { const w = workflows.find((x) => x.id === e.dataset.eta); if (w && w.state === "running") e.textContent = timing(w).eta; });
+  drawEdges(); paintClock();
+}
+function paintClock() {
+  canvas.querySelectorAll("[data-clock]").forEach((e) => (e.textContent = new Date().toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })));
+  canvas.querySelectorAll("[data-started]").forEach((e) => (e.textContent = dur(+e.dataset.started)));
+  canvas.querySelectorAll("[data-since]").forEach((e) => (e.textContent = (e.classList.contains("broken") ? "Broken for " : "") + dur(+e.dataset.since)));
+}
+function drawEdges() {
+  canvas.querySelectorAll("[data-graph]").forEach((g) => {
+    const w = workflows.find((x) => x.id === g.dataset.graph); if (!w) return;
+    const m = graphModel(w, +g.dataset.maxcols); const svg = g.querySelector("svg"); if (!svg) return;
+    const base = g.getBoundingClientRect(); let paths = "";
+    for (const e of m.edges) {
+      const [from, to] = e.split(">");
+      const a = g.querySelector(`[data-node="${w.id}:${from}"]`)?.getBoundingClientRect(), b = g.querySelector(`[data-node="${w.id}:${to}"]`)?.getBoundingClientRect();
+      if (!a || !b) continue;
+      const x1 = (a.right - base.left) / scale, y1 = (a.top + a.height / 2 - base.top) / scale, x2 = (b.left - base.left) / scale, y2 = (b.top + b.height / 2 - base.top) / scale, mx = (x1 + x2) / 2;
+      const sf = m.nodeById[from].status, st = m.nodeById[to].status;
+      const color = sf === "failure" ? "#ff3d4d" : sf === "success" ? (st === "queued" ? "#24402f" : "#2fe07f") : "#2a2f37";
+      paths += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round" ${st === "running" ? 'stroke-dasharray="8 8" class="flow"' : ""}/>`;
+    }
+    svg.innerHTML = `<style>.flow{animation:flow 1s linear infinite}@keyframes flow{to{stroke-dashoffset:-16}}</style>` + paths;
+  });
+}
+setInterval(() => { page++; structural(); }, 12000);   // rotate pages of the less important content
+
+// ===================== controls =====================
+const chromeEl = document.getElementById("chrome"); let hideT;
+function showChrome() { chromeEl.classList.remove("hidden"); clearTimeout(hideT); hideT = setTimeout(() => chromeEl.classList.add("hidden"), 3500); }
+addEventListener("mousemove", showChrome); showChrome();
+
+document.querySelectorAll("[data-count]").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-count]").forEach((x) => x.classList.toggle("on", x === b));
+  seed(+b.dataset.count); page = 0; setRunTarget(runTarget);
+}));
+document.querySelectorAll("[data-run]").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-run]").forEach((x) => x.classList.toggle("on", x === b)); setRunTarget(+b.dataset.run);
+}));
+document.getElementById("breakit").onclick = breakOne;
+addEventListener("resize", fit);
+new ResizeObserver(() => fit()).observe(document.documentElement);
+seed(14); fit();
+</script>
+</body>
+</html>
