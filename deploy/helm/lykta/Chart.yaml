@@ -1,0 +1,12 @@
+apiVersion: v2
+name: lykta
+description: Lykta, a GitHub Actions dashboard for wall screens
+type: application
+# version and appVersion are set from the release tag when the chart is published
+version: 0.0.0
+appVersion: "0.0.0"
+home: https://github.com/mklab-se/lykta
+sources:
+  - https://github.com/mklab-se/lykta
+keywords: [github-actions, dashboard, ci, wallboard, kiosk]
+icon: https://raw.githubusercontent.com/mklab-se/lykta/main/media/lykta-icon.svg

@@ -63,3 +63,28 @@ jobs:
           LYKTA_NO_UPDATE_CHECK=1 ./dist/lykta
       - name: Compiled binary serves the dashboard
         run: LYKTA_COMPILED_TEST=1 bun test test/server/compiled.test.ts
+
+  chart:
+    name: Helm chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/setup-helm@v4
+      - run: helm lint deploy/helm/lykta
+      - run: helm template lykta deploy/helm/lykta --set mcp.enabled=true --set ingress.enabled=true > /dev/null
+
+  image:
+    name: Container image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build
+        run: docker build -t lykta:ci .
+      - name: Smoke test (read-only filesystem, as in the Helm chart)
+        run: |
+          docker run -d --name lykta --read-only --tmpfs /tmp -p 8080:8080 lykta:ci demo --host 0.0.0.0 --port 8080
+          for i in $(seq 1 20); do curl -fs localhost:8080/healthz && break; sleep 1; done
+          curl -fs localhost:8080/ | grep -q "<title>Lykta</title>"
+          curl -fs localhost:8080/mcp -H 'content-type: application/json' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q list_failures
+

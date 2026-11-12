@@ -1,0 +1,56 @@
+# Lykta Helm chart. The wall's configuration (lykta.yaml) goes under `config`; secrets never do.
+
+image:
+  repository: ghcr.io/mklab-se/lykta
+  # defaults to the chart's appVersion
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# The contents of lykta.yaml (see lykta.example.yaml in the repository). Stored in a ConfigMap.
+config: |
+  title: Our builds
+  organizations:
+    my-org:
+      auth: token
+  monitor:
+    - repo: my-org/my-repo
+      workflow: ci.yml
+
+# Secrets: the name of an existing Secret whose keys become environment variables, for example
+#   LYKTA_TOKEN_MY_ORG: <fine-grained token>      (auth: token)
+#   LYKTA_APP_ID: "123456"                        (auth: app)
+#   LYKTA_APP_PRIVATE_KEY: <the App's .pem file>
+# kubectl create secret generic lykta-secrets --from-literal=LYKTA_TOKEN_MY_ORG=...
+existingSecret: lykta-secrets
+
+# The read-only MCP endpoint at /mcp, for AI harnesses (anyone who can reach the service can use it)
+mcp:
+  enabled: false
+
+# Extra environment variables (LYKTA_TITLE, LYKTA_LOW_POWER, ...)
+env: {}
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: lykta.example.internal
+  tls: []
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: {}

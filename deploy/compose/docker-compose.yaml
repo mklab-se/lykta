@@ -1,0 +1,19 @@
+# Lykta with Docker Compose. Put your lykta.yaml next to this file and the token in .env
+# (LYKTA_TOKEN_MY_ORG=...), then: docker compose up -d   and open http://localhost:8080
+services:
+  lykta:
+    image: ghcr.io/mklab-se/lykta:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # the read-only MCP endpoint at /mcp, for AI harnesses on your network
+      LYKTA_MCP: "off"
+    volumes:
+      - ./lykta.yaml:/config/lykta.yaml:ro
+    read_only: true
+    tmpfs:
+      - /tmp

@@ -1,0 +1,17 @@
+Lykta is starting. Open the wall:
+{{- if .Values.ingress.enabled }}
+  http://{{ .Values.ingress.host }}/
+{{- else }}
+  kubectl port-forward svc/{{ include "lykta.fullname" . }} 8080:{{ .Values.service.port }}
+  then http://localhost:8080/
+{{- end }}
+{{- if .Values.existingSecret }}
+
+Secrets come from the Secret "{{ .Values.existingSecret }}" (LYKTA_TOKEN_<ORG> or LYKTA_APP_ID and
+LYKTA_APP_PRIVATE_KEY). Check what the wall sees with:
+  kubectl logs deploy/{{ include "lykta.fullname" . }}
+{{- end }}
+{{- if .Values.mcp.enabled }}
+
+MCP (read-only) for AI harnesses: http://<this service>/mcp
+{{- end }}
