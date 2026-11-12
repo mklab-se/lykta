@@ -51,6 +51,10 @@ const ROW = { normal: 44, compact: 30, max: 120 };
 const GAPS = { normal: 10, compact: 4 };
 const MONITORED_MIN = LABEL + 36;
 
+/** Every entry is in the same repository, so its name need not be repeated on each one. */
+export const singleRepo = (entries: EntryView[]) =>
+  entries.length > 0 && entries.every((e) => e.repo === entries[0]?.repo);
+
 export const isFailingEntry = (e: EntryView) => e.failing || e.state === "missing";
 export const isMonitoredOnly = (e: EntryView) =>
   !e.failing && (e.state === "passed" || e.state === "never");

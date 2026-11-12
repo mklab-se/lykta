@@ -79,7 +79,7 @@ function Tile(props: {
         <div className="top">
           <span className={`dot ${e.state}`} />
           <span className="ellipsis">
-            {e.name} <span className="repo">· {repoName(e)}</span>
+            {e.name} <span className="repo rsuffix">· {repoName(e)}</span>
           </span>
           <span className="when">{never ? "never run" : when(e, now)}</span>
         </div>
@@ -93,7 +93,8 @@ function Tile(props: {
         <span className={`dot ${e.state}`} />
         <div className="txt">
           <div className="nm ellipsis">
-            {e.name} · {repoName(e)}
+            {e.name}
+            <span className="rsuffix"> · {repoName(e)}</span>
           </div>
           <div className="sub ellipsis">{never ? "never run" : `passed ${when(e, now)}`}</div>
         </div>
@@ -104,7 +105,8 @@ function Tile(props: {
     <motion.div {...common} className={`cell ${unit} ${e.state}`}>
       <span className={`dot ${e.state}`} />
       <span className="ellipsis">
-        {repoName(e)} · {e.name}
+        <span className="rsuffix">{repoName(e)} · </span>
+        {e.name}
       </span>
     </motion.div>
   );

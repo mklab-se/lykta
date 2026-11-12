@@ -150,7 +150,8 @@ function FailRow(props: {
       <div className="bar" />
       <div style={{ minWidth: 0 }}>
         <div className="nm ellipsis">
-          {e.name} · {repoName(e)}
+          {e.name}
+          <span className="rsuffix"> · {repoName(e)}</span>
         </div>
         <div className="sub ellipsis">{sub}</div>
       </div>

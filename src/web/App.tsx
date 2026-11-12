@@ -12,7 +12,7 @@ import { RunningArea } from "./components/RunningArea.tsx";
 import { moveFocus } from "./focus.ts";
 import { heldUntil, holdsFrom, partition } from "./holds.ts";
 import { useAutoClose } from "./idle.ts";
-import { computeLayout } from "./layout.ts";
+import { computeLayout, singleRepo } from "./layout.ts";
 import { usePowerMode } from "./power.ts";
 import { isStale, useDashboard } from "./stream.ts";
 
@@ -116,6 +116,7 @@ export function App() {
     <div
       className="canvas"
       data-power={lowPower ? "low" : "full"}
+      data-single-repo={singleRepo(entries) ? "" : undefined}
       style={{ height: canvas.height, transform: `scale(${canvas.scale})` }}
     >
       <div className="drift">

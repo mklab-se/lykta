@@ -1,5 +1,15 @@
 import type { EntryView } from "../../core/types.ts";
 
+/**
+ * "frameworks/base/core/java/android/os/Battery.java:212: error: ..." spends the line on the
+ * path and cuts the error. Paths of three or more folders keep only their file. URLs stay.
+ */
+export function shortenPaths(line: string): string {
+  return line.replace(/(?<![\w:/.-])(?:[\w.-]+\/){3,}([\w.-]+)/g, (m, file: string, at: number) =>
+    line.slice(Math.max(0, at - 3), at).includes("://") ? m : `…/${file}`,
+  );
+}
+
 /** Where it broke and the error message itself: the biggest text on a failure. */
 export function FailureWhat(props: {
   e: EntryView;
@@ -17,9 +27,9 @@ export function FailureWhat(props: {
         <span className="x">✕</span>
         <span className="ellipsis">{f.step ? `${f.job} › ${f.step}` : f.job}</span>
       </div>
-      {lines.map((l) => (
-        <div key={l} className="errline">
-          {l}
+      {lines.map((l, i) => (
+        <div key={l} className={i === 0 ? "errline first" : "errline"}>
+          {shortenPaths(l)}
         </div>
       ))}
     </div>

@@ -1344,3 +1344,57 @@ body {
   font-weight: 700;
   color: #ffb3ba;
 }
+
+/* every workflow in one repository: its name on each row and chip says nothing */
+[data-single-repo] .rsuffix {
+  display: none;
+}
+
+/* strip: stages apart, parallel jobs of a stage side by side */
+.strip {
+  gap: 12px;
+}
+.stage.multi {
+  flex-direction: row;
+  gap: 3px;
+}
+.stage.multi .seg {
+  flex: 1 1 0;
+}
+.strip.labelled .stage.multi .seg {
+  height: auto;
+}
+
+/* held run: the graph is why it is held, so it comes first; the error stays readable */
+.run.held .graph {
+  flex: 1 1 auto;
+  min-height: 150px;
+}
+.run.held > .what {
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.what.big .errline {
+  font-size: 24px;
+  -webkit-line-clamp: 1;
+}
+.what.big .errline.first {
+  -webkit-line-clamp: 2;
+}
+
+/* a selected held row takes the run's colour, not the running amber */
+.rrow.held.failed .sel-bg {
+  border-color: var(--red);
+  background: linear-gradient(90deg, #3a0a10, #1c0508);
+}
+.rrow.held.failed.sel::after {
+  background: var(--red);
+}
+.rrow.held.passed .sel-bg {
+  border-color: var(--green);
+  background: linear-gradient(90deg, #0a3a1d, #05160b);
+}
+.rrow.held.passed.sel::after {
+  background: var(--green);
+}

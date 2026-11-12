@@ -129,7 +129,7 @@ describe("FailureBand", () => {
       },
     });
     const html = render([e]);
-    expect(html).toContain('class="errline"');
+    expect(html).toContain('class="errline first"');
     expect(html).toContain("Battery.java:212: error: cannot find symbol");
     expect(render([e], "small")).toContain("Battery.java:212: error: cannot find symbol");
     // the log behind it is in the detail view; on the card it would only be a clipped sliver

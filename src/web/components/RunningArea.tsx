@@ -76,7 +76,7 @@ function HeldCard(props: {
         <span className="elapsed">shrinks in {countdown(props.until - now)}</span>
       </div>
       <div className="name ellipsis">
-        {e.name} <span className="repo">· {repoName(e)}</span>
+        {e.name} <span className="repo rsuffix">· {repoName(e)}</span>
       </div>
       <JobGraph run={run} columns={props.columns} />
       {failed ? <FailureWhat e={e} big /> : null}
@@ -136,7 +136,7 @@ function RunCard(props: {
         </div>
       ) : null}
       <div className="name ellipsis">
-        {e.name} <span className="repo">· {repoName(e)}</span>
+        {e.name} <span className="repo rsuffix">· {repoName(e)}</span>
       </div>
       <JobGraph
         run={run}
@@ -182,7 +182,7 @@ function HeldRow(props: {
       <div className="r1">
         <span className={`dot ${failed ? "failed" : "passed"}`} />
         <span className="nm ellipsis">
-          {e.name} <span className="repo">· {repoName(e)}</span>
+          {e.name} <span className="repo rsuffix">· {repoName(e)}</span>
         </span>
         <span className="el">{failed ? "FAILED" : "PASSED"}</span>
       </div>
@@ -225,7 +225,7 @@ function RunRow(props: {
       <div className="r1">
         <span className="dot running" />
         <span className="nm ellipsis">
-          {e.name} <span className="repo">· {repoName(e)}</span>
+          {e.name} <span className="repo rsuffix">· {repoName(e)}</span>
         </span>
         <span className="el">{t.text}</span>
       </div>

@@ -21,10 +21,16 @@ export function ProgressStrip(props: { jobs: JobRecord[]; labels?: boolean }) {
   return (
     <div className={`strip${props.labels ? " labelled" : ""}`}>
       {stages.map((stage) => (
-        <div className="stage" key={stage.map((n) => n.id).join("|")}>
+        <div
+          className={stage.length > 1 ? "stage multi" : "stage"}
+          key={stage.map((n) => n.id).join("|")}
+        >
           {stage.map((n) => (
             <div key={n.id} className={`seg ${n.status}`}>
-              {props.labels ? <span className="ellipsis">{n.label}</span> : null}
+              {/* parallel jobs sit side by side; with many, only the failed one has room */}
+              {props.labels && (stage.length <= 2 || n.status === "failure") ? (
+                <span className="ellipsis">{n.label}</span>
+              ) : null}
             </div>
           ))}
         </div>
