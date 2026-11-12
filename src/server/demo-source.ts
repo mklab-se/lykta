@@ -365,6 +365,9 @@ export class DemoSource implements Source {
   }
 
   private input(e: SimEntry): EntryInput {
+    // runs seeded as already failed never went through finalize: give them their details
+    const last = e.runs.find((r) => r.end <= this.sim);
+    if (last?.failed && !e.failure) this.setFailure(e, last);
     return {
       entry: e.entry,
       runs: e.runs.map((r) => this.record(e, r)),

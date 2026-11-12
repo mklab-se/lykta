@@ -1635,12 +1635,36 @@ body {
 .car {
   flex: none;
 }
+/* compact cars: everything still fits, error line included */
 .car.compact {
-  gap: 7px;
-  padding: 14px 20px;
+  gap: 6px;
+  padding: 12px 18px;
+}
+.car.compact .tag {
+  font-size: 15px;
 }
 .car.compact .name {
-  font-size: 28px;
+  font-size: 24px;
+}
+.car.compact .strip {
+  gap: 6px;
+}
+.car.compact .seg {
+  height: 10px;
+}
+.car.compact .seg.failure {
+  height: 14px;
+}
+.car.compact .what .where {
+  font-size: 18px;
+}
+.car.compact .what .x {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+}
+.car.compact .what .errline {
+  font-size: 18px;
 }
 .car .brokentag {
   margin-left: auto;

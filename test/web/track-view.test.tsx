@@ -3,6 +3,7 @@ import { renderToString } from "react-dom/server";
 import type { EntryView, JobRecord, RunRecord } from "../../src/core/types.ts";
 import { History } from "../../src/web/components/History.tsx";
 import { Pit } from "../../src/web/components/Pit.tsx";
+import { spotZoom } from "../../src/web/components/RunCard.tsx";
 import { Spotlight } from "../../src/web/components/Spotlight.tsx";
 import { Track } from "../../src/web/components/Track.tsx";
 import { trackLayout } from "../../src/web/track.ts";
@@ -194,5 +195,11 @@ describe("spotlight", () => {
     const html = renderToString(<Spotlight e={entry("p")} final {...props} />);
     expect(html).toContain("PASSED");
     expect(html).not.toContain("heading to the pit");
+  });
+
+  test("the diagram scales up only as far as the whole workflow still fits", () => {
+    expect(spotZoom(1600, 3)).toBe(1.5); // short workflow: big
+    expect(spotZoom(1600, 6)).toBeCloseTo(1600 / (6 * 230 + 60), 2); // longer: just fits
+    expect(spotZoom(1600, 12)).toBe(1); // very long: normal size (collapsing as before)
   });
 });

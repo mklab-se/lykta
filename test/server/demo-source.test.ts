@@ -120,4 +120,22 @@ describe("DemoSource", () => {
     const { src } = make(14);
     expect(src.holdSettings()).toEqual({ clockScale: 60 });
   });
+
+  test("every failed workflow says where and why, including the ones there from the start", () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const src = new DemoSource({
+        count: 30,
+        running: 5,
+        seed,
+        now: () => Date.UTC(2026, 10, 12, 9, 0),
+      });
+      let got: EntryInput[] = [];
+      src.start((i) => {
+        got = i;
+      });
+      src.stop();
+      const failed = got.filter((x) => deriveEntry(x).failing && !x.problem);
+      for (const f of failed) expect(f.failure?.job, `seed ${seed}: ${f.entry.name}`).toBeTruthy();
+    }
+  });
 });

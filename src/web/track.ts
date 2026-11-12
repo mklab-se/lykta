@@ -15,7 +15,7 @@ const PIT_LABEL = 40;
 export type TileUnit = "big" | "mid" | "small" | "tiny";
 export type PitMode = "card" | "compact" | "row";
 
-const PIT_HEIGHT: Record<PitMode, number> = { card: 260, compact: 150, row: 64 };
+const PIT_HEIGHT: Record<PitMode, number> = { card: 260, compact: 168, row: 64 };
 
 /** Columns and rows giving the biggest tiles of about ASPECT:1 that fit all n. */
 export function gridShape(n: number, width: number, height: number) {
