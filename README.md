@@ -22,22 +22,43 @@
 workflows**, made for wall-mounted monitors and TVs. Anyone walking past the screen should see at
 once what is running, what has failed and what is green, and feel an urge to fix what is broken.
 
-> **Status:** early days. `0.0.2` moves Lykta to Bun and TypeScript and ships the standard MKLab
-> tool plumbing; the dashboard is being designed now.
+> **Status:** the dashboard runs with simulated workflows (`lykta demo`). Connecting it to GitHub
+> is next; until then it shows what Lykta will look like on your wall.
 
-Planned:
+## Try the demo
 
-- 🏮 A kiosk-style web dashboard of monitored workflows across repositories and organizations
-- 🔴 Failures that stand out from across the room, with the failing job, step and log excerpt
-- 🟡 Running workflows as a live job graph; 🟢 idle and never-run workflows in compact form
-- 🔁 Polling within GitHub rate limits (works behind firewalls), optional webhooks
-- 🐳 Runs with `bun` locally or in a container on Kubernetes
+```sh
+bunx @mklab-se/lykta demo          # or: brew install mklab-se/tap/lykta && lykta demo
+```
+
+Open <http://localhost:8080> (full screen works best). The demo simulates workflows across
+repositories: long Android builds, matrix builds, ARC and lab runners, runs that fail and recover.
+Move the mouse to show the demo bar (how many workflows run at once, or "Break one").
+
+`lykta demo --count 100 --running 12` shows a busy day; `--low-power` forces the reduced-motion mode
+used on weak screens.
+
+## What it shows
+
+- 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long
+  they have been broken, the failing job and step, where it ran, and the log lines around the error.
+  They never leave the screen; with many failures they become dense rows.
+- 🟡 **In progress:** every running workflow in a list, with progress against its usual duration and
+  the expected finish time; the details of each are shown in turn: the job graph (matrices folded,
+  long pipelines collapsed around the active part), a lane per running job with its steps, and
+  where each job runs (GitHub-hosted, Kubernetes/ARC, or a lab bench and its device).
+- 🟢 **All monitored:** everything else, as large tiles with recent history when it is calm, and as
+  compact cells (paging if needed) when it is busy.
+- Click or use the arrow keys and Enter for details (with a QR code to open the run on your phone);
+  everything closes after a minute without input.
+- Made for kiosks: recovers by itself after network drops and restarts, reloads when a new version
+  is deployed, guards against burn-in, and switches to a low-power mode on slow hardware.
 
 ## Build & run
 
 ```sh
 bun install                    # install dependencies
-bun start                      # banner (the dashboard will start here)
+bun start demo                 # the dashboard with simulated workflows on :8080
 bun start --help               # show the CLI help
 bun start version              # banner + version
 bun start completion zsh       # generate a zsh completion script

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The dashboard (Command Center layout) with `lykta demo`, driven by simulated workflows: failures
+  pinned at the top with broken-for, failing job and step, runner and log excerpt; every running
+  workflow in a list with progress against its usual duration and expected finish, and rotating
+  details (job graph with matrix groups and collapsing, step lanes, where each job runs, "slower
+  than usual"); all monitored workflows as tiles with recent history, shrinking and paging as the
+  screen gets busy.
+- Morph animations between bands, burn-in drift, and an automatic low-power mode for weak screens.
+- Detail overlay on click or keyboard, with a QR code to the run; closes after 60 s without input.
+- Kiosk behaviour: SSE with reconnect, reload on a new server version, a stale-data banner, and a
+  nightly safety reload. Health (`/healthz`) and readiness (`/readyz`) endpoints.
+- The web app, styles and fonts are embedded in the single-file binary.
+
 ## [0.0.3] - 2026-11-12
 
 ### Changed

@@ -1,6 +1,4 @@
-@import "@fontsource-variable/inter";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
+@import "./fonts.css";
 
 /* Sizes are virtual pixels on a 1920-wide canvas (see canvas.ts). Only transform and opacity animate. */
 :root {

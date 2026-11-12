@@ -9,9 +9,9 @@ for wall-mounted monitors and TVs: failures must be impossible to ignore, and it
 of what the monitored workflows are doing. It is built on Bun and TypeScript from the `bun-templ`
 template.
 
-Status: `0.0.2` is the template plumbing only (the no-command action prints the banner and a
-"coming soon" note). The dashboard is being designed from Kristofer's requirements; do not assume
-a design before it is agreed.
+Status: the dashboard runs in demo mode (`lykta demo`, plan 1). Connecting to GitHub (plan 2) and
+packaging/docs (plan 3) follow. Design: `docs/superpowers/specs/2026-11-12-lykta-dashboard-design.md`
+(approved); plans in `docs/superpowers/plans/`.
 
 History: Lykta started as a Rust tool. `v0.0.1` (Rust) is published on crates.io as `lykta` and is
 kept there on purpose to reserve the name; nothing Rust remains in this repo. On npm the package is
@@ -37,29 +37,33 @@ CI/release pipeline, `/release` skill). Use the lineage in both directions:
 
 ## Architecture
 
-TypeScript run directly by Bun (no build step for development); `bun build --compile` produces the
-single-file release binaries.
+TypeScript run directly by Bun; `bun build --compile` produces single-file binaries with the web app
+(HTML, JS, CSS, fonts) embedded through Bun's HTML imports.
 
-- `src/cli.ts`: entry point (`#!/usr/bin/env bun`). `buildProgram()` defines the commander CLI;
-  `main()` parses, applies global flags, and awaits the background update check for at most 1.5 s.
-  The no-command action prints the banner and a "coming soon" note; it is where the
-  dashboard will start. `--help`/`-h` and `--version`/`-V` come from commander.
-- `src/commands/`: one module per command (`completion.ts` today). Add new commands here.
-- `src/meta.ts`: tool name, package name, version and description (version and description are
-  read from `package.json`, the single source of truth).
-- `src/banner.ts`: block-letter banner rendered at runtime from the tool name via a built-in 5-row
-  font, so a rename needs no ASCII art.
-- `src/color.ts`: tiny ANSI helpers; colour only on a TTY, off with `NO_COLOR` or `--no-color`.
-- `src/paths.ts`: where the tool keeps files. Linux and macOS share the XDG layout (same as the
-  Rust tools and Ailloy): `$XDG_CONFIG_HOME/<tool>` or `~/.config/<tool>`, `$XDG_CACHE_HOME/<tool>`
-  or `~/.cache/<tool>`. Windows uses `%APPDATA%` / `%LOCALAPPDATA%`. Never `~/Library/...`.
-- `src/config.ts`: YAML config in `configDir()/config.yaml` via the built-in `Bun.YAML`.
-- `src/update.ts`: checks the npm registry for a newer version, caches the answer for 24 h in
-  `cacheDir()`, never throws. Disabled by `-q` or the `<TOOL>_NO_UPDATE_CHECK` env var.
-- `scripts/sbom.ts`: CycloneDX 1.5 SBOM per release target (Bun runtime + production deps from
-  `bun.lock`).
-- `test/`: `bun test` suites. Keep logic in pure functions with injectable inputs (env, clock,
-  fetch) so it is testable without the network.
+- `src/core/` (shared by server and browser; no DOM or server APIs):
+  - `types.ts`: the data model (`RunRecord`, `JobRecord`, `EntryInput`, `EntryView`, `DashboardState`).
+  - `state.ts`: `deriveEntry()`, which turns an entry's runs into what the wall shows (which
+    conclusions count as failed, broken-since, history).
+  - `timing.ts`: expected durations (median of the last 5 successes), slow detection, time labels.
+  - `graph.ts`: the job graph model (columns by `needs`, matrix groups, collapsing).
+- `src/server/`:
+  - `source.ts`: the `Source` interface; `demo-source.ts` + `demo-data.ts` simulate workflows on a
+    compressed clock (plan 2 adds the GitHub source).
+  - `hub.ts`: in-memory state, derives `EntryView`s, notifies subscribers.
+  - `http.ts`: Bun.serve routes: `/` (web app), `/events` (SSE snapshots, pings every 15 s),
+    `/api/entries/:key/details`, `/healthz`, `/readyz`, and demo-only controls.
+- `src/web/` (React 19 + Motion): `App.tsx` composes the three bands; `layout.ts` decides band sizes
+  and densities (pure, tested); `stream.ts` (SSE, reconnect, version reload, stale banner, nightly
+  reload); `canvas.ts` (virtual 1920-wide canvas); `power.ts` (low-power mode); `rotation.ts`,
+  `focus.ts`, `idle.ts`; components in `components/`. `styles.css` holds all styles (only
+  `transform`/`opacity` animate); `fonts.css` bundles Latin woff2 subsets.
+- `src/commands/demo.ts`: `lykta demo`.
+- CLI plumbing from the template: `cli.ts`, `meta.ts`, `banner.ts`, `color.ts`, `paths.ts`,
+  `config.ts`, `update.ts`, `commands/completion.ts`.
+- `test/`: `bun test` (core, server, web pure functions and server-rendered components).
+  `test/server/compiled.test.ts` builds the binary and runs only with `LYKTA_COMPILED_TEST=1`.
+- Dev server: `bun --hot src/cli.ts demo` (`.claude/launch.json`). Hot reload swaps server code but
+  keeps the old demo source alive; restart after changing server code.
 
 ## Adding a command
 

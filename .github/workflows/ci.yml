@@ -61,3 +61,5 @@ jobs:
         run: |
           ./dist/lykta --version
           LYKTA_NO_UPDATE_CHECK=1 ./dist/lykta
+      - name: Compiled binary serves the dashboard
+        run: LYKTA_COMPILED_TEST=1 bun test test/server/compiled.test.ts
