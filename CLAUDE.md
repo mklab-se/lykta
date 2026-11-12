@@ -9,9 +9,11 @@ for wall-mounted monitors and TVs: failures must be impossible to ignore, and it
 of what the monitored workflows are doing. It is built on Bun and TypeScript from the `bun-templ`
 template.
 
-Status: the dashboard runs on real GitHub data (`lykta serve`, plan 2) and in demo mode (`lykta demo`,
-plan 1). Packaging and the long-form docs (plan 3) follow. Design: `docs/superpowers/specs/2026-11-12-lykta-dashboard-design.md`
-(approved); plans in `docs/superpowers/plans/`.
+Status: v0.1.0 released (2026-11-13). The wall is the track and the pit (spec 3.2, plan 4) on real
+GitHub data (`lykta serve`, plan 2) or simulated (`lykta demo`, plan 1); labels and colors; MCP at
+`/mcp` (`src/server/mcp.ts`); container image, Helm chart and guides (plan 3: `Dockerfile`,
+`deploy/`, `docs/*.md`). Design: `docs/superpowers/specs/2026-11-12-lykta-dashboard-design.md`;
+plans in `docs/superpowers/plans/`.
 
 History: Lykta started as a Rust tool. `v0.0.1` (Rust) is published on crates.io as `lykta` and is
 kept there on purpose to reserve the name; nothing Rust remains in this repo. On npm the package is
