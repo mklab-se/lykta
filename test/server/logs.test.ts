@@ -50,7 +50,9 @@ describe("logs", () => {
     );
     // GitHub titles a run step's section with its command, not the step name ("Compile")
     const ex = failureExcerpt(lines, "Compile");
-    expect(ex.at(-1)).toBe("Process completed with exit code 1.");
+    // GitHub's generic closing line says nothing; the real error is what fits on the card
+    expect(ex.at(-1)).toBe("Build failed on purpose (fail_at=build)");
+    expect(ex.join("\n")).not.toContain("Process completed with exit code");
     expect(ex.join("\n")).toContain("Battery.java:212: error: cannot find symbol");
     expect(ex.join("\n")).not.toContain("Cleaning up orphan processes");
   });

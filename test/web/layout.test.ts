@@ -46,8 +46,16 @@ describe("computeLayout", () => {
   test("few failures are cards", () => {
     const p = computeLayout(state({ failed: 2, passed: 5 }), screen, 0);
     expect(p.failures?.mode).toBe("card");
-    expect(p.failures?.height).toBe(320);
+    expect(computeLayout(state({ failed: 2, running: 1 }), screen, 1).failures?.height).toBe(320);
     expect(computeLayout(state({ failed: 2, running: 6 }), screen, 6).failures?.height).toBe(230);
+  });
+
+  test("a calm wall gives failure cards room for their log lines", () => {
+    // measured on the real wall: a failure card with 4 log lines needs about 430 px
+    const p = computeLayout(state({ failed: 1, passed: 2 }), screen, 0);
+    expect(p.failures?.mode).toBe("card");
+    expect(p.failures?.height).toBeGreaterThanOrEqual(430);
+    expect(p.monitored.height).toBeGreaterThan(300);
   });
 
   test("many failures become rows", () => {

@@ -225,14 +225,15 @@ export class GitHubSource implements Source {
 
   /**
    * A re-run puts the same run id back to running, and the list then no longer says it
-   * failed. Insert the newest decisive earlier attempt after it, so the wall keeps showing
-   * the failure (and since when) until the re-run decides.
+   * failed; once it decides, the list shows only the new attempt. Insert the newest decisive
+   * earlier attempt after it, so the wall keeps the failure during the re-run and knows
+   * since when it has been broken after it.
    */
   private async withPreviousAttempts(e: EntryState, runs: GhRun[]): Promise<GhRun[]> {
     const out: GhRun[] = [];
     for (const run of runs) {
       out.push(run);
-      if (completed(run)) continue;
+      if (run.run_attempt <= 1) continue;
       for (
         let n = run.run_attempt - 1;
         n >= Math.max(1, run.run_attempt - MAX_ATTEMPT_LOOKBACK);

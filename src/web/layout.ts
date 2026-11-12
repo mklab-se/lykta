@@ -55,9 +55,18 @@ export const isFailingEntry = (e: EntryView) => e.failing || e.state === "missin
 export const isMonitoredOnly = (e: EntryView) =>
   !e.failing && (e.state === "passed" || e.state === "never");
 
-function failuresPlan(n: number, width: number, H: number, busy: boolean): LayoutPlan["failures"] {
+function failuresPlan(
+  n: number,
+  width: number,
+  H: number,
+  busy: boolean,
+  calm: boolean,
+): LayoutPlan["failures"] {
   if (n === 0) return null;
-  const cardH = Math.min(busy ? 230 : 320, Math.round(0.4 * H));
+  // calm (nothing running): room for the card's log lines (about 430 px on a real wall)
+  const cardH = calm
+    ? Math.min(440, Math.round(0.45 * H))
+    : Math.min(busy ? 230 : 320, Math.round(0.4 * H));
   if (n <= 3 && cardH >= 190) return { mode: "card", columns: n, rows: 1, height: cardH };
   if (n >= 4 && n <= 6 && !busy) {
     const columns = Math.min(3, Math.ceil(n / 2));
@@ -170,7 +179,13 @@ export function computeLayout(
   const W = canvas.width - 2 * SIDE;
   const H = Math.max(0, canvas.height - HEADER - BOTTOM);
   const monitoredCount = entries.filter(isMonitoredOnly).length;
-  const failures = failuresPlan(entries.filter(isFailingEntry).length, W, H, runningCount > 4);
+  const failures = failuresPlan(
+    entries.filter(isFailingEntry).length,
+    W,
+    H,
+    runningCount > 4,
+    runningCount === 0,
+  );
   const rest = Math.max(0, H - (failures ? failures.height + LABEL + GAP : 0));
   const running = runningPlan(runningCount, W, rest, monitoredCount ? MONITORED_MIN : 0);
   const monitoredHeight = Math.max(0, rest - (running ? running.height + LABEL + GAP : 0));
