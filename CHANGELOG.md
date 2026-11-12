@@ -18,22 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reusable workflows included), shows the failing step's log lines, and turns missing, disabled
   or inaccessible workflows into visible problems. A "Connecting to GitHub..." screen shows until
   the first sync.
-- Where a workflow failed is visible from across the room: failure cards show a strip of the
-  run's jobs (passed green, failed red, never run dim) and the error message itself as their
-  biggest text. A run that fails stays big where people were watching it, with its whole job
-  graph, for 3 minutes (`display.holdFailedSeconds`); a pass stays green for 45 seconds
-  (`display.holdPassedSeconds`). Then it morphs into its failure card or tile.
+- A new wall: **the track and the pit**. Every workflow has a fixed place in a grid that keeps its
+  shape; failures move to the pit on the left and leave a gap. Running tiles glow yellow with
+  their progress, and every 20 seconds one running workflow opens as a large diagram over the
+  blurred track (`display.spotlightSeconds`, `display.spotlightEverySeconds`); a finished run gets
+  one last turn before a failure enters the pit. History strips always show the last 10 results.
+- Where a workflow failed is visible from across the room: pit cards show a strip of the run's
+  jobs (passed green, failed red, never run dim) and the error message itself as their biggest
+  text.
 - `lykta check` verifies a configuration against GitHub and prints what the wall would show;
   `lykta init` writes a starter `lykta.yaml`.
 - Live test workflows in this repository and `lykta.example.yaml` monitoring them.
 
-- The dashboard (Command Center layout) with `lykta demo`, driven by simulated workflows: failures
-  pinned at the top with broken-for, failing job and step, runner and log excerpt; every running
-  workflow in a list with progress against its usual duration and expected finish, and rotating
-  details (job graph with matrix groups and collapsing, step lanes, where each job runs, "slower
-  than usual"); all monitored workflows as tiles with recent history, shrinking and paging as the
-  screen gets busy.
-- Morph animations between bands, burn-in drift, and an automatic low-power mode for weak screens.
+- The dashboard with `lykta demo`, driven by simulated workflows: job graphs with matrix groups
+  and collapsing, step lanes, where each job runs, progress against the usual duration and
+  "slower than usual".
+- Morph animations, burn-in drift, and an automatic low-power mode for weak screens.
 - Detail overlay on click or keyboard, with a QR code to the run; closes after 60 s without input.
 - Kiosk behaviour: SSE with reconnect, reload on a new server version, a stale-data banner, and a
   nightly safety reload. Health (`/healthz`) and readiness (`/readyz`) endpoints.

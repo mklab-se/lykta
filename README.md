@@ -83,28 +83,28 @@ polling:
   budget: 0.2 # share of each organization's hourly rate limit Lykta may use
 ```
 
-When a run you were watching finishes, it stays big where it was: a failure for 3 minutes (red,
-the whole job graph with the failed job marked, and the error message), a pass for 45 seconds.
-Then it shrinks into its failure card or tile. Failure cards show how far the run got (a strip
-of passed, failed and never-run jobs) and the error message itself as their biggest text.
+Every 20 seconds one running workflow opens as a large diagram over the track for 8 seconds:
 
 ```yaml
 display:
-  holdFailedSeconds: 180 # a failed run stays big this long (0: shrink at once)
-  holdPassedSeconds: 45 # a passed run, the same
+  spotlightSeconds: 8 # how long a diagram stays open
+  spotlightEverySeconds: 20 # how often one opens
 ```
 
 ## What it shows
 
-- 🔴 **Needs fixing:** failed workflows, and configured workflows that cannot be found, with how long
-  they have been broken, the failing job and step, where it ran, and the log lines around the error.
-  They never leave the screen; with many failures they become dense rows.
-- 🟡 **In progress:** every running workflow in a list, with progress against its usual duration and
-  the expected finish time; the details of each are shown in turn: the job graph (matrices folded,
-  long pipelines collapsed around the active part), a lane per running job with its steps, and
-  where each job runs (GitHub-hosted, Kubernetes/ARC, or a lab bench and its device).
-- 🟢 **All monitored:** everything else, as large tiles with recent history when it is calm, and as
-  compact cells (paging if needed) when it is busy.
+- 🏁 **The track:** every monitored workflow in its own fixed place in a grid, with its latest
+  result and its last 10 results (older ones fade; dotted until there are runs). Your workflow is
+  always in the same spot, even when the pit opens.
+- 🟡 **Running:** the tile glows yellow with a progress bar against its usual duration. Every 20
+  seconds one running workflow opens as a large diagram over the blurred track: the job graph
+  (matrices folded), a lane per running job with its steps, and where each job runs
+  (GitHub-hosted, Kubernetes/ARC, or a lab bench and its device). A run that just finished gets
+  one last turn.
+- 🔴 **The pit:** failed workflows (and ones that cannot be found) leave the track for the pit on
+  the left, leaving a gap in their place. Each shows how long it has been broken, how far the
+  run got, where it broke and the error message. A workflow that is restarted drives back out to
+  its place.
 - Click or use the arrow keys and Enter for details (with a QR code to open the run on your phone);
   everything closes after a minute without input.
 - Made for kiosks: recovers by itself after network drops and restarts, reloads when a new version
