@@ -97,10 +97,11 @@ function RunRow(props: {
   const j = active[0];
   const step = j?.steps.find((s) => s.status === "running");
   const roomy = props.height >= 86;
+  const compact = props.height < 44;
   return (
     <motion.div
       layoutId={e.key}
-      className={`rrow${props.selected ? " sel" : ""}${t.progress.slow ? " slow" : ""}`}
+      className={`rrow${props.selected ? " sel" : ""}${t.progress.slow ? " slow" : ""}${compact ? " compact" : ""}`}
       style={{ height: props.height }}
       data-entry={e.key}
       onClick={() => props.onOpen(e.key)}
@@ -113,7 +114,7 @@ function RunRow(props: {
         </span>
         <span className="el">{t.text}</span>
       </div>
-      <div className="r2">
+      <div className="r2" hidden={compact}>
         <span className="tbar">
           <i style={{ transform: `scaleX(${t.progress.fraction ?? 0})` }} />
         </span>
@@ -180,41 +181,63 @@ export function RunningArea(props: {
   }
 
   const dwell = dwellSeconds(entries.length);
+  const shown = plan.hidden > 0 ? entries.slice(0, entries.length - plan.hidden) : entries;
+  const perCol = Math.ceil(shown.length / plan.listColumns);
+  const list = (
+    <div
+      className="rlist"
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${plan.listColumns}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${perCol}, ${plan.rowHeight}px)`,
+        gridAutoFlow: "column",
+        gap: `${plan.rowGap}px 14px`,
+      }}
+    >
+      {shown.map((e) => (
+        <RunRow
+          key={e.key}
+          e={e}
+          selected={plan.mode === "split" && e.key === selected.key}
+          height={plan.rowHeight}
+          now={now}
+          onOpen={props.onOpen}
+        />
+      ))}
+      {plan.hidden > 0 ? <div className="rmore">{`+${plan.hidden} more running`}</div> : null}
+    </div>
+  );
   return (
     <div className="band">
       <div className="section-label">IN PROGRESS · {entries.length}</div>
-      <div className="split" style={{ height: plan.height }}>
-        <div className="rlist">
-          {entries.map((e) => (
-            <RunRow
-              key={e.key}
-              e={e}
-              selected={e.key === selected.key}
-              height={plan.rowHeight}
+      {plan.mode === "list" ? (
+        <div style={{ height: plan.height }}>{list}</div>
+      ) : (
+        <div
+          className="split"
+          style={{ height: plan.height, gridTemplateColumns: `${plan.listWidth}px 1fr` }}
+        >
+          {list}
+          <div className="detail">
+            <RunCard
+              e={selected}
+              height={plan.height}
+              columns={plan.graphColumns}
               now={now}
               onOpen={props.onOpen}
+              layoutId="detail-panel"
             />
-          ))}
+            {props.pinnedKey ? null : (
+              <div className="dwell">
+                <i
+                  key={`${selected.key}:${sel.selectedAt}`}
+                  style={{ animationDuration: `${dwell}s` }}
+                />
+              </div>
+            )}
+          </div>
         </div>
-        <div className="detail">
-          <RunCard
-            e={selected}
-            height={plan.height}
-            columns={plan.graphColumns}
-            now={now}
-            onOpen={props.onOpen}
-            layoutId="detail-panel"
-          />
-          {props.pinnedKey ? null : (
-            <div className="dwell">
-              <i
-                key={`${selected.key}:${sel.selectedAt}`}
-                style={{ animationDuration: `${dwell}s` }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

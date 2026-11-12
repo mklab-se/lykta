@@ -58,12 +58,16 @@ function running(i: number, elapsedMin: number, expectedMin = 60): EntryView {
   };
 }
 
-const plan = (mode: "single" | "split") => ({
+const plan = (mode: "single" | "split" | "list", over: Record<string, number> = {}) => ({
   height: 600,
   mode,
-  listWidth: 600 as const,
+  listWidth: 600,
+  listColumns: 1,
   rowHeight: 100,
+  rowGap: 10,
+  hidden: 0,
   graphColumns: 4,
+  ...over,
 });
 
 describe("RunningArea", () => {
@@ -109,5 +113,27 @@ describe("RunningArea", () => {
       />,
     );
     expect(ok).not.toContain("SLOWER THAN USUAL");
+  });
+
+  test("dense list: compact rows in columns, overflow summarised", () => {
+    const entries = Array.from({ length: 20 }, (_, i) => running(i, 10));
+    const html = renderToString(
+      <RunningArea
+        entries={entries}
+        plan={plan("list", {
+          listColumns: 3,
+          rowHeight: 30,
+          rowGap: 4,
+          hidden: 5,
+          listWidth: 1840,
+        })}
+        now={NOW}
+        onOpen={() => {}}
+      />,
+    );
+    expect(html.match(/class="rrow/g)).toHaveLength(15);
+    expect(html).toContain("compact");
+    expect(html).toContain("+5 more running");
+    expect(html).not.toContain('class="detail"');
   });
 });

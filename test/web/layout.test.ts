@@ -59,7 +59,7 @@ describe("computeLayout", () => {
   test("failures never dropped", () => {
     const p = computeLayout(state({ failed: 30, running: 6, passed: 10 }), screen, 6);
     expect((p.failures?.rows ?? 0) * (p.failures?.columns ?? 0)).toBeGreaterThanOrEqual(30);
-    expect(p.failures?.height).toBeLessThanOrEqual(300);
+    expect(p.failures?.height).toBeLessThanOrEqual(Math.round(0.45 * (1080 - 80 - 30)));
   });
 
   test("paging", () => {
@@ -68,13 +68,47 @@ describe("computeLayout", () => {
     expect(p.monitored.pages).toBeGreaterThan(1);
   });
 
-  test("bands fit the screen", () => {
-    const p = computeLayout(state({ failed: 3, running: 5, passed: 30 }), screen, 5);
-    const used =
-      (p.failures ? p.failures.height + 28 + 18 : 0) +
-      (p.running ? p.running.height + 28 + 18 : 0) +
-      p.monitored.height;
-    expect(used).toBeLessThanOrEqual(1080 - 80 - 30);
+  test("running and failures always fit, across screens and loads", () => {
+    const sizes = [
+      { width: 1920, height: 1080 },
+      { width: 1920, height: 810 },
+      { width: 1920, height: 1200 },
+      { width: 1920, height: 540 },
+    ];
+    for (const size of sizes) {
+      for (const f of [0, 1, 3, 7, 30]) {
+        for (const r of [0, 1, 2, 5, 12, 20, 50]) {
+          const p = computeLayout(state({ failed: f, running: r, passed: 20 }), size, r);
+          const H = size.height - 80 - 30;
+          const heights = [p.failures?.height ?? 0, p.running?.height ?? 0, p.monitored.height];
+          for (const h of heights) expect(h).toBeGreaterThanOrEqual(0);
+          const used =
+            (p.failures ? p.failures.height + 28 + 18 : 0) +
+            (p.running ? p.running.height + 28 + 18 : 0) +
+            p.monitored.height;
+          expect(used).toBeLessThanOrEqual(H);
+          if (p.failures) expect(p.failures.rows * p.failures.columns).toBeGreaterThanOrEqual(f);
+          if (r > 0 && p.running) {
+            const rr = p.running;
+            if (rr.mode !== "single") {
+              const perCol = Math.ceil((r - rr.hidden) / rr.listColumns);
+              expect(perCol * rr.rowHeight + (perCol - 1) * rr.rowGap).toBeLessThanOrEqual(
+                rr.height,
+              );
+            } else {
+              expect(rr.height).toBeGreaterThanOrEqual(260);
+            }
+            // on ordinary screens nothing that runs is ever hidden
+            if (size.height >= 810 && f <= 7 && r <= 20) expect(rr.hidden).toBe(0);
+          }
+        }
+      }
+    }
+  });
+
+  test("many failures stay readable (at most 4 columns on 1080p)", () => {
+    const p = computeLayout(state({ failed: 30, passed: 5 }), screen, 0);
+    expect(p.failures?.columns).toBeLessThanOrEqual(4);
   });
 
   test("empty state layout", () => {
