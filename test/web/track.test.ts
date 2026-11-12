@@ -60,4 +60,10 @@ describe("track geometry", () => {
     expect(Math.abs(box.left - (layout.gridWidth - box.width) / 2)).toBeLessThanOrEqual(1);
     expect(Math.abs(box.top - (layout.height - box.height) / 2)).toBeLessThanOrEqual(1);
   });
+
+  test("the grid has its own label row, like the pit", () => {
+    const l = trackLayout(9, 0, { width: 1920, height: 1080 });
+    expect(l.gridTop).toBe(40);
+    expect(l.rows * l.tileHeight + (l.rows - 1) * 14).toBeLessThanOrEqual(l.height - l.gridTop);
+  });
 });

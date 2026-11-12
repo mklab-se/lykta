@@ -1897,3 +1897,15 @@ body {
 .tile[style*="border-color"] {
   border-width: 2px;
 }
+
+/* the grid's own label, matching the pit's */
+.grid-label {
+  height: 40px;
+  color: var(--dim);
+  transition:
+    filter 0.6s ease,
+    opacity 0.6s ease;
+}
+.grid-label.dimmed {
+  filter: blur(7px) brightness(0.45);
+}

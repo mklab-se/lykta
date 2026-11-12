@@ -72,12 +72,14 @@ export function trackLayout(
 ) {
   const width = canvas.width - 2 * SIDE;
   const height = Math.max(0, canvas.height - HEADER - BOTTOM);
-  const { columns, rows } = gridShape(workflows, width, height);
+  // the grid has its own label row ("THE GRID"), like the pit
+  const gridTop = PIT_LABEL;
+  const { columns, rows } = gridShape(workflows, width, height - gridTop);
   // the pit's own label takes a line above its cars
   const pit = { width: pitWidth(failures, width), ...pitMode(failures, height - PIT_LABEL) };
   const gridWidth = width - (pit.width ? pit.width + GAP : 0);
   const tileWidth = Math.floor((gridWidth - (columns - 1) * GAP) / columns);
-  const tileHeight = Math.floor((height - (rows - 1) * GAP) / rows);
+  const tileHeight = Math.floor((height - gridTop - (rows - 1) * GAP) / rows);
   return {
     columns,
     rows,
@@ -85,6 +87,7 @@ export function trackLayout(
     tileHeight,
     unit: unitFor(tileWidth, tileHeight),
     gridWidth,
+    gridTop,
     height,
     pit,
   };

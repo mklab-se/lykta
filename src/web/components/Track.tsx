@@ -130,24 +130,29 @@ export function Track(props: {
     );
   }
   return (
-    <div
-      className={`track${props.dimmed ? " dimmed" : ""}`}
-      style={{
-        width: layout.gridWidth,
-        height: layout.height,
-        gridTemplateColumns: `repeat(${layout.columns}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${layout.rows}, ${layout.tileHeight}px)`,
-      }}
-    >
-      {entries.map((e) =>
-        props.pit.has(e.key) ? (
-          <div key={e.key} className="slot gap" />
-        ) : (
-          <div key={e.key} className="slot">
-            <Tile e={e} unit={layout.unit} now={props.now} onOpen={props.onOpen} />
-          </div>
-        ),
-      )}
-    </div>
+    <>
+      <div className={`section-label grid-label${props.dimmed ? " dimmed" : ""}`}>
+        {`THE GRID · ${entries.length - props.pit.size}`}
+      </div>
+      <div
+        className={`track${props.dimmed ? " dimmed" : ""}`}
+        style={{
+          width: layout.gridWidth,
+          height: layout.height - layout.gridTop,
+          gridTemplateColumns: `repeat(${layout.columns}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${layout.rows}, ${layout.tileHeight}px)`,
+        }}
+      >
+        {entries.map((e) =>
+          props.pit.has(e.key) ? (
+            <div key={e.key} className="slot gap" />
+          ) : (
+            <div key={e.key} className="slot">
+              <Tile e={e} unit={layout.unit} now={props.now} onOpen={props.onOpen} />
+            </div>
+          ),
+        )}
+      </div>
+    </>
   );
 }

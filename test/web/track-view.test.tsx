@@ -98,6 +98,7 @@ describe("track", () => {
     expect(slots[2]).toContain("gap");
     expect(html).not.toContain("Workflow c");
     expect(html).toContain("Workflow f");
+    expect(html).toContain("THE GRID · 5");
   });
 
   test("a running tile glows with its progress; re-running after a failure keeps a red mark", () => {
