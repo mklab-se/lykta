@@ -9,6 +9,7 @@ import { GitHubClient } from "../server/github/client.ts";
 import { GitHubSource } from "../server/github/source.ts";
 import { startServer } from "../server/http.ts";
 import { Hub } from "../server/hub.ts";
+import { mcpRoutes } from "../server/mcp.ts";
 import { buildVersion } from "./demo.ts";
 
 export interface ServeOptions {
@@ -68,7 +69,14 @@ export async function runServe(opts: ServeOptions): Promise<void> {
   });
   const port = opts.port ?? config.server.port;
   const host = opts.host ?? config.server.host;
-  const server = startServer({ port, hostname: host, hub, source });
+  const server = startServer({
+    port,
+    hostname: host,
+    hub,
+    source,
+    routes: config.mcp.enabled ? mcpRoutes(hub, VERSION) : undefined,
+  });
+  if (config.mcp.enabled) console.log("MCP (read-only) at /mcp");
   console.log(`Lykta serving http://${host === "0.0.0.0" ? "localhost" : host}:${server.port}`);
   await new Promise(() => {});
 }

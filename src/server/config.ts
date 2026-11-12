@@ -38,6 +38,8 @@ export interface LyktaConfig {
     spotlightSeconds: number;
     spotlightEverySeconds: number;
   };
+  /** The MCP endpoint at /mcp: read-only, off unless enabled (the wall has no sign-in). */
+  mcp: { enabled: boolean };
   /** budget: the share of each org's hourly rate limit Lykta may use (others share it). */
   polling: { activeSeconds: number; idleSeconds: number; budget: number };
 }
@@ -189,6 +191,11 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
   if (!["auto", "on", "off"].includes(lowPower as string))
     problems.push(`display.lowPower must be auto, on or off`);
 
+  const mcpRaw = isObj(raw.mcp) ? raw.mcp : {};
+  const mcpEnv = env.LYKTA_MCP?.toLowerCase();
+  const mcpEnabled =
+    mcpEnv !== undefined ? ["on", "true", "1", "yes"].includes(mcpEnv) : mcpRaw.enabled === true;
+
   if (problems.length) throw new ConfigError(problems);
   return {
     title: env.LYKTA_TITLE ?? str(raw.title),
@@ -201,6 +208,7 @@ export function parseConfig(yamlText: string, env: Env = process.env): LyktaConf
       spotlightSeconds: num(display.spotlightSeconds, 8),
       spotlightEverySeconds: num(display.spotlightEverySeconds, 20),
     },
+    mcp: { enabled: mcpEnabled },
     polling: {
       activeSeconds: num(polling.activeSeconds, 15),
       idleSeconds: num(polling.idleSeconds, 60),

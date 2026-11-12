@@ -5,6 +5,7 @@ import { VERSION } from "../meta.ts";
 import { DemoSource } from "../server/demo-source.ts";
 import { demoRoutes, startServer } from "../server/http.ts";
 import { Hub } from "../server/hub.ts";
+import { mcpRoutes } from "../server/mcp.ts";
 
 export interface DemoCommandOptions {
   port: number;
@@ -29,7 +30,8 @@ export async function runDemo(opts: DemoCommandOptions): Promise<void> {
     hostname: opts.host,
     hub,
     source,
-    routes: demoRoutes(source),
+    // the demo always offers MCP, so it can be tried against simulated workflows
+    routes: { ...demoRoutes(source), ...mcpRoutes(hub, VERSION) },
   });
   const shown = opts.host === "0.0.0.0" ? "localhost" : opts.host;
   console.log(`Lykta demo running at http://${shown}:${server.port}  (Ctrl+C to stop)`);
