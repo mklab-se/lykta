@@ -23,11 +23,18 @@ const isStepStart = (l: string) => l.startsWith("##[group]Run ");
 /** GitHub's closing line for every failed run step; it says nothing about what failed. */
 const EXIT_LINE = /^(##\[error\]|Error: )?Process completed with exit code \d+\.?$/;
 
-/** Display lines: group markers and the exit-code line dropped, "##[error]" prefixes removed. */
+/** Output lines: no echoed scripts, blank lines or exit-code line; "##[error]" prefixes removed. */
 function present(lines: string[]): { text: string; error: boolean }[] {
+  // inside a group GitHub echoes the step's script and settings: that is not output
+  let inGroup = false;
   return lines
-    .filter((l) => !l.startsWith("##[group]") && !l.startsWith("##[endgroup]"))
-    .filter((l) => !EXIT_LINE.test(l))
+    .filter((l) => {
+      if (l.startsWith("##[group]")) inGroup = true;
+      else if (l.startsWith("##[endgroup]")) inGroup = false;
+      else return !inGroup;
+      return false;
+    })
+    .filter((l) => l.trim() !== "" && !EXIT_LINE.test(l))
     .map((l) => {
       const m = l.match(MARKER);
       return { text: m ? l.slice(m[0].length) : l, error: m?.[1] === "error" };

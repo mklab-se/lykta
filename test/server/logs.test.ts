@@ -29,11 +29,8 @@ describe("logs", () => {
       "##[group]Run next",
       "x",
     ];
-    expect(failureExcerpt(lines, "Run make")).toEqual([
-      "make all",
-      "step output 1",
-      "step output 2",
-    ]);
+    // the echoed command ("make all") is not output
+    expect(failureExcerpt(lines, "Run make")).toEqual(["step output 1", "step output 2"]);
   });
 
   test("unknown step falls back to the last error in the log", () => {
@@ -101,5 +98,19 @@ describe("logs", () => {
     expect(
       failureErrors(["boom: error here", "Error: Process completed with exit code 1."], "x"),
     ).toEqual(["boom: error here"]);
+  });
+
+  test("the excerpt is the step's output: not the script GitHub echoes, not blank lines", () => {
+    const lines = [
+      "##[group]Run make",
+      "make -j8",
+      'if [ "$X" = 1 ]; then',
+      "##[endgroup]",
+      "",
+      "compiling a.c",
+      "a.c:1: error: boom",
+      "##[error]Process completed with exit code 2.",
+    ];
+    expect(failureExcerpt(lines, "make")).toEqual(["compiling a.c", "a.c:1: error: boom"]);
   });
 });
