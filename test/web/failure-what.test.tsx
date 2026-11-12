@@ -34,6 +34,23 @@ describe("error lines", () => {
   });
 });
 
+describe("no error lines", () => {
+  test("the fallback log line is never the generic exit-code line", () => {
+    const e = {
+      key: "k",
+      failure: {
+        job: "Build",
+        step: "",
+        logExcerpt: ["BUILD FAILED in 4m 12s", "Error: Process completed with exit code 1."],
+        errors: [],
+      },
+    } as unknown as EntryView;
+    const html = renderToString(<FailureWhat e={e} />);
+    expect(html).toContain("BUILD FAILED in 4m 12s");
+    expect(html).not.toContain("Process completed");
+  });
+});
+
 describe("strip", () => {
   const job = (id: string, status: JobRecord["status"], needs: string[] = []): JobRecord => ({
     id,

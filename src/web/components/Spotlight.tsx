@@ -33,7 +33,7 @@ export function Spotlight(props: {
       {running ? (
         <RunningCard e={e} width={props.width} height={props.height} now={props.now} />
       ) : (
-        <FinishedCard e={e} width={props.width} />
+        <FinishedCard e={e} width={props.width} height={props.height} />
       )}
     </motion.div>
   );

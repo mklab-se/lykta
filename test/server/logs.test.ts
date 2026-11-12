@@ -90,6 +90,13 @@ describe("logs", () => {
       "FATAL: three",
     ]);
     expect(failureErrors(["all good", "done"], "x")).toEqual([]);
+    // Kotlin's compiler marks errors with "e: "
+    expect(
+      failureErrors(
+        ["> Task :app:compileReleaseKotlin", "e: src/Sync.kt:88:17 Unresolved reference: x"],
+        "x",
+      ),
+    ).toEqual(["e: src/Sync.kt:88:17 Unresolved reference: x"]);
     // the same generic line without GitHub's marker (as some tools print it)
     expect(
       failureErrors(["boom: error here", "Error: Process completed with exit code 1."], "x"),

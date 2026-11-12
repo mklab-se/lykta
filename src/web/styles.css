@@ -1413,7 +1413,6 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
-  transition: left 0.8s cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 .trackwrap > .empty {
   position: absolute;
@@ -1719,4 +1718,13 @@ body {
 }
 .run.spot .name {
   font-size: 40px;
+}
+
+.zoom {
+  flex: none;
+  min-width: 0;
+  overflow: hidden;
+}
+.zoom .graph {
+  height: 100%;
 }

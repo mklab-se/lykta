@@ -64,7 +64,8 @@ export function failureExcerpt(lines: string[], failedStep: string, max = 12): s
   return around(present(section(lines, failedStep)), max);
 }
 
-const ERROR_WORD = /\b(error|fatal)\b/i;
+/** "error" or "fatal" as a word, or Kotlin's "e: " prefix. */
+const ERROR_WORD = /\b(error|fatal)\b|^e: /i;
 
 /**
  * The error message itself, for the biggest text on a failure card: lines GitHub flags as

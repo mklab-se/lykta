@@ -10,6 +10,9 @@ export function shortenPaths(line: string): string {
   );
 }
 
+/** GitHub's closing line for a failed step: says nothing, never shown as the error. */
+const GENERIC = /^(##\[error\]|Error: )?Process completed with exit code \d+\.?$/;
+
 /** Where it broke and the error message itself: the biggest text on a failure. */
 export function FailureWhat(props: {
   e: EntryView;
@@ -19,7 +22,8 @@ export function FailureWhat(props: {
 }) {
   const f = props.e.failure;
   if (!f) return null;
-  const all = f.errors?.length ? f.errors : f.reason ? [f.reason] : f.logExcerpt.slice(-1);
+  const fallback = f.logExcerpt.filter((l) => !GENERIC.test(l)).slice(-1);
+  const all = f.errors?.length ? f.errors : f.reason ? [f.reason] : fallback;
   const lines = all.slice(0, props.max ?? all.length);
   return (
     <div className={`what${props.big ? " big" : ""}`}>
